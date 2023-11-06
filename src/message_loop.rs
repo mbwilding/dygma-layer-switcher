@@ -26,6 +26,8 @@ pub unsafe extern "system" fn get_focused_window_details(
 ) {
     debug!("Window handle: {:?}", window_handle.0);
 
+    let window_title = get_window_title(window_handle);
+
     let exe_name = match get_exe_name(window_handle) {
         Ok(s) => s,
         Err(e) => {
@@ -33,8 +35,6 @@ pub unsafe extern "system" fn get_focused_window_details(
             String::new()
         }
     };
-
-    let window_title = get_window_title(window_handle);
 
     let window_details = Window {
         window_title,
