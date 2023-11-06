@@ -24,6 +24,10 @@ pub unsafe extern "system" fn get_focused_window_details(
     _id_event_thread: u32,
     _dwms_event_time: u32,
 ) {
+    if window_handle.0 == 0 {
+        return;
+    }
+
     debug!("Window handle: {:?}", window_handle.0);
 
     let window_title = get_window_title(window_handle);
