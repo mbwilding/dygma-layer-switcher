@@ -10,8 +10,8 @@ impl Drop for EventHook {
     fn drop(&mut self) {
         unsafe {
             UnhookWinEvent(self.0);
-            debug!("Unhooked");
         }
+        debug!("Unhooked");
     }
 }
 
