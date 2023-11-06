@@ -14,7 +14,7 @@ pub unsafe fn get_exe_name(window_handle: HWND) -> Result<String> {
     let thread_id = GetWindowThreadProcessId(window_handle, Some(&mut process_id as *mut u32));
     if thread_id == 0 {
         error!("Failed to retrieve process ID");
-        return Ok("".to_string());
+        return Ok(String::new());
     }
     debug!("Process ID: {:?}", process_id);
 
@@ -27,24 +27,21 @@ pub unsafe fn get_exe_name(window_handle: HWND) -> Result<String> {
 
     let mut exe_path: Vec<u16> = vec![0; 260];
     let exe_path_length = K32GetModuleFileNameExW(process_handle, None, exe_path.as_mut_slice());
-
     let exe_path = String::from_utf16_lossy(&exe_path[..exe_path_length as usize]);
     debug!("Executable path: {:?}", exe_path);
 
-    let exe_path_raw = Path::new(&exe_path);
-
-    let mut exe_name = String::new();
-
-    if let Some(file_name) = exe_path_raw.file_name() {
+    let exe_name = if let Some(file_name) = Path::new(&exe_path).file_name() {
         if let Some(file_name_str) = file_name.to_str() {
-            exe_name = file_name_str.to_owned();
-            debug!("Executable name: {:?}", exe_name);
+            file_name_str.to_owned()
         } else {
             error!("Failed to convert the executable name to string");
+            String::new()
         }
     } else {
         error!("Failed to extract the executable name from the path");
-    }
+        String::new()
+    };
+    debug!("Executable name: {:?}", exe_name);
 
     Ok(exe_name)
 }

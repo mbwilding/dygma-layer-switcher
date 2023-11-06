@@ -30,7 +30,7 @@ pub unsafe extern "system" fn get_focused_window_details(
         Ok(s) => s,
         Err(e) => {
             error!("Failed to get the executable name: {:?}", e);
-            "".to_string()
+            String::new()
         }
     };
 

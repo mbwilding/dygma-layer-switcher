@@ -1,6 +1,5 @@
-//// hide console window on Windows in release, will use when egui is added for configuring this.
+/// hide console window on Windows in release, will use when egui is added for configuring this.
 // #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
 mod helpers;
 mod message_loop;
 mod window;
