@@ -16,6 +16,7 @@ pub unsafe fn get_exe_name(window_handle: HWND) -> Result<String> {
         error!("Failed to retrieve process ID");
         return Ok(String::new());
     }
+    debug!("Thread ID: {:?}", thread_id);
     debug!("Process ID: {:?}", process_id);
 
     let process_handle = OpenProcess(
@@ -52,5 +53,6 @@ pub unsafe fn get_window_title(h_wnd: HWND) -> String {
     let _ = GetWindowTextW(h_wnd, window_title.as_mut_slice());
     let window_title = String::from_utf16_lossy(&window_title[..title_length as usize - 1]);
     debug!("Window title: {:?}", window_title);
+
     window_title
 }
