@@ -25,17 +25,18 @@ Then check the target folder
 Use the `dygma-layer-switcher-ui` to generate or edit a config file.
 
 ```yaml
-# Layers are as presented in bazecor (the layer number) minus 1.
 # Port of the keyboard for RF and USB, can be seen when selecting the keyboard in bazecor.
 comm_port: "COM5"
 
 # Layer to return to when no matching window is found.
-base_layer: 0
+base_layer: 1
 
 # The mappings, each mapping has a layer and an option `exe_name` and/or `window_title`.
 mappings:
-  - layer: 4
+  - layer: 5
     window_title: "Blender"
-  - layer: 1
-    exe_name: "firefox.exe"
+  - layer: 5
+    window_title: "Maya"
+  - layer: 2
+    exe_name: "game.exe"
 ```

@@ -11,7 +11,3 @@ mappings:
   - layer: 5
     exe_name: "blender.exe"
     # window_title: "Blender"
-
-  # Redundant, but for clarity as any app that isn't listed will fall back to the base layer
-  - layer: 1
-    exe_name: "firefox.exe"
