@@ -1,7 +1,7 @@
+use crate::collection;
 use std::thread;
 use windows::Win32::Foundation::HWND;
 use windows::Win32::UI::Accessibility::HWINEVENTHOOK;
-use crate::window_data;
 
 pub unsafe extern "system" fn get_focused_window_details(
     _h_win_event_hook: HWINEVENTHOOK,
@@ -17,7 +17,7 @@ pub unsafe extern "system" fn get_focused_window_details(
     }
 
     thread::spawn(move || {
-        let app = window_data::hydrate(window_handle);
+        let app = collection::hydrate(window_handle);
         common::serial::process(&app);
     });
 }
