@@ -96,30 +96,28 @@ impl Config {
     }
 
     pub fn check_exe_name(&self, app: &App) -> Option<u8> {
-        self.mappings.iter().find_map(|mapping| {
-            match (&app.exe_name, &mapping.exe_name) {
-                // If both executable names are present and they match, return the layer number.
-                (Some(app_exe_name), Some(mapping_exe_name))
-                    if app_exe_name == mapping_exe_name =>
-                {
-                    Some(mapping.layer)
-                }
-                // If there is no match, continue to the next mapping.
-                _ => None,
-            }
-        })
+        app.exe_name
+            .as_ref()
+            .and_then(|app_exe_name| self.match_property(app_exe_name, |mapping| &mapping.exe_name))
     }
 
     pub fn check_window_title(&self, app: &App) -> Option<u8> {
+        app.window_title.as_ref().and_then(|app_window_title| {
+            self.match_property(app_window_title, |mapping| &mapping.window_title)
+        })
+    }
+
+    fn match_property<T, F>(&self, app_property: T, mapping_property: F) -> Option<u8>
+    where
+        T: AsRef<str>,
+        F: Fn(&Application) -> &Option<String>,
+    {
         self.mappings.iter().find_map(|mapping| {
-            match (&app.window_title, &mapping.window_title) {
-                // If both window titles are present and they match, return the layer number.
-                (Some(app_window_title), Some(mapping_window_title))
-                    if app_window_title == mapping_window_title =>
-                {
+            let mapping_property_value = mapping_property(mapping);
+            match (app_property.as_ref(), mapping_property_value) {
+                (app_prop, Some(map_prop)) if app_prop.eq_ignore_ascii_case(map_prop) => {
                     Some(mapping.layer)
                 }
-                // If there is no match, continue to the next mapping.
                 _ => None,
             }
         })
