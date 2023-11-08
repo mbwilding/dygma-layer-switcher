@@ -45,7 +45,7 @@ impl eframe::App for App {
                 }
                 ui.separator();
                 ui.label("Base Layer:");
-                ui.add(egui::DragValue::new(&mut config.base_layer).clamp_range(0..=self.layers));
+                ui.add(egui::DragValue::new(&mut config.base_layer).clamp_range(1..=self.layers));
                 ui.label("COM Port:");
                 ui.text_edit_singleline(&mut config.comm_port);
             });
@@ -82,7 +82,7 @@ impl eframe::App for App {
                     });
                     ui.horizontal(|ui| {
                         ui.label("Layer:");
-                        ui.add(egui::DragValue::new(&mut app.layer).clamp_range(0..=self.layers));
+                        ui.add(egui::DragValue::new(&mut app.layer).clamp_range(1..=self.layers));
                     });
                     if ui.button("✖").clicked() {
                         config.remove(index);

@@ -29,6 +29,7 @@ pub unsafe extern "system" fn get_focused_window_details(
     }
 
     thread::spawn(move || {
-        layer::process(window_handle);
+        let app = layer::collect_info(window_handle);
+        common::serial::process(&app);
     });
 }

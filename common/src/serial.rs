@@ -64,7 +64,7 @@ pub fn process(app: &App) {
         }
     };
 
-    let command = format!("layer.moveTo {:?}\n", &layer_resolved);
+    let command = format!("layer.moveTo {:?}\n", &layer_resolved - 1);
     if port.write_all(command.as_bytes()).is_ok() {
         debug!("Changed layer to {}", layer_resolved);
     } else {

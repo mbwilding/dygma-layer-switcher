@@ -4,14 +4,14 @@
 comm_port: "COM5"
 
 # Layer to return to when no matching window is found.
-base_layer: 0
+base_layer: 1
 
 # The mappings, each mapping has a layer and an option `exe_name` and/or `window_title`.
 mappings:
-  - layer: 4
+  - layer: 5
     exe_name: "blender.exe"
     # window_title: "Blender"
 
   # Redundant, but for clarity as any app that isn't listed will fall back to the base layer
-  - layer: 0
+  - layer: 1
     exe_name: "firefox.exe"
