@@ -1,14 +1,11 @@
 [package]
-name = "dygma-layer-switcher"
+name = "Dygma-Layer-Switcher-Rust"
 version = "0.1.0"
 edition = "2021"
-authors = ["Matthew Wilding <matt@wildingstudios.com>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0"
-signal-hook = "0.3"
-tracing = "0.1"
-tracing-subscriber = "0.3"
 windows = { version = "0.51", features = [
     "Win32_Foundation",
     "Win32_UI_Accessibility",
@@ -17,18 +14,11 @@ windows = { version = "0.51", features = [
     "Win32_System_Threading",
     "Win32_System_ProcessStatus"
 ] }
-
-[profile.dev]
-opt-level = 0
-debug = 2
-overflow-checks = true
-incremental = true
-panic = 'unwind'
-
-[profile.release]
-opt-level = 3
-debug = 0
-overflow-checks = false
-lto = true
-codegen-units = 1
-panic = 'abort'
+anyhow = "1.0.75"
+tracing = "0.1.40"
+tracing-subscriber = "0.3.17"
+signal-hook = "0.3.17"
+log = "0.4.20"
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.8"
+serialport = { version = "3.2"}
