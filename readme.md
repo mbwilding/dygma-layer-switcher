@@ -18,7 +18,7 @@ cargo run --bin dygma-layer-switcher-ui
 cargo build --release
 ```
 
-Then check the target folder
+Then check the `target/release` directory
 
 ## Config
 
