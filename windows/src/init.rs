@@ -1,11 +1,3 @@
-// #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
-mod app;
-mod config;
-mod layer;
-mod message_loop;
-mod window_data;
-
 use crate::message_loop::{get_focused_window_details, EventHook};
 use anyhow::Result;
 use signal_hook::consts::TERM_SIGNALS;
@@ -28,16 +20,7 @@ use windows::{
     },
 };
 
-fn main() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(if cfg!(debug_assertions) {
-            tracing::Level::DEBUG
-        } else {
-            tracing::Level::INFO
-        })
-        .with_ansi(true)
-        .init();
-
+pub fn start() -> Result<()> {
     let is_terminating = Arc::new(AtomicBool::new(false));
 
     for &signal in TERM_SIGNALS {

@@ -1,0 +1,12 @@
+[package]
+name = "common"
+version = "0.1.0"
+edition = "2021"
+authors = ["Matthew Wilding <matt@wildingstudios.com>"]
+
+[dependencies]
+lazy_static = "1.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+serialport = "4.2"
+tracing = "0.1"

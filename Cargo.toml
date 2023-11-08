@@ -1,24 +1,7 @@
-[package]
-name = "dygma-layer-switcher"
-version = "0.1.0"
-edition = "2021"
-authors = ["Matthew Wilding <matt@wildingstudios.com>"]
-
-[dependencies]
-anyhow = "1.0"
-lazy_static = "1.4"
-serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.9"
-serialport = "4.2"
-signal-hook = "0.3"
-tracing = "0.1"
-tracing-subscriber = "0.3"
-windows = { version = "0.51", features = [
-    "Win32_Foundation",
-    "Win32_UI_Accessibility",
-    "Win32_UI_WindowsAndMessaging",
-    "Win32_System_LibraryLoader",
-    "Win32_System_Threading",
-    "Win32_System_ProcessStatus"
-] }
-
+[workspace]
+resolver = "2"
+members = [
+    "dygma-layer-switcher-service",
+    "common",
+    "windows"
+]

@@ -1,11 +1,9 @@
 use crate::app::App;
 use crate::config::Config;
-use crate::window_data::{get_exe_name, get_window_title};
 use lazy_static::lazy_static;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
 use tracing::{debug, error};
-use windows::Win32::Foundation::HWND;
 
 type SafeLayer = Arc<Mutex<u8>>;
 
@@ -13,13 +11,8 @@ lazy_static! {
     static ref LAYER_PREV: SafeLayer = Arc::new(Mutex::new(255));
 }
 
-pub unsafe fn process(window_handle: HWND) {
-    let config = Config::get_config(); // TODO
-
-    let app = App {
-        window_title: get_window_title(window_handle),
-        exe_name: get_exe_name(window_handle),
-    };
+pub fn process(app: &App) {
+    let config = Config::get_config(); // TODO Don't call this every time
 
     debug!("App details: {:#?}", app);
 
@@ -32,8 +25,8 @@ pub unsafe fn process(window_handle: HWND) {
     };
 
     let layer_resolved = config
-        .check_exe_name(&app)
-        .or_else(|| config.check_window_title(&app))
+        .check_exe_name(app)
+        .or_else(|| config.check_window_title(app))
         .unwrap_or(config.base_layer);
 
     if layer_resolved == *layer_previous_guard {
