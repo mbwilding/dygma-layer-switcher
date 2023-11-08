@@ -31,7 +31,7 @@ comm_port: "COM5"
 # Layer to return to when no matching window is found.
 base_layer: 1
 
-# The mappings, each mapping has a layer and an option `exe_name` and/or `window_title`.
+# The mappings, each mapping has a layer and a choice of `exe_name` and/or `window_title`.
 mappings:
   - layer: 5
     window_title: "Blender"
