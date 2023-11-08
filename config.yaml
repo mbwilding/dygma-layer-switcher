@@ -1,9 +1,0 @@
-# layers are as presented in bazecor (the layer number) minus 1
-# port of the keyboard for RF and USB, can be seen when selecting the keyboard in bazecor
-port: "COM5"
-# layers matched with their corresponding programs (or exe-files)
-mappings:
-  "firefox": 0
-  "blender": 4
-# layer to return to when no matching window is found
-baselayer: 0

@@ -1,16 +1,18 @@
-#![windows_subsystem = "windows"]
-mod window_data;
-mod message_loop;
-mod window;
+// #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use serde_yaml;
+mod app;
+mod config;
+mod layer;
+mod message_loop;
+mod window_data;
+
+use crate::message_loop::{get_focused_window_details, EventHook};
 use anyhow::Result;
-use std::sync::Arc;
 use signal_hook::consts::TERM_SIGNALS;
-use std::sync::atomic::{AtomicBool, Ordering};
 use signal_hook::flag;
-use tracing::{debug};
-use windows::Win32::UI::WindowsAndMessaging::{MESSAGE_RESOURCE_ENTRY, PM_REMOVE};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use tracing::debug;
 use windows::{
     core::PCWSTR,
     Win32::{
@@ -19,33 +21,30 @@ use windows::{
         UI::{
             Accessibility::SetWinEventHook,
             WindowsAndMessaging::{
-                DispatchMessageW, PeekMessageW, PostQuitMessage, TranslateMessage,
+                DispatchMessageW, GetMessageW, PostQuitMessage, TranslateMessage,
                 EVENT_OBJECT_FOCUS, MSG, WINEVENT_OUTOFCONTEXT,
             },
         },
     },
 };
 
-use crate::message_loop::{EventHook, get_focused_window_details};
-
 fn main() -> Result<()> {
-    tracing_subscriber::fmt().with_max_level(if cfg!(debug_assertions) {
-        tracing::Level::DEBUG
-    } else {
-        tracing::Level::INFO
-    })
-    .with_ansi(true)
-    .init();
-    // atomic bool can be safely shared between threads, same memory representation as bool
+    tracing_subscriber::fmt()
+        .with_max_level(if cfg!(debug_assertions) {
+            tracing::Level::DEBUG
+        } else {
+            tracing::Level::INFO
+        })
+        .with_ansi(true)
+        .init();
+
     let is_terminating = Arc::new(AtomicBool::new(false));
 
-    // & represents a reference without taking ownership of it, * would be the dereference operator
-    //
     for &signal in TERM_SIGNALS {
         flag::register_conditional_shutdown(signal, 0, Arc::clone(&is_terminating))?;
         flag::register(signal, Arc::clone(&is_terminating))?;
     }
-    // the question mark at the end of the line is error handling
+
     unsafe {
         let h_instance = GetModuleHandleW(PCWSTR::null())?;
 
@@ -65,8 +64,9 @@ fn main() -> Result<()> {
 
         let mut msg = MSG::default();
 
-        loop{
-            while PeekMessageW(&mut msg, HWND(0), 0, 0, PM_REMOVE).into() {
+        loop {
+            // Will wait here for a message, so no sleep is needed in the loop
+            while GetMessageW(&mut msg, HWND(0), 0, 0).as_bool() {
                 TranslateMessage(&msg);
                 DispatchMessageW(&msg);
             }
@@ -78,7 +78,6 @@ fn main() -> Result<()> {
             if msg.message == windows::Win32::UI::WindowsAndMessaging::WM_QUIT {
                 break;
             }
-            std::thread::sleep(std::time::Duration::from_millis(100));
         }
     }
 
