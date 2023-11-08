@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io;
 use std::io::{Read, Write};
-use tracing::{error, info, warn};
+use tracing::{debug, error, warn};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Config {
@@ -31,7 +31,7 @@ impl Config {
                 match f.read_to_string(&mut contents) {
                     Ok(_) => match serde_yaml::from_str(&contents) {
                         Ok(data) => {
-                            info!("Config loaded");
+                            debug!("Config loaded");
                             data
                         }
                         Err(e) => {
@@ -40,7 +40,7 @@ impl Config {
                         }
                     },
                     Err(e) => {
-                        info!("Error reading config file: {:?}", e);
+                        error!("Error reading config file: {:?}", e);
                         Config::default()
                     }
                 }

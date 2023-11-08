@@ -3,7 +3,7 @@ use crate::config::Config;
 use lazy_static::lazy_static;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
-use tracing::{debug, error};
+use tracing::{debug, error, info};
 
 type SafeLayer = Arc<Mutex<u8>>;
 
@@ -12,11 +12,11 @@ lazy_static! {
 }
 
 pub fn process(app: &App) {
-    let config = Config::load(); // TODO Don't call this every time, ideally we'd want to use the `notify' crate
+    let config = Config::load(); // TODO: Don't call this every time, ideally we'd want to use the `notify' crate
 
-    debug!("App details: {:#?}", app);
+    debug!("{:#?}", app);
 
-    let mut layer_previous_guard = match LAYER_PREV.lock() {
+    let mut layer_current = match LAYER_PREV.lock() {
         Ok(guard) => guard,
         Err(e) => {
             error!("Failed to acquire lock on LAYER_PREV: {:#?}", e);
@@ -24,22 +24,13 @@ pub fn process(app: &App) {
         }
     };
 
-    let layer_resolved = config
+    let layer_desired = config
         .check_exe_name(app)
         .or_else(|| config.check_window_title(app))
         .unwrap_or(config.base_layer);
 
-    if layer_resolved == *layer_previous_guard {
+    if layer_desired == *layer_current {
         return;
-    }
-
-    if *layer_previous_guard != 0 {
-        debug!(
-            "Attempting layer change from {} to {}",
-            *layer_previous_guard, &layer_resolved
-        );
-    } else {
-        debug!("Attempting layer change to {}", &layer_resolved);
     }
 
     let mut port = match serialport::new(config.comm_port.clone(), 9_600)
@@ -60,13 +51,13 @@ pub fn process(app: &App) {
         }
     };
 
-    let command = format!("layer.moveTo {:?}\n", &layer_resolved - 1);
+    let command = format!("layer.moveTo {:?}\n", &layer_desired - 1);
     if port.write_all(command.as_bytes()).is_ok() {
-        debug!("Changed layer to {}", layer_resolved);
+        info!("Layer: {}", layer_desired);
     } else {
         error!("Failed to write to serial port: {:?}", &config.comm_port);
         return;
     }
 
-    *layer_previous_guard = layer_resolved;
+    *layer_current = layer_desired;
 }

@@ -1,5 +1,5 @@
 use std::path::Path;
-use tracing::{debug, error};
+use tracing::{error, trace};
 use windows::Win32::System::Threading::{PROCESS_QUERY_INFORMATION, PROCESS_VM_READ};
 use windows::Win32::UI::WindowsAndMessaging::{GetWindowTextW, GetWindowThreadProcessId};
 use windows::Win32::{
@@ -30,13 +30,13 @@ pub unsafe fn get_exe_name(window_handle: HWND) -> Option<String> {
         }
     };
 
-    debug!("Process handle: {:?}", process_handle.0);
+    trace!("Process handle: {:?}", process_handle.0);
 
     let mut exe_path_bytes: Vec<u16> = vec![0; MAX_PATH as usize];
     let exe_path_length = K32GetModuleFileNameExW(process_handle, None, &mut exe_path_bytes);
     let exe_path = String::from_utf16_lossy(&exe_path_bytes[..exe_path_length as usize]);
 
-    debug!("Executable path: {:?}", exe_path);
+    trace!("Executable path: {:?}", exe_path);
 
     let exe_name = if let Some(file_name) = Path::new(&exe_path).file_name() {
         if let Some(file_name_str) = file_name.to_str() {
@@ -49,7 +49,7 @@ pub unsafe fn get_exe_name(window_handle: HWND) -> Option<String> {
         error!("Failed to extract the executable name from the path");
         return None;
     };
-    debug!("Executable name: {:?}", exe_name);
+    trace!("Executable name: {:?}", exe_name);
 
     if exe_name.is_empty() {
         return None;
@@ -63,7 +63,7 @@ pub unsafe fn get_window_title(h_wnd: HWND) -> Option<String> {
     let mut window_title: Vec<u16> = vec![0; title_length as usize];
     let _ = GetWindowTextW(h_wnd, window_title.as_mut_slice());
     let window_title = String::from_utf16_lossy(&window_title[..title_length as usize - 1]);
-    debug!("Window title: {:?}", window_title);
+    trace!("Window title: {:?}", window_title);
 
     if window_title.is_empty() {
         return None;
