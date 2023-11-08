@@ -15,7 +15,7 @@ use windows::{
 
 pub fn start() -> Result<()> {
     unsafe {
-        let event_hook = SetWinEventHook(
+        let _event_hook = SetWinEventHook(
             EVENT_OBJECT_FOCUS,
             EVENT_OBJECT_FOCUS,
             GetModuleHandleW(PCWSTR::null())?,
