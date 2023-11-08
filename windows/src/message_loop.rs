@@ -1,19 +1,7 @@
 use crate::layer;
 use std::thread;
-use tracing::debug;
 use windows::Win32::Foundation::HWND;
-use windows::Win32::UI::Accessibility::{UnhookWinEvent, HWINEVENTHOOK};
-
-pub struct EventHook(pub HWINEVENTHOOK);
-
-impl Drop for EventHook {
-    fn drop(&mut self) {
-        unsafe {
-            UnhookWinEvent(self.0);
-        }
-        debug!("Unhooked");
-    }
-}
+use windows::Win32::UI::Accessibility::HWINEVENTHOOK;
 
 pub unsafe extern "system" fn get_focused_window_details(
     _h_win_event_hook: HWINEVENTHOOK,

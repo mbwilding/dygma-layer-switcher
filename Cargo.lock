@@ -2655,8 +2655,6 @@ dependencies = [
  "anyhow",
  "common",
  "lazy_static",
- "serde",
- "signal-hook",
  "tracing",
  "windows 0.51.1",
 ]
