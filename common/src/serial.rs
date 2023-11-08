@@ -8,11 +8,11 @@ use tracing::{debug, error};
 type SafeLayer = Arc<Mutex<u8>>;
 
 lazy_static! {
-    static ref LAYER_PREV: SafeLayer = Arc::new(Mutex::new(255));
+    static ref LAYER_PREV: SafeLayer = Arc::new(Mutex::new(0));
 }
 
 pub fn process(app: &App) {
-    let config = Config::load(); // TODO Don't call this every time
+    let config = Config::load(); // TODO Don't call this every time, ideally we'd want to use the `notify' crate
 
     debug!("App details: {:#?}", app);
 
@@ -33,11 +33,7 @@ pub fn process(app: &App) {
         return;
     }
 
-    if layer_resolved == *layer_previous_guard {
-        return;
-    }
-
-    if *layer_previous_guard != 255 {
+    if *layer_previous_guard != 0 {
         debug!(
             "Attempting layer change from {} to {}",
             *layer_previous_guard, &layer_resolved
