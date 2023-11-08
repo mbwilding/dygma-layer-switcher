@@ -1,6 +1,7 @@
 use crate::app::App;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
+use std::io;
 use std::io::{Read, Write};
 use tracing::{error, info, warn};
 
@@ -11,7 +12,7 @@ pub struct Config {
     pub mappings: Vec<Application>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct Application {
     pub layer: u8,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -21,7 +22,7 @@ pub struct Application {
 }
 
 impl Config {
-    pub fn get_config() -> Config {
+    pub fn load() -> Config {
         let config_path = "config.yml";
         let file = File::open(config_path);
         let config = match file {
@@ -64,6 +65,34 @@ impl Config {
         };
 
         config
+    }
+
+    pub fn add(&mut self) {
+        self.mappings.push(Application::default());
+    }
+
+    pub fn remove(&mut self, index: usize) {
+        if index < self.mappings.len() {
+            self.mappings.remove(index);
+        }
+    }
+
+    pub fn save(&self) {
+        let config_path = "config.yml";
+        match File::create(config_path) {
+            Ok(file) => {
+                let mut writer = io::BufWriter::new(file);
+                if let Err(e) = serde_yaml::to_writer(&mut writer, &self) {
+                    error!("Failed to serialize config: {:?}", e);
+                }
+                if let Err(e) = writer.flush() {
+                    error!("Failed to write config to file: {:?}", e);
+                }
+            }
+            Err(e) => {
+                error!("Failed to create config file: {:?}", e);
+            }
+        }
     }
 
     pub fn check_exe_name(&self, app: &App) -> Option<u8> {

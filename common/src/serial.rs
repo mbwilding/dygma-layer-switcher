@@ -12,7 +12,7 @@ lazy_static! {
 }
 
 pub fn process(app: &App) {
-    let config = Config::get_config(); // TODO Don't call this every time
+    let config = Config::load(); // TODO Don't call this every time
 
     debug!("App details: {:#?}", app);
 

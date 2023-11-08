@@ -2,7 +2,7 @@
 name = "common"
 version = "0.1.0"
 edition = "2021"
-authors = ["Matthew Wilding <matt@wildingstudios.com>"]
+authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 
 [dependencies]
 lazy_static = "1.4"

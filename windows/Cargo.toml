@@ -2,7 +2,7 @@
 name = "windows"
 version = "0.1.0"
 edition = "2021"
-authors = ["Matthew Wilding <matt@wildingstudios.com>"]
+authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 
 [dependencies]
 common = { path = "../common" }
