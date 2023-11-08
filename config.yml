@@ -1,3 +1,4 @@
+---
 # Layers are as presented in bazecor (the layer number) minus 1.
 # Port of the keyboard for RF and USB, can be seen when selecting the keyboard in bazecor.
 comm_port: "COM5"
@@ -5,7 +6,12 @@ comm_port: "COM5"
 # Layer to return to when no matching window is found.
 base_layer: 0
 
-# Layers matched with their corresponding programs (or exe-files).
+# The mappings, each mapping has a layer and an option `exe_name` and/or `window_title`.
 mappings:
-  firefox.exe: 0
-  blender.exe: 4
+  - layer: 4
+    exe_name: "blender.exe"
+    # window_title: "Blender"
+
+  # Redundant, but for clarity as any app that isn't listed will fall back to the base layer
+  - layer: 0
+    exe_name: "firefox.exe"

@@ -1,7 +1,6 @@
-use crate::app::App;
 use crate::layer;
-use crate::window_data::{get_exe_name, get_window_title};
-use tracing::{debug, error, info};
+use std::thread;
+use tracing::debug;
 use windows::Win32::Foundation::HWND;
 use windows::Win32::UI::Accessibility::{UnhookWinEvent, HWINEVENTHOOK};
 
@@ -29,24 +28,7 @@ pub unsafe extern "system" fn get_focused_window_details(
         return;
     }
 
-    debug!("Window handle: {:?}", window_handle.0);
-
-    let window_title = get_window_title(window_handle);
-
-    let exe_name = match get_exe_name(window_handle) {
-        Ok(s) => s,
-        Err(e) => {
-            error!("Failed to get the executable name: {:?}", e);
-            String::new()
-        }
-    };
-
-    let window_details = App {
-        window_title,
-        exe_name,
-    };
-
-    info!("Window details: {:#?}", window_details);
-
-    layer::process(&window_details);
+    thread::spawn(move || {
+        layer::process(window_handle);
+    });
 }
