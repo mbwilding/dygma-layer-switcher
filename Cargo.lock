@@ -567,6 +567,7 @@ dependencies = [
 name = "common"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "lazy_static",
  "serde",
  "serde_yaml",

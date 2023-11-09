@@ -1,6 +1,7 @@
 use crate::app::AppDetails;
 use crate::config::Config;
 use crate::serial;
+use anyhow::Result;
 use lazy_static::lazy_static;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
@@ -10,7 +11,7 @@ lazy_static! {
     static ref LAYER_CACHE: Arc<Mutex<u8>> = Arc::new(Mutex::new(0));
 }
 
-pub fn process(app_details: &AppDetails) {
+pub fn process(app_details: &AppDetails) -> Result<()> {
     debug!("{:#?}", app_details);
 
     let config = Config::load(); // TODO: Don't call this every time, ideally we'd want to use the `notify' crate
@@ -19,7 +20,7 @@ pub fn process(app_details: &AppDetails) {
         Ok(guard) => guard,
         Err(e) => {
             error!("Failed to acquire lock on LAYER_CACHE: {:#?}", e);
-            return;
+            return Ok(());
         }
     };
 
@@ -33,29 +34,30 @@ pub fn process(app_details: &AppDetails) {
 
     // Layer hasn't changed, no need to do anything (Assumes user has set the layer manually)
     if layer_desired == *layer_current {
-        return;
+        return Ok(());
     }
 
-    if layer_change(&config, layer_desired) {
-        return;
+    if layer_change(&config, layer_desired)? {
+        // Set the cache to the desired layer
+        *layer_current = layer_desired;
     }
 
-    // Set the cache to the desired layer
-    *layer_current = layer_desired;
+    Ok(())
 }
 
-fn layer_change(config: &Config, layer: u8) -> bool {
+fn layer_change(config: &Config, layer: u8) -> Result<bool> {
     let mut port = match serial::configure(config) {
-        Ok(value) => value,
-        Err(value) => return value,
+        Ok(x) => x,
+        Err(_) => return Ok(false),
     };
 
     let command = format!("layer.moveTo {:?}\n", &layer - 1);
+
     if port.write_all(command.as_bytes()).is_ok() {
         info!("Layer: {}", layer);
+        Ok(true)
     } else {
         error!("Failed to write to serial port: {:?}", &config.comm_port);
-        return true;
+        Ok(false)
     }
-    false
 }
