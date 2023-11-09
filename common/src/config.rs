@@ -114,8 +114,8 @@ impl Config {
     {
         self.mappings.iter().find_map(|mapping| {
             let mapping_property_value = mapping_property(mapping);
-            match (app_property.as_ref(), mapping_property_value) {
-                (app_prop, Some(map_prop)) if app_prop.eq_ignore_ascii_case(map_prop) => {
+            match (app_property.as_ref().to_lowercase(), mapping_property_value) {
+                (app_prop, Some(map_prop)) if map_prop.to_lowercase().contains(&app_prop) => {
                     Some(mapping.layer)
                 }
                 _ => None,
@@ -128,7 +128,7 @@ impl Default for Config {
     fn default() -> Self {
         Config {
             comm_port: String::from("COM5"),
-            base_layer: 0,
+            base_layer: 1,
             mappings: vec![],
         }
     }

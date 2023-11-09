@@ -5,10 +5,8 @@ use std::io::Write;
 use std::sync::{Arc, Mutex};
 use tracing::{debug, error, info};
 
-type SafeLayer = Arc<Mutex<u8>>;
-
 lazy_static! {
-    static ref LAYER_PREV: SafeLayer = Arc::new(Mutex::new(0));
+    static ref LAYER_CACHE: Arc<Mutex<u8>> = Arc::new(Mutex::new(0));
 }
 
 pub fn process(app: &App) {
@@ -16,10 +14,10 @@ pub fn process(app: &App) {
 
     debug!("{:#?}", app);
 
-    let mut layer_current = match LAYER_PREV.lock() {
+    let mut layer_current = match LAYER_CACHE.lock() {
         Ok(guard) => guard,
         Err(e) => {
-            error!("Failed to acquire lock on LAYER_PREV: {:#?}", e);
+            error!("Failed to acquire lock on LAYER_CACHE: {:#?}", e);
             return;
         }
     };
