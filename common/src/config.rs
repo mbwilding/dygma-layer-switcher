@@ -5,7 +5,7 @@ use std::io;
 use std::io::{Read, Write};
 use tracing::{debug, error, warn};
 
-const CONFIG_PATH: &'static str = "config.yml";
+const CONFIG_PATH: &str = "config.yml";
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Config {

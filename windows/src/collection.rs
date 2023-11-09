@@ -10,6 +10,9 @@ use windows::Win32::{
     UI::WindowsAndMessaging::{GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId},
 };
 
+/// # Safety
+///
+/// WinAPI.
 pub unsafe fn hydrate(window_handle: HWND) -> AppDetails {
     AppDetails {
         window_title: get_window_title(window_handle),
@@ -17,6 +20,9 @@ pub unsafe fn hydrate(window_handle: HWND) -> AppDetails {
     }
 }
 
+/// # Safety
+///
+/// WinAPI.
 unsafe fn get_exe_name(window_handle: HWND) -> Option<String> {
     let mut process_id: u32 = 0;
 

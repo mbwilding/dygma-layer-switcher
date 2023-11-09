@@ -27,6 +27,7 @@ Use the `dygma-layer-switcher-ui` to generate or edit a config file.
 Alternatively, you can create and/or modify `config.yml` file in the working directory.
 
 ```yaml
+---
 # Port of the keyboard for RF and USB, can be seen when selecting the keyboard in bazecor.
 comm_port: "COM5"
 
@@ -41,4 +42,5 @@ mappings:
     window_title: "Maya"
   - layer: 2
     exe_name: "game.exe"
+
 ```

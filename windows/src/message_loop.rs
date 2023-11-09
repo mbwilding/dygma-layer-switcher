@@ -3,6 +3,9 @@ use std::thread;
 use windows::Win32::Foundation::HWND;
 use windows::Win32::UI::Accessibility::HWINEVENTHOOK;
 
+/// # Safety
+///
+/// WinAPI.
 pub unsafe extern "system" fn get_focused_window_details(
     _h_win_event_hook: HWINEVENTHOOK,
     _event: u32,
