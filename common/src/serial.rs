@@ -1,4 +1,4 @@
-use crate::app::App;
+use crate::app::AppDetails;
 use crate::config::Config;
 use lazy_static::lazy_static;
 use std::io::Write;
@@ -9,10 +9,10 @@ lazy_static! {
     static ref LAYER_CACHE: Arc<Mutex<u8>> = Arc::new(Mutex::new(0));
 }
 
-pub fn process(app: &App) {
-    let config = Config::load(); // TODO: Don't call this every time, ideally we'd want to use the `notify' crate
+pub fn process(app_details: &AppDetails) {
+    debug!("{:#?}", app_details);
 
-    debug!("{:#?}", app);
+    let config = Config::load(); // TODO: Don't call this every time, ideally we'd want to use the `notify' crate
 
     let mut layer_current = match LAYER_CACHE.lock() {
         Ok(guard) => guard,
@@ -23,10 +23,14 @@ pub fn process(app: &App) {
     };
 
     let layer_desired = config
-        .check_exe_name(app)
-        .or_else(|| config.check_window_title(app))
+        // Check exe name first
+        .check_exe_name(app_details)
+        // Check window title second
+        .or_else(|| config.check_window_title(app_details))
+        // Returns to base layer automatically if no matches
         .unwrap_or(config.base_layer);
 
+    // Layer hasn't changed, no need to do anything (Assumes user has set the layer manually)
     if layer_desired == *layer_current {
         return;
     }
@@ -57,5 +61,6 @@ pub fn process(app: &App) {
         return;
     }
 
+    // Set the cache to the desired layer
     *layer_current = layer_desired;
 }

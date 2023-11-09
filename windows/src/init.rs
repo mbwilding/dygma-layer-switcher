@@ -31,6 +31,7 @@ pub fn start() -> Result<()> {
 
         loop {
             // Will wait here for a message, so no sleep is needed in the loop
+            // This is a blocking call, but is required for the hook to work
             while GetMessageW(&mut msg, HWND(0), 0, 0).as_bool() {}
         }
     }

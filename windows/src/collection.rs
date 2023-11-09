@@ -1,4 +1,4 @@
-use common::app::App;
+use common::app::AppDetails;
 use std::path::Path;
 use tracing::{error, trace};
 use windows::Win32::{
@@ -10,8 +10,8 @@ use windows::Win32::{
     UI::WindowsAndMessaging::{GetWindowTextLengthW, GetWindowTextW, GetWindowThreadProcessId},
 };
 
-pub unsafe fn hydrate(window_handle: HWND) -> App {
-    App {
+pub unsafe fn hydrate(window_handle: HWND) -> AppDetails {
+    AppDetails {
         window_title: get_window_title(window_handle),
         exe_name: get_exe_name(window_handle),
     }
