@@ -14,7 +14,7 @@ enum Message {
 const TITLE: &str = "Dygma Layer Switcher";
 
 pub fn load() -> Result<()> {
-    let mut tray = TrayItem::new(TITLE, IconSource::Resource("orange"))?;
+    let mut tray = TrayItem::new(TITLE, IconSource::Resource("blue"))?;
 
     tray.add_label(TITLE)?;
 

@@ -29,7 +29,7 @@ jobs:
         run: cargo build --release --target x86_64-pc-windows-gnu
 
       - name: "Zip"
-        run: zip windows.zip readme.md LICENSE config.yml target/x86_64-pc-windows-gnu/release/*.exe
+        run: zip -j windows.zip readme.md LICENSE target/x86_64-pc-windows-gnu/release/*.exe
 
       - name: "Release"
         uses: softprops/action-gh-release@v1

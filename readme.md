@@ -24,7 +24,7 @@ Then check the `target/release` directory
 
 Use the `dygma-layer-switcher-ui` to generate or edit a config file.
 
-Alternatively, you can create and/or modify `config.yml` file in the working directory.
+On the first run of `dygma-layer-switcher-service` a `config.yml` will be created.
 
 ```yaml
 ---
@@ -41,6 +41,6 @@ mappings:
   - layer: 5
     window_title: "Maya"
   - layer: 2
-    exe_name: "game.exe"
+    exe_name: "some_game.exe"
 
 ```
