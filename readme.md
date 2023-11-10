@@ -2,7 +2,7 @@
 
 ## Config
 
-On the first run of `dygma-layer-switcher-service` a `config.yml` will be created.
+On the first run of `dygma-layer-switcher` the `config.yml` will be generated.
 
 ```yaml
 ---
