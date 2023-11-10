@@ -21,10 +21,21 @@ jobs:
           #   archive: zip
     steps:
       - uses: actions/checkout@master
-      - name: Compile and release
+      - name: Service
         uses: rust-build/rust-build.action@v1.4.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          SRC_DIR: "dygma-layer-switcher-service"
           RUSTTARGET: ${{ matrix.target }}
           ARCHIVE_TYPES: ${{ matrix.archive }}
+          EXTRA_FILES: "README.md LICENSE config.yml"
+      - name: UI
+        uses: rust-build/rust-build.action@v1.4.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          SRC_DIR: "dygma-layer-switcher-ui"
+          RUSTTARGET: ${{ matrix.target }}
+          ARCHIVE_TYPES: ${{ matrix.archive }}
+          EXTRA_FILES: "README.md LICENSE config.yml"
