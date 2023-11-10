@@ -8,8 +8,11 @@ jobs:
     name: Build
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@master
-      - name: Compile
+      - name: "Checkout"
+        uses: actions/checkout@master
+      - name: "Install Rust toolchain"
+        uses: dtolnay/rust-toolchain@stable
+      - name: "Compile"
         run: cargo build --release
-      - name: Show Directory Tree
+      - name: "Show Directory Tree"
         run: tree /F /A
