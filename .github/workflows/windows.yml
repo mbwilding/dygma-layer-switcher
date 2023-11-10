@@ -10,6 +10,9 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: "x86_64-pc-windows-gnu"
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: libudev-dev wine64
