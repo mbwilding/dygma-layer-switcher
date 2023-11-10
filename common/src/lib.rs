@@ -1,4 +1,6 @@
 pub mod app;
 pub mod config;
+pub mod init;
 pub mod layer;
-mod serial;
+pub mod serial;
+pub mod tray;

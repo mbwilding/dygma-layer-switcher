@@ -6,8 +6,12 @@ authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 
 [dependencies]
 anyhow = "1.0"
+crossbeam-channel = "0.5"
 lazy_static = "1.4"
+single-instance = "0.3"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 serialport = "4.2"
 tracing = "0.1"
+tray-item = "0.9"
+tracing-subscriber = "0.3.17"

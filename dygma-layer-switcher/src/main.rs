@@ -1,40 +1,23 @@
 // hide console window on Windows in release
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use anyhow::Result;
-use single_instance::SingleInstance;
-use tracing::error;
+use common::init::{app_init, log_init};
 
-pub mod tray;
+#[cfg(windows)]
+use windows::service::my_service_main;
 
-fn main() -> Result<()> {
-    tracing_subscriber::fmt()
-        .with_max_level(if cfg!(debug_assertions) {
-            tracing::Level::DEBUG
-        } else {
-            tracing::Level::INFO
-        })
-        .with_ansi(true)
-        .init();
+#[cfg(windows)]
+windows_service::define_windows_service!(ffi_service_main, my_service_main);
 
-    let instance = SingleInstance::new("dygma-layer-switcher")?;
+fn main() -> anyhow::Result<()> {
+    log_init();
+    app_init()?;
 
-    if !instance.is_single() {
-        error!("Another instance of Dygma Layer Switcher is already running");
-        std::process::exit(1);
-    }
+    #[cfg(windows)]
+    windows::init::start()?;
 
-    tray::load()?;
-
-    #[cfg(target_os = "windows")]
-    {
-        windows::init::start()?;
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-        error!("This is currently an unsupported OS")
-    }
+    #[cfg(not(windows))]
+    tracing::error!("Platform not yet supported");
 
     Ok(())
 }
