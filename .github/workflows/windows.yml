@@ -6,11 +6,8 @@ on: [push]
 jobs:
   build:
     name: Build
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
-      - name: "Checkout"
-        uses: actions/checkout@master
-      - name: "Compile"
-        run: 'C:\Users\mbwil\.rustup\toolchains\stable-x86_64-pc-windows-msvc\bin\cargo.exe build --release'
-      - name: "Show Directory Tree"
-        run: tree /F /A
+      - uses: actions/checkout@master
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release
