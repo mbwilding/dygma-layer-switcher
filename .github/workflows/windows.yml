@@ -13,6 +13,6 @@ jobs:
       - name: "Install Rust toolchain"
         uses: dtolnay/rust-toolchain@stable
       - name: "Compile"
-        run: cargo build --release
+        run: 'C:\Users\mbwil\.rustup\toolchains\stable-x86_64-pc-windows-msvc\bin\cargo.exe build --release'
       - name: "Show Directory Tree"
         run: tree /F /A

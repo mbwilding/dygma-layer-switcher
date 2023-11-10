@@ -6,3 +6,7 @@ members = [
     "common",
     "windows"
 ]
+
+[profile.release]
+opt-level = 3
+lto = true
