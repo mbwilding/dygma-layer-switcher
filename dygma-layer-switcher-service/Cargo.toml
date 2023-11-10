@@ -15,5 +15,5 @@ tray-item = "0.9"
 [target.'cfg(windows)'.dependencies]
 windows = { path = "../windows" }
 
-[target.'cfg(target_os = "windows")'.build-dependencies]
+[build-dependencies]
 embed-resource = "2.3"
