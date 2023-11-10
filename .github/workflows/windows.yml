@@ -10,4 +10,8 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - uses: dtolnay/rust-toolchain@stable
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libudev-dev wine64
+          version: 1.0
       - run: cargo build --release
