@@ -20,10 +20,7 @@ jobs:
           targets: "x86_64-pc-windows-gnu"
 
       - name: "Dependencies"
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: mingw-w64 libudev-dev zip
-          version: 1.0
+        run: sudo apt-get install -y mingw-w64 libudev-dev zip
 
       - name: "Build"
         run: cargo build --release --target x86_64-pc-windows-gnu

@@ -873,7 +873,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "common",
- "crossbeam-channel",
  "lazy_static",
  "tracing",
  "windows 0.51.1",
