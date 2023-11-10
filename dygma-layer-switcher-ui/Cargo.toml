@@ -10,3 +10,7 @@ eframe = "0.23"
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
 embed-resource = "2.3"
+
+[profile.release]
+opt-level = 3
+lto = true
