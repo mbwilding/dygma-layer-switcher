@@ -581,7 +581,7 @@ dependencies = [
 
 [[package]]
 name = "common"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "lazy_static",
@@ -744,7 +744,7 @@ checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 
 [[package]]
 name = "dygma-layer-switcher-service"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "common",
@@ -753,12 +753,12 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "tray-item",
- "windows 0.1.0",
+ "windows 0.1.1",
 ]
 
 [[package]]
 name = "dygma-layer-switcher-ui"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "common",
  "eframe",
@@ -2828,7 +2828,7 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "windows"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "common",
