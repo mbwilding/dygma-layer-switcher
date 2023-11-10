@@ -7,8 +7,13 @@ authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 [dependencies]
 common = { path = "../common" }
 anyhow = "1.0"
+crossbeam-channel = "0.5"
 tracing = "0.1"
 tracing-subscriber = "0.3"
+tray-item = "0.9"
 
 [target.'cfg(windows)'.dependencies]
 windows = { path = "../windows" }
+
+[target.'cfg(target_os = "windows")'.build-dependencies]
+embed-resource = "2.3"

@@ -3,6 +3,8 @@
 use anyhow::Result;
 use tracing::error;
 
+pub mod tray;
+
 fn main() -> Result<()> {
     tracing_subscriber::fmt()
         .with_max_level(if cfg!(debug_assertions) {
@@ -12,6 +14,8 @@ fn main() -> Result<()> {
         })
         .with_ansi(true)
         .init();
+
+    tray::load()?;
 
     if cfg!(target_os = "windows") {
         windows::init::start()?;
