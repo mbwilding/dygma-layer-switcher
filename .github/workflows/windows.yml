@@ -14,4 +14,4 @@ jobs:
         with:
           packages: libudev-dev wine64
           version: 1.0
-      - run: cargo build --release
+      - run: cargo build --release --target x86_64-pc-windows-gnu
