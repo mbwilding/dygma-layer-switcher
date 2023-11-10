@@ -22,14 +22,17 @@ jobs:
       - name: "Dependencies"
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: mingw-w64 libudev-dev zip
+          packages: mingw-w64 libudev-dev zip tree
           version: 1.0
 
       - name: "Build"
         run: cargo build --release --target x86_64-pc-windows-gnu
 
+      - name: "Tree"
+        run: tree -L 5
+
       - name: "Zip"
-        run: zip windows.zip README.md LICENSE target/release/dygma-layer-switcher-service.exe target/release/dygma-layer-switcher-ui.exe
+        run: zip windows.zip README.md LICENSE config.yml target/release/*.exe
 
       - name: "Release"
         uses: softprops/action-gh-release@v1
