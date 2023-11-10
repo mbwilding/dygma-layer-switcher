@@ -1,5 +1,5 @@
 [package]
-name = "dygma-layer-switcher-service"
+name = "dygma-layer-switcher"
 version = "0.1.0"
 edition = "2021"
 authors = ["Matthew Wilding <mbwilding@gmail.com>"]
@@ -8,6 +8,7 @@ authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 common = { path = "../common" }
 anyhow = "1.0"
 crossbeam-channel = "0.5"
+single-instance = "0.3"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 tray-item = "0.9"

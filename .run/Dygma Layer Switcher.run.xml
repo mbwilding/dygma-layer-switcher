@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="UI" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run --bin dygma-layer-switcher-ui" />
+  <configuration default="false" name="Dygma Layer Switcher" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
+    <option name="command" value="run" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="emulateTerminal" value="true" />
     <option name="channel" value="DEFAULT" />

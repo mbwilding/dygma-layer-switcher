@@ -1,8 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "dygma-layer-switcher-service",
-    "dygma-layer-switcher-ui",
+    "dygma-layer-switcher",
     "common",
     "windows"
 ]

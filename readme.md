@@ -1,28 +1,6 @@
 # Dygma Layer Switcher
 
-## Running
-
-### Service
-```
-cargo run --bin dygma-layer-switcher-service
-```
-
-### Config UI
-```
-cargo run --bin dygma-layer-switcher-ui
-```
-
-## Building
-
-```
-cargo build --release
-```
-
-Then check the `target/release` directory
-
 ## Config
-
-Use the `dygma-layer-switcher-ui` to generate or edit a config file.
 
 On the first run of `dygma-layer-switcher-service` a `config.yml` will be created.
 
