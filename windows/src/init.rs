@@ -1,6 +1,6 @@
 use crate::message_loop::get_focused_window_details;
 use anyhow::Result;
-use tracing::debug;
+use tracing::info;
 use windows::{
     core::PCWSTR,
     Win32::{
@@ -15,6 +15,8 @@ use windows::{
 
 pub fn start() -> Result<()> {
     unsafe {
+        info!("Attempting Hook");
+
         let _event_hook = SetWinEventHook(
             EVENT_OBJECT_FOCUS,
             EVENT_OBJECT_FOCUS,
@@ -25,7 +27,7 @@ pub fn start() -> Result<()> {
             WINEVENT_OUTOFCONTEXT,
         );
 
-        debug!("Hooked");
+        info!("Hooked");
 
         let mut msg = MSG::default();
 

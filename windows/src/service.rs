@@ -1,28 +1,23 @@
 use crate::init;
 use anyhow::Result;
-use common::init::{app_init, log_init};
-use tracing::error;
+use common::init::{log_init, single_check};
 
-#[allow(dead_code)]
-pub fn my_service_main(args: Vec<std::ffi::OsString>) {
-    log_init();
-
-    if let Err(e) = run_service(args) {
-        error!("{}", e)
-    }
+pub fn windows_service_main(args: Vec<std::ffi::OsString>) {
+    let _ = run_service(args);
 }
 
-#[cfg(windows)]
-#[allow(dead_code)]
 fn run_service(_args: Vec<std::ffi::OsString>) -> Result<()> {
     use windows_service::service::ServiceControl::*;
     use windows_service::service_control_handler::ServiceControlHandlerResult::*;
 
-    app_init()?;
-
     let event_handler = move |control_event| -> windows_service::service_control_handler::ServiceControlHandlerResult {
         match control_event {
-            Stop | Interrogate => NoError,
+            Stop => {
+                // TODO: Handle this properly, this will give an error
+                std::process::exit(0);
+                // NoError
+            },
+            Interrogate => NoError,
             _ => NotImplemented,
         }
     };
@@ -41,6 +36,9 @@ fn run_service(_args: Vec<std::ffi::OsString>) -> Result<()> {
     };
 
     status_handle.set_service_status(next_status)?;
+
+    log_init();
+    single_check()?;
 
     init::start()?;
 
