@@ -1,6 +1,7 @@
 // hide console window on Windows in release
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use common::config::Config;
 use common::init::{log_init, single_check};
 use common::tray;
 
@@ -21,6 +22,7 @@ fn main() -> anyhow::Result<()> {
 
     log_init();
     single_check()?;
+    Config::load();
     tray::load()?;
 
     #[cfg(windows)]

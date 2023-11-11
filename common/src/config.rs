@@ -1,4 +1,5 @@
 use crate::app::{AppConfig, AppDetails};
+use crate::serial;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io;
@@ -16,8 +17,26 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
+        let ports = serial::detect_ports();
+
+        // NOTE: There are different port types, i.e. bluetooth, usb, etc.
+        // Could be useful for auto-detecting the correct port
+        let comm_port = match ports {
+            Ok(ports) => match ports.first() {
+                Some(port) => port.port_name.clone(),
+                None => {
+                    warn!("No serial ports detected, defaulting to COM5");
+                    String::from("COM5")
+                }
+            },
+            Err(e) => {
+                error!("Failed to detect serial ports: {:?}", e);
+                String::from("COM5")
+            }
+        };
+
         Config {
-            comm_port: String::from("COM5"),
+            comm_port,
             base_layer: 1,
             mappings: vec![],
         }

@@ -3,24 +3,17 @@ use single_instance::SingleInstance;
 use tracing::error;
 
 pub fn log_init() {
-    let tracing = tracing_subscriber::fmt();
+    let tracing = tracing_subscriber::fmt().with_max_level(tracing::Level::DEBUG);
 
     #[cfg(debug_assertions)]
     {
-        tracing
-            .with_max_level(tracing::Level::DEBUG)
-            .with_ansi(true)
-            .init();
+        tracing.with_ansi(true).init();
     }
 
     #[cfg(not(debug_assertions))]
     {
         let file_appender = tracing_appender::rolling::daily("logs", "dsl.log");
-        tracing
-            .with_max_level(tracing::Level::INFO)
-            .with_ansi(false)
-            .with_writer(file_appender)
-            .init();
+        tracing.with_ansi(false).with_writer(file_appender).init();
     }
 }
 
