@@ -8,10 +8,10 @@ pub fn log_init(config: &Config) {
 
     #[cfg(debug_assertions)]
     {
-        //tracing.with_ansi(true).init();
+        tracing.with_ansi(true).init();
     }
 
-    //#[cfg(not(debug_assertions))]
+    #[cfg(not(debug_assertions))]
     {
         let tracing = tracing.with_ansi(false);
 
