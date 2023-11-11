@@ -3,6 +3,7 @@ use anyhow::Result;
 use single_instance::SingleInstance;
 use tracing::error;
 
+#[allow(unused_variables)]
 pub fn log_init(config: &Config) {
     let tracing = tracing_subscriber::fmt().with_max_level(tracing::Level::DEBUG);
 
