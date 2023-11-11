@@ -10,9 +10,10 @@ const CONFIG_PATH: &str = "config.yml";
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Config {
-    pub comm_port: String,
-    pub base_layer: u8,
-    pub mappings: Vec<AppConfig>,
+    pub logging: Option<bool>,
+    pub comm_port: Option<String>,
+    pub base_layer: Option<u8>,
+    pub mappings: Option<Vec<AppConfig>>,
 }
 
 impl Default for Config {
@@ -36,9 +37,10 @@ impl Default for Config {
         };
 
         Config {
-            comm_port,
-            base_layer: 1,
-            mappings: vec![],
+            logging: Some(false),
+            comm_port: Some(comm_port),
+            base_layer: Some(1),
+            mappings: Some(vec![]),
         }
     }
 }
@@ -89,12 +91,20 @@ impl Config {
     }
 
     pub fn add(&mut self) {
-        self.mappings.push(AppConfig::default());
+        if let Some(mappings) = self.mappings.as_mut() {
+            mappings.push(AppConfig::default());
+        } else {
+            error!("Mappings not initialized");
+        }
     }
 
     pub fn remove(&mut self, index: usize) {
-        if index < self.mappings.len() {
-            self.mappings.remove(index);
+        if let Some(mappings) = self.mappings.as_mut() {
+            if index < mappings.len() {
+                mappings.remove(index);
+            }
+        } else {
+            error!("Mappings not initialized");
         }
     }
 
@@ -136,16 +146,14 @@ impl Config {
         T: AsRef<str>,
         F: Fn(&AppConfig) -> &Option<String>,
     {
-        self.mappings.iter().find_map(|mapping| {
-            match (
-                app_property.as_ref().to_lowercase(),
-                mapping_property(mapping),
-            ) {
-                (app_prop, Some(map_prop)) if map_prop.to_lowercase().contains(&app_prop) => {
-                    Some(mapping.layer)
-                }
-                _ => None,
-            }
+        let app_prop = app_property.as_ref().to_lowercase();
+
+        self.mappings.as_ref()?.iter().find_map(|mapping| {
+            mapping_property(mapping)
+                .as_ref()?
+                .to_lowercase()
+                .contains(&app_prop)
+                .then_some(mapping.layer)
         })
     }
 }

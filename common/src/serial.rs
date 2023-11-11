@@ -4,7 +4,9 @@ use serialport::{SerialPort, SerialPortInfo};
 use tracing::{debug, error};
 
 pub fn configure(config: &Config) -> Result<Box<dyn SerialPort>, bool> {
-    let port = match serialport::new(config.comm_port.clone(), 9_600)
+    let comm_port = config.comm_port.clone().unwrap_or_default();
+
+    let port = match serialport::new(&comm_port, 9_600)
         .data_bits(serialport::DataBits::Eight)
         .flow_control(serialport::FlowControl::None)
         .parity(serialport::Parity::None)
@@ -14,10 +16,7 @@ pub fn configure(config: &Config) -> Result<Box<dyn SerialPort>, bool> {
     {
         Ok(s) => s,
         Err(e) => {
-            error!(
-                "Failed to open serial port: {} ({:#?})",
-                &config.comm_port, e
-            );
+            error!("Failed to open serial port: {} ({:#?})", &comm_port, e);
             return Err(true);
         }
     };
