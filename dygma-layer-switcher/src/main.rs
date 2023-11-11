@@ -20,9 +20,9 @@ fn main() -> anyhow::Result<()> {
         return Ok(());
     };
 
-    log_init();
+    let config = Config::load();
+    log_init(&config);
     single_check()?;
-    Config::load();
     tray::load()?;
 
     #[cfg(windows)]

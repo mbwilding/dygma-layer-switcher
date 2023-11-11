@@ -38,9 +38,9 @@ fn run_service(_args: Vec<std::ffi::OsString>) -> Result<()> {
 
     status_handle.set_service_status(next_status)?;
 
-    log_init();
+    let config = Config::load();
+    log_init(&config);
     single_check()?;
-    Config::load();
 
     init::start()?;
 

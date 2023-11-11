@@ -6,6 +6,9 @@ On the first run of `dygma-layer-switcher` the `config.yml` will be generated.
 
 ```yaml
 ---
+# Toggle logging.
+logging: false
+
 # Port of the keyboard for RF and USB, can be seen when selecting the keyboard in bazecor.
 comm_port: "COM5"
 

@@ -107,7 +107,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "crossbeam-channel",
- "lazy_static",
  "serde",
  "serde_yaml",
  "serialport",

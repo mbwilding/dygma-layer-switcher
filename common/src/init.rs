@@ -1,19 +1,28 @@
+use crate::config::Config;
 use anyhow::Result;
 use single_instance::SingleInstance;
 use tracing::error;
 
-pub fn log_init() {
+pub fn log_init(config: &Config) {
     let tracing = tracing_subscriber::fmt().with_max_level(tracing::Level::DEBUG);
 
     #[cfg(debug_assertions)]
     {
-        tracing.with_ansi(true).init();
+        //tracing.with_ansi(true).init();
     }
 
-    #[cfg(not(debug_assertions))]
+    //#[cfg(not(debug_assertions))]
     {
-        let file_appender = tracing_appender::rolling::daily("logs", "dsl.log");
-        tracing.with_ansi(false).with_writer(file_appender).init();
+        let tracing = tracing.with_ansi(false);
+
+        if let Some(logging) = config.logging {
+            if logging {
+                let file_appender = tracing_appender::rolling::daily("logs", "dsl.log");
+                tracing.with_writer(file_appender).init();
+            }
+        } else {
+            tracing.init();
+        }
     }
 }
 
