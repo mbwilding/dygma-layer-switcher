@@ -1,5 +1,6 @@
 extern crate embed_resource;
 
+#[cfg(windows)]
 fn main() {
     embed_resource::compile("../assets/windows/tray.rc", embed_resource::NONE);
 
@@ -8,3 +9,6 @@ fn main() {
         embed_resource::compile("../assets/windows/manifest.rc", embed_resource::NONE);
     }
 }
+
+#[cfg(not(windows))]
+fn main() {}
