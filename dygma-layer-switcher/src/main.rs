@@ -2,8 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use common::config::Config;
-use common::init::{log_init, single_check};
-use common::tray;
+use common::{log::init, single, tray};
 
 #[cfg(windows)]
 use windows::service::windows_service_main;
@@ -21,8 +20,8 @@ fn main() -> anyhow::Result<()> {
     };
 
     let config = Config::load();
-    log_init(&config);
-    single_check()?;
+    init(&config);
+    single::check()?;
     tray::load()?;
 
     #[cfg(windows)]

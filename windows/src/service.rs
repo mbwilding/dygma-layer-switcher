@@ -1,7 +1,6 @@
 use crate::init;
 use anyhow::Result;
-use common::config::Config;
-use common::init::{log_init, single_check};
+use common::{config::Config, log::init, single};
 
 pub fn windows_service_main(args: Vec<std::ffi::OsString>) {
     let _ = run_service(args);
@@ -39,8 +38,8 @@ fn run_service(_args: Vec<std::ffi::OsString>) -> Result<()> {
     status_handle.set_service_status(next_status)?;
 
     let config = Config::load();
-    log_init(&config);
-    single_check()?;
+    init(&config);
+    single::check()?;
 
     init::start()?;
 

@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="DLS - Release" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run --release" />
+    <option name="command" value="run --release --features no-admin" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$" />
     <option name="emulateTerminal" value="true" />
     <option name="channel" value="DEFAULT" />
