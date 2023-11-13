@@ -15,3 +15,6 @@ windows-service = "0.6"
 
 [build-dependencies]
 embed-resource = "2.3"
+
+[features]
+no-admin = [] # Disable forced administrator mode [Windows]
