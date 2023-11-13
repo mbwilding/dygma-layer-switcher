@@ -26,11 +26,10 @@ jobs:
         run: cargo build --release --target x86_64-pc-windows-gnu
 
       - name: "Zip"
-        run: zip -j windows.zip readme.md target/x86_64-pc-windows-gnu/release/*.exe
+        run: zip -j windows.zip readme.md target/x86_64-pc-windows-gnu/release/dygma-layer-switcher.exe
 
       - name: "Release"
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            LICENSE
             windows.zip
