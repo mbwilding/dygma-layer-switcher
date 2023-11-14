@@ -22,7 +22,7 @@ jobs:
           components: clippy, rustfmt
 
       - name: "Dependencies"
-        run: sudo apt-get install -y libatk1.0-dev libpango1.0-dev libgtk-3-dev
+        run: sudo apt-get install -y libatk1.0-dev libpango1.0-dev libgtk-3-dev libudev-dev
 
       - name: "Formatting"
         uses: actions-rs/cargo@v1
