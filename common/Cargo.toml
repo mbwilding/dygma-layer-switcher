@@ -6,7 +6,6 @@ authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 
 [dependencies]
 anyhow = "1.0"
-crossbeam-channel = "0.5"
 image = "0.24"
 single-instance = "0.3"
 serde = { version = "1.0", features = ["derive"] }
@@ -18,5 +17,5 @@ tracing-subscriber = "0.3.17"
 tray-icon = "0.10"
 winit = "0.29"
 
-[target.'cfg(linux)'.dependencies]
+[target.'cfg(target_os = "linux")'.dependencies]
 gtk = "0.18"

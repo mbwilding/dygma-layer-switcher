@@ -1,6 +1,13 @@
+#[cfg(target_os = "windows")]
 use common::app::AppDetails;
+
+#[cfg(target_os = "windows")]
 use std::path::Path;
+
+#[cfg(target_os = "windows")]
 use tracing::{error, trace};
+
+#[cfg(target_os = "windows")]
 use windows::Win32::{
     Foundation::{HWND, MAX_PATH},
     System::{
@@ -13,6 +20,7 @@ use windows::Win32::{
 /// # Safety
 ///
 /// WinAPI.
+#[cfg(target_os = "windows")]
 pub unsafe fn hydrate(window_handle: HWND) -> AppDetails {
     AppDetails {
         window_title: get_window_title(window_handle),
@@ -23,6 +31,7 @@ pub unsafe fn hydrate(window_handle: HWND) -> AppDetails {
 /// # Safety
 ///
 /// WinAPI.
+#[cfg(target_os = "windows")]
 unsafe fn get_exe_name(window_handle: HWND) -> Option<String> {
     let mut process_id: u32 = 0;
 
@@ -73,6 +82,10 @@ unsafe fn get_exe_name(window_handle: HWND) -> Option<String> {
     Some(exe_name)
 }
 
+/// # Safety
+///
+/// WinAPI.
+#[cfg(target_os = "windows")]
 unsafe fn get_window_title(h_wnd: HWND) -> Option<String> {
     let title_length = GetWindowTextLengthW(h_wnd) + 1;
     let mut window_title: Vec<u16> = vec![0; title_length as usize];

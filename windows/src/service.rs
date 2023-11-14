@@ -1,11 +1,18 @@
+#[cfg(target_os = "windows")]
 use crate::init;
+
+#[cfg(target_os = "windows")]
 use anyhow::Result;
+
+#[cfg(target_os = "windows")]
 use common::{config::Config, log::init, single};
 
+#[cfg(target_os = "windows")]
 pub fn windows_service_main(args: Vec<std::ffi::OsString>) {
     let _ = run_service(args);
 }
 
+#[cfg(target_os = "windows")]
 fn run_service(_args: Vec<std::ffi::OsString>) -> Result<()> {
     use windows_service::service::ServiceControl::*;
     use windows_service::service_control_handler::ServiceControlHandlerResult::*;

@@ -23,41 +23,41 @@ pub fn load() -> Result<()> {
     let icon_path = "assets/icons/icon.ico";
     let icon =
         load_icon(Path::new(&icon_path)).context(format!("Could not find icon: {}", &icon_path))?;
-    let tray_menu = Menu::new();
-
-    let item_quit = MenuItem::new("Quit", true, None);
-    tray_menu
-        .append(&item_quit)
-        .context("Failed to append menu item")?;
-
-    // Since winit doesn't use gtk on Linux, and we need gtk for
-    // the tray icon to show up, we need to spawn a thread
-    // where we initialize gtk and create the tray_icon
-    #[cfg(target_os = "linux")]
-    std::thread::spawn(|| {
-        gtk::init()?;
-        let _tray_icon = TrayIconBuilder::new()
-            .with_tooltip(TITLE)
-            .with_menu(Box::new(tray_menu))
-            .with_icon(icon)
-            .build()?;
-
-        gtk::main();
-    });
-
-    #[cfg(not(target_os = "linux"))]
-    let _tray_icon = Some(
-        TrayIconBuilder::new()
-            .with_menu(Box::new(tray_menu))
-            .with_tooltip(TITLE)
-            .with_icon(icon)
-            .build()?,
-    );
 
     let event_loop = EventLoopBuilder::new().build()?;
 
     let menu_channel = MenuEvent::receiver();
     let tray_channel = TrayIconEvent::receiver();
+
+    let item_quit = MenuItem::new("Quit", true, None);
+
+    #[cfg(not(target_os = "linux"))]
+    {
+        let tray_menu = Menu::new();
+        tray_menu
+            .append(&item_quit)
+            .context("Failed to append menu item")?;
+
+        let _tray_icon = TrayIconBuilder::new()
+            .with_menu(Box::new(tray_menu))
+            .with_tooltip(TITLE)
+            .with_icon(icon)
+            .build()?;
+    }
+
+    #[cfg(target_os = "linux")]
+    std::thread::spawn(|| {
+        gtk::init().unwrap();
+
+        let _tray_icon = TrayIconBuilder::new()
+            .with_menu(Box::new(Menu::new()))
+            .with_tooltip(TITLE)
+            .with_icon(icon)
+            .build()
+            .unwrap();
+
+        gtk::main();
+    });
 
     event_loop.run(move |_event, event_loop| {
         event_loop.set_control_flow(ControlFlow::Wait);
