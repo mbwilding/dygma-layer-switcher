@@ -72,18 +72,16 @@ impl Config {
                 warn!("No config file found, creating with default config");
                 let default_config = Config::default();
                 match File::create(CONFIG_PATH) {
-                    Ok(mut file) => {
-                        match serde_yaml::to_string(&default_config) {
-                            Ok(yaml) => {
-                                if let Err(e) = file.write_all(yaml.as_bytes()) {
-                                    error!("Failed to write default config to file: {:?}", e);
-                                }
-                            }
-                            Err(e) => {
-                                error!("Failed to serialize default config: {:?}", e);
+                    Ok(mut file) => match serde_yaml::to_string(&default_config) {
+                        Ok(yaml) => {
+                            if let Err(e) = file.write_all(yaml.as_bytes()) {
+                                error!("Failed to write default config to file: {:?}", e);
                             }
                         }
-                    }
+                        Err(e) => {
+                            error!("Failed to serialize default config: {:?}", e);
+                        }
+                    },
                     Err(e) => {
                         error!("Failed to create config file: {:?}", e);
                     }
