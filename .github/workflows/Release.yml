@@ -10,6 +10,9 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      - name: "Tag Name"
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
       - name: "Checkout"
         uses: actions/checkout@master
 
@@ -26,10 +29,10 @@ jobs:
         run: cargo build --release --target x86_64-pc-windows-gnu
 
       - name: "Zip"
-        run: zip -j windows-${TAG_NAME}.zip readme.md target/x86_64-pc-windows-gnu/release/dygma-layer-switcher.exe
+        run: zip -j windows-${{ env.TAG_NAME }}.zip readme.md target/x86_64-pc-windows-gnu/release/dygma-layer-switcher.exe
 
       - name: "Release"
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            windows-${TAG_NAME}.zip
+            windows-${{ env.TAG_NAME }}.zip
