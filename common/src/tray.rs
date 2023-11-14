@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use std::path::Path;
-use tracing::debug;
+use tracing::trace;
 use tray_icon::menu::{Menu, MenuEvent, MenuItem};
 use tray_icon::{Icon, TrayIconBuilder, TrayIconEvent};
 use winit::event_loop::{ControlFlow, EventLoopBuilder};
@@ -60,14 +60,14 @@ pub fn load() -> Result<()> {
     let tray_channel = TrayIconEvent::receiver();
 
     event_loop.run(move |_event, event_loop| {
-        event_loop.set_control_flow(ControlFlow::Poll);
+        event_loop.set_control_flow(ControlFlow::Wait);
 
         if let Ok(event) = tray_channel.try_recv() {
-            debug!("{:#?}", event);
+            trace!("{:#?}", event);
         }
 
         if let Ok(event) = menu_channel.try_recv() {
-            debug!("{:#?}", event);
+            trace!("{:#?}", event);
 
             if event.id == item_quit.id() {
                 event_loop.exit();
