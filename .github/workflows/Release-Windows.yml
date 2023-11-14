@@ -11,6 +11,7 @@ jobs:
     strategy:
       matrix:
         target: ["x86_64-pc-windows-gnu"] # Waiting for `aarch64-pc-windows-gnu` to be available.
+
     steps:
       - name: "Checkout"
         uses: actions/checkout@master
