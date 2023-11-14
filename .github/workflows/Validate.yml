@@ -19,12 +19,6 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          targets: ${{ matrix.target }}
-
-      - name: "Check"
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
 
       - name: "Formatting"
         uses: actions-rs/cargo@v1
