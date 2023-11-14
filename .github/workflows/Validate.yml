@@ -21,7 +21,7 @@ jobs:
           toolchain: stable
           components: rustfmt
 
-      - name: "Formatting"
+      - name: "Format"
         run: cargo fmt -- --check
 
   clippy:
@@ -38,8 +38,8 @@ jobs:
           toolchain: stable
           components: clippy
 
-      - name: "Formatting"
-        run: cargo fmt -- --check
+      - name: "Clippy"
+        run: cargo clippy -- -D warnings
 
   check:
     name: "Check"
@@ -47,7 +47,7 @@ jobs:
 
     strategy:
       matrix:
-        target: ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-gnu"]
+        target: ["x86_64-pc-windows-gnu"] # Once linux code is done, add `x86_64-unknown-linux-gnu`.
 
     steps:
       - name: "Checkout"
