@@ -1,4 +1,3 @@
----
 name: Windows
 
 on:
@@ -9,6 +8,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: ["x86_64-pc-windows-gnu"] # Waiting for `aarch64-pc-windows-gnu` to be available.
     steps:
       - name: "Checkout"
         uses: actions/checkout@master
@@ -17,21 +19,21 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          targets: "x86_64-pc-windows-gnu"
+          targets: ${{ matrix.target }}
 
       - name: "Dependencies"
         run: sudo apt-get install -y mingw-w64 libudev-dev zip wine64
 
       - name: "Build"
-        run: cargo build --release --target x86_64-pc-windows-gnu
+        run: cargo build --release --target ${{ matrix.target }}
 
       - name: "Zip"
         run: |
-          cp target/x86_64-pc-windows-gnu/release/dygma-layer-switcher.exe .
-          zip windows-${{ github.ref_name }}.zip readme.md dygma-layer-switcher.exe assets/icons/icon.ico
+          cp target/${{ matrix.target }}/release/dygma-layer-switcher.exe .
+          zip windows-${{ github.ref_name }}-${{ matrix.target }}.zip readme.md dygma-layer-switcher.exe assets/icons/icon.ico
 
       - name: "Release"
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            windows-${{ github.ref_name }}.zip
+            windows-${{ github.ref_name }}-${{ matrix.target }}.zip

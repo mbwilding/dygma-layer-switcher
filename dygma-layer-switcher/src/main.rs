@@ -24,7 +24,7 @@ fn main() -> anyhow::Result<()> {
     init(&config);
 
     #[cfg(not(windows))]
-    tracing::error!("Platform not yet supported");
+    error!("Platform not yet supported");
 
     single::check()?;
 
