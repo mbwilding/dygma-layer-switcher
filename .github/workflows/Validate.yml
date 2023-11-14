@@ -19,15 +19,18 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-
-      - name: "Dependencies"
-        run:   sudo apt-get install -y libpango1.0-dev
+          components: clippy, rustfmt
 
       - name: "Formatting"
         uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: -- --check
+
+      - name: "Check"
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
 
       - name: "Clippy"
         uses: actions-rs/cargo@v1
