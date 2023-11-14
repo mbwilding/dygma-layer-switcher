@@ -38,6 +38,10 @@ jobs:
           toolchain: stable
           components: clippy
 
+      - name: "Dependencies"
+        if: contains(matrix.target, 'linux')
+        run: sudo apt-get install -y libatk1.0-dev libpango1.0-dev libgtk-3-dev libudev-dev
+
       - name: "Clippy"
         run: cargo clippy -- -D warnings
 
