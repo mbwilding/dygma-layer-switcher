@@ -14,7 +14,7 @@ windows = { path = "../windows" }
 windows-service = "0.6"
 
 [build-dependencies]
-embed-resource = "2.3"
+embed-resource = "2.4"
 
 [features]
 no-admin = [] # Disable forced administrator mode [Windows]
