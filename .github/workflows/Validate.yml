@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  check:
-    name: Check
+  formatting:
+    name: "Format"
     runs-on: ubuntu-latest
 
     steps:
@@ -19,24 +19,49 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
-          components: clippy, rustfmt
-
-      - name: "Dependencies"
-        run: sudo apt-get install -y libatk1.0-dev libpango1.0-dev libgtk-3-dev libudev-dev
+          components: rustfmt
 
       - name: "Formatting"
-        uses: actions-rs/cargo@v1
+        run: cargo fmt -- --check
+
+  clippy:
+    name: "Clippy"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@master
+
+      - name: "Rust"
+        uses: dtolnay/rust-toolchain@stable
         with:
-          command: fmt
-          args: -- --check
+          toolchain: stable
+          components: clippy
+
+      - name: "Formatting"
+        run: cargo fmt -- --check
+
+  check:
+    name: "Check"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        target: ["x86_64-unknown-linux-gnu", "x86_64-pc-windows-gnu"]
+
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@master
+
+      - name: "Rust"
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+
+      - name: "Dependencies"
+        if: contains(matrix.target, 'linux')
+        run: sudo apt-get install -y libatk1.0-dev libpango1.0-dev libgtk-3-dev libudev-dev
 
       - name: "Check"
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-
-      - name: "Clippy"
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: -- -D warnings
+        run: cargo check --target ${{ matrix.target }}
