@@ -19,7 +19,7 @@ pub fn process(app_details: &AppDetails) -> Result<()> {
         .or(config.base_layer)
         .unwrap_or(1); // Default layer value if all else fails
 
-    let _ = layer_change(&config, layer_desired)?;
+    layer_change(&config, layer_desired)?;
 
     Ok(())
 }

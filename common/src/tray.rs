@@ -1,74 +1,79 @@
-use anyhow::Result;
-use std::{process, thread};
-use tray_item::{IconSource, TrayItem};
-
-enum Message {
-    Blue,
-    Green,
-    Orange,
-    Purple,
-    Red,
-    Quit,
-}
+use anyhow::{Context, Result};
+use std::path::Path;
+use tracing::debug;
+use tray_icon::menu::{Menu, MenuEvent, MenuItem};
+use tray_icon::{Icon, TrayIconBuilder, TrayIconEvent};
+use winit::event_loop::{ControlFlow, EventLoopBuilder};
 
 const TITLE: &str = "Dygma Layer Switcher";
 
+fn load_icon(path: &Path) -> Result<Icon> {
+    let (icon_rgba, icon_width, icon_height) = {
+        let image = image::open(path)?.into_rgba8();
+        let (width, height) = image.dimensions();
+        let rgba = image.into_raw();
+        (rgba, width, height)
+    };
+    let icon = Icon::from_rgba(icon_rgba, icon_width, icon_height)?;
+
+    Ok(icon)
+}
+
 pub fn load() -> Result<()> {
-    let mut tray = TrayItem::new(TITLE, IconSource::Resource("blue"))?;
+    let icon_path = "assets/icons/icon.ico";
+    let icon =
+        load_icon(Path::new(&icon_path)).context(format!("Could not find icon: {}", &icon_path))?;
+    let tray_menu = Menu::new();
 
-    tray.add_label(TITLE)?;
+    let item_quit = MenuItem::new("Quit", true, None);
+    tray_menu
+        .append(&item_quit)
+        .context("Failed to append menu item")?;
 
-    // tray.add_menu_item("Test", || {
-    //     println!("Test");
-    // })?;
+    // Since winit doesn't use gtk on Linux, and we need gtk for
+    // the tray icon to show up, we need to spawn a thread
+    // where we initialize gtk and create the tray_icon
+    #[cfg(target_os = "linux")]
+    std::thread::spawn(|| {
+        gtk::init()?;
+        let _tray_icon = TrayIconBuilder::new()
+            .with_tooltip(TITLE)
+            .with_menu(Box::new(tray_menu))
+            .with_icon(icon)
+            .build()?;
 
-    tray.inner_mut().add_separator()?;
-
-    let (tx, rx) = crossbeam_channel::bounded(1);
-
-    let blue_tx = tx.clone();
-    tray.add_menu_item("Blue", move || {
-        blue_tx.send(Message::Blue).unwrap();
-    })?;
-
-    let green_tx = tx.clone();
-    tray.add_menu_item("Green", move || {
-        green_tx.send(Message::Green).unwrap();
-    })?;
-
-    let orange_tx = tx.clone();
-    tray.add_menu_item("Orange", move || {
-        orange_tx.send(Message::Orange).unwrap();
-    })?;
-
-    let purple_tx = tx.clone();
-    tray.add_menu_item("Purple", move || {
-        purple_tx.send(Message::Purple).unwrap();
-    })?;
-
-    let red_tx = tx.clone();
-    tray.add_menu_item("Red", move || {
-        red_tx.send(Message::Red).unwrap();
-    })?;
-
-    tray.inner_mut().add_separator()?;
-
-    let quit_tx = tx.clone();
-    tray.add_menu_item("Quit", move || {
-        quit_tx.send(Message::Quit).unwrap();
-    })?;
-
-    thread::spawn(move || loop {
-        match rx.recv() {
-            Ok(Message::Blue) => tray.set_icon(IconSource::Resource("blue")).unwrap(),
-            Ok(Message::Green) => tray.set_icon(IconSource::Resource("green")).unwrap(),
-            Ok(Message::Orange) => tray.set_icon(IconSource::Resource("orange")).unwrap(),
-            Ok(Message::Purple) => tray.set_icon(IconSource::Resource("purple")).unwrap(),
-            Ok(Message::Red) => tray.set_icon(IconSource::Resource("red")).unwrap(),
-            Ok(Message::Quit) => process::exit(0),
-            _ => {}
-        }
+        gtk::main();
     });
+
+    #[cfg(not(target_os = "linux"))]
+    let _tray_icon = Some(
+        TrayIconBuilder::new()
+            .with_menu(Box::new(tray_menu))
+            .with_tooltip(TITLE)
+            .with_icon(icon)
+            .build()?,
+    );
+
+    let event_loop = EventLoopBuilder::new().build()?;
+
+    let menu_channel = MenuEvent::receiver();
+    let tray_channel = TrayIconEvent::receiver();
+
+    event_loop.run(move |_event, event_loop| {
+        event_loop.set_control_flow(ControlFlow::Poll);
+
+        if let Ok(event) = tray_channel.try_recv() {
+            debug!("{:#?}", event);
+        }
+
+        if let Ok(event) = menu_channel.try_recv() {
+            debug!("{:#?}", event);
+
+            if event.id == item_quit.id() {
+                event_loop.exit();
+            }
+        }
+    })?;
 
     Ok(())
 }

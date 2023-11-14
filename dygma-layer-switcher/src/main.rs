@@ -3,6 +3,7 @@
 
 use common::config::Config;
 use common::{log::init, single, tray};
+use tracing::error;
 
 #[cfg(windows)]
 use windows::service::windows_service_main;
@@ -21,14 +22,19 @@ fn main() -> anyhow::Result<()> {
 
     let config = Config::load();
     init(&config);
-    single::check()?;
-    tray::load()?;
-
-    #[cfg(windows)]
-    windows::init::start()?;
 
     #[cfg(not(windows))]
     tracing::error!("Platform not yet supported");
+
+    single::check()?;
+
+    #[cfg(windows)]
+    windows::init::start();
+
+    tray::load().unwrap_or_else(|e| {
+        error!("Failed to load tray: {}", e);
+        std::process::exit(1);
+    });
 
     Ok(())
 }

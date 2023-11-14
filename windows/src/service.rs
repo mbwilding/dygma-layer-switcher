@@ -41,7 +41,7 @@ fn run_service(_args: Vec<std::ffi::OsString>) -> Result<()> {
     init(&config);
     single::check()?;
 
-    init::start()?;
+    init::start();
 
     Ok(())
 }

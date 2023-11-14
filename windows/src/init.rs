@@ -1,6 +1,5 @@
 use crate::message_loop::get_focused_window_details;
-use anyhow::Result;
-use tracing::info;
+use tracing::{error, info};
 use windows::{
     core::PCWSTR,
     Win32::{
@@ -13,28 +12,35 @@ use windows::{
     },
 };
 
-pub fn start() -> Result<()> {
-    unsafe {
-        info!("Attempting Hook");
+pub fn start() {
+    std::thread::spawn(|| {
+        unsafe {
+            info!("Attempting Hook");
 
-        let _event_hook = SetWinEventHook(
-            EVENT_OBJECT_FOCUS,
-            EVENT_OBJECT_FOCUS,
-            GetModuleHandleW(PCWSTR::null())?,
-            Some(get_focused_window_details),
-            0,
-            0,
-            WINEVENT_OUTOFCONTEXT,
-        );
+            let module_handle = GetModuleHandleW(PCWSTR::null()).unwrap_or_else(|e| {
+                error!("Failed to get module handle: {:?}", e);
+                std::process::exit(1);
+            });
 
-        info!("Hooked");
+            let _event_hook = SetWinEventHook(
+                EVENT_OBJECT_FOCUS,
+                EVENT_OBJECT_FOCUS,
+                module_handle,
+                Some(get_focused_window_details),
+                0,
+                0,
+                WINEVENT_OUTOFCONTEXT,
+            );
 
-        let mut msg = MSG::default();
+            info!("Hooked");
 
-        loop {
-            // Will wait here for a message, so no sleep is needed in the loop
-            // This is a blocking call, but is required for the hook to work
-            while GetMessageW(&mut msg, HWND(0), 0, 0).as_bool() {}
+            let mut msg = MSG::default();
+
+            loop {
+                // Will wait here for a message, so no sleep is needed in the loop
+                // This is a blocking call, but is required for the hook to work
+                while GetMessageW(&mut msg, HWND(0), 0, 0).as_bool() {}
+            }
         }
-    }
+    });
 }

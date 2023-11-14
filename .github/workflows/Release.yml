@@ -26,7 +26,9 @@ jobs:
         run: cargo build --release --target x86_64-pc-windows-gnu
 
       - name: "Zip"
-        run: zip -j windows-${{ github.ref_name }}.zip readme.md target/x86_64-pc-windows-gnu/release/dygma-layer-switcher.exe
+        run: |
+          cp target/x86_64-pc-windows-gnu/release/dygma-layer-switcher.exe .
+          zip windows-${{ github.ref_name }}.zip readme.md dygma-layer-switcher.exe assets/icons/icon.ico
 
       - name: "Release"
         uses: softprops/action-gh-release@v1
