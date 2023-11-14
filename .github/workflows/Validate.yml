@@ -21,6 +21,9 @@ jobs:
           toolchain: stable
           components: clippy, rustfmt
 
+      - name: "Dependencies"
+        run: sudo apt-get install -y libatk1.0-dev libpango1.0-dev
+
       - name: "Formatting"
         uses: actions-rs/cargo@v1
         with:
