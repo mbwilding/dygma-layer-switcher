@@ -7,6 +7,8 @@ pub fn init(config: &Config) {
         if logging {
             let file_appender = tracing_appender::rolling::daily("logs", "dsl");
             tracing.with_ansi(false).with_writer(file_appender).init();
+        } else {
+            tracing.with_ansi(true).init();
         }
     } else {
         tracing.with_ansi(true).init();

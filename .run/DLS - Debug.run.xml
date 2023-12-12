@@ -6,7 +6,7 @@
     <option name="channel" value="DEFAULT" />
     <option name="requiredFeatures" value="true" />
     <option name="allFeatures" value="false" />
-    <option name="withSudo" value="false" />
+    <option name="withSudo" value="true" />
     <option name="buildTarget" value="REMOTE" />
     <option name="backtrace" value="SHORT" />
     <envs />

@@ -1,9 +1,9 @@
 use crate::config::Config;
-use anyhow::Result;
+use anyhow::{bail, Result};
 use serialport::{SerialPort, SerialPortInfo};
 use tracing::{debug, error};
 
-pub fn configure(config: &Config) -> Result<Box<dyn SerialPort>, bool> {
+pub fn configure(config: &Config) -> Result<Box<dyn SerialPort>> {
     let comm_port = config.comm_port.clone().unwrap_or_default();
 
     let port = match serialport::new(&comm_port, 9_600)
@@ -16,8 +16,9 @@ pub fn configure(config: &Config) -> Result<Box<dyn SerialPort>, bool> {
     {
         Ok(s) => s,
         Err(e) => {
-            error!("Failed to open serial port: {} ({:#?})", &comm_port, e);
-            return Err(true);
+            let msg = format!("Failed to open serial port: {} ({:?})", &comm_port, e);
+            error!("{}", &msg);
+            bail!("{}", &msg);
         }
     };
 

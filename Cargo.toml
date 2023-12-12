@@ -3,7 +3,7 @@ resolver = "2"
 members = [
     "dygma-layer-switcher",
     "common",
-    "windows"
+    "windows",
 ]
 
 [profile.release]

@@ -29,6 +29,6 @@ pub unsafe extern "system" fn get_focused_window_details(
 
     thread::spawn(move || {
         let app_details = collection::hydrate(window_handle);
-        let _ = common::layer::process(&app_details);
+        common::layer::process(&app_details);
     });
 }

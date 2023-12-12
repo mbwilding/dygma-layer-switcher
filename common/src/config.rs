@@ -27,12 +27,12 @@ impl Default for Config {
                 Some(port) => port.port_name.clone(),
                 None => {
                     warn!("No serial ports detected, defaulting to COM5");
-                    String::from("COM5")
+                    String::from("COM4")
                 }
             },
             Err(e) => {
                 error!("Failed to detect serial ports: {:?}", e);
-                String::from("COM5")
+                String::from("COM4")
             }
         };
 
