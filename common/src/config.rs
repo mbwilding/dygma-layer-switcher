@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io;
 use std::io::{Read, Write};
+use sysinfo::{Process, ProcessExt, System, SystemExt};
 use tracing::{debug, error, warn};
 
 const CONFIG_PATH: &str = "config.yml";
@@ -129,20 +130,64 @@ impl Config {
         }
     }
 
-    pub fn check_exe_name(&self, app_details: &AppDetails) -> Option<u8> {
+    pub fn check_process(&self, app_details: &AppDetails) -> Option<u8> {
         app_details
-            .exe_name
+            .process
             .as_ref()
-            .and_then(|app_exe_name| self.match_property(app_exe_name, |mapping| &mapping.exe_name))
+            .and_then(|x| self.match_property(x, |mapping| &mapping.process))
     }
 
-    pub fn check_window_title(&self, app_details: &AppDetails) -> Option<u8> {
+    pub fn check_window(&self, app_details: &AppDetails) -> Option<u8> {
         app_details
-            .window_title
+            .window
             .as_ref()
-            .and_then(|app_window_title| {
-                self.match_property(app_window_title, |mapping| &mapping.window_title)
-            })
+            .and_then(|x| self.match_property(x, |mapping| &mapping.window))
+    }
+
+    pub fn check_parent(&self, app_details: &AppDetails) -> Option<u8> {
+        if let Some(process) = &app_details.process {
+            let mut sys = System::new();
+            sys.refresh_processes();
+
+            if let Some((_, proc)) = sys
+                .processes()
+                .iter()
+                .find(|(_, proc)| proc.name().to_lowercase().contains(&process.to_lowercase()))
+            {
+                return self.check_parent_recursively(proc, &sys, |mapping| &mapping.parent, 1);
+            }
+        }
+
+        None
+    }
+
+    fn check_parent_recursively<F>(
+        &self,
+        proc: &Process,
+        sys: &System,
+        mapping_property: F,
+        level: usize,
+    ) -> Option<u8>
+    where
+        F: Fn(&AppConfig) -> &Option<String> + Copy,
+    {
+        // Recursive call with the parent process
+        if let Some(parent_pid) = proc.parent() {
+            if let Some(parent_proc) = sys.processes().get(&parent_pid) {
+                debug!("Parent: {:?}, Level: {}", parent_proc.name(), level);
+                if let Some(layer) = self.match_property(parent_proc.name(), mapping_property) {
+                    return Some(layer);
+                }
+                return self.check_parent_recursively(
+                    parent_proc,
+                    sys,
+                    mapping_property,
+                    level + 1,
+                );
+            }
+        }
+
+        None
     }
 
     fn match_property<T, F>(&self, app_property: T, mapping_property: F) -> Option<u8>

@@ -10,8 +10,15 @@ pub fn process(app_details: &AppDetails) {
     let config = Config::load();
 
     let layer_desired = config
-        .check_exe_name(app_details)
-        .or(config.check_window_title(app_details))
+        .check_window(app_details)
+        .or(config.check_process(app_details))
+        .or_else(|| {
+            if config.mappings.iter().flatten().any(|x| x.parent.is_some()) {
+                config.check_parent(app_details)
+            } else {
+                None
+            }
+        })
         .unwrap_or(config.base_layer.unwrap());
 
     layer_change(&config, layer_desired);

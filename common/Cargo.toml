@@ -11,11 +11,13 @@ single-instance = "0.3"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 serialport = "4.2"
+sysinfo = "0.29"
 tracing = "0.1"
 tracing-appender = "0.2"
 tracing-subscriber = "0.3.17"
-tray-icon = "0.10"
+tray-icon = "0.11"
 winit = "0.29"
+log = "0.4.20"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 gtk = "0.18"
