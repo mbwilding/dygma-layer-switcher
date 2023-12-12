@@ -14,5 +14,13 @@ pub struct AppConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub process: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub parent: Option<String>,
+    pub parent: Option<Parent>,
+}
+
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+pub struct Parent {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub process: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub excludes: Option<Vec<String>>,
 }

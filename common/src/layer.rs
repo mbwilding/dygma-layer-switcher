@@ -29,7 +29,7 @@ fn layer_change(config: &Config, layer: u8) {
         let command = format!("layer.moveTo {:?}\n", &layer - 1);
 
         if port.write_all(command.as_bytes()).is_ok() {
-            info!("Layer: {}", layer);
+            info!("Changed layer: {}", layer);
         } else {
             error!("Failed to write to serial port: {:?}", &config.comm_port);
         }

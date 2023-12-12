@@ -1,4 +1,4 @@
-use crate::app::{AppConfig, AppDetails};
+use crate::app::{AppConfig, AppDetails, Parent};
 use crate::serial;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -134,18 +134,23 @@ impl Config {
         app_details
             .process
             .as_ref()
-            .and_then(|x| self.match_property(x, |mapping| &mapping.process))
+            .and_then(|x| self.match_property_opt_string(x, |mapping| &mapping.process))
     }
 
     pub fn check_window(&self, app_details: &AppDetails) -> Option<u8> {
         app_details
             .window
             .as_ref()
-            .and_then(|x| self.match_property(x, |mapping| &mapping.window))
+            .and_then(|x| self.match_property_opt_string(x, |mapping| &mapping.window))
     }
 
     pub fn check_parent(&self, app_details: &AppDetails) -> Option<u8> {
         if let Some(process) = &app_details.process {
+            if self.is_process_excluded(process) {
+                debug!("Process was excluded from parent process: {:?}", process);
+                return None;
+            }
+
             let mut sys = System::new();
             sys.refresh_processes();
 
@@ -161,6 +166,24 @@ impl Config {
         None
     }
 
+    fn is_process_excluded(&self, process: &str) -> bool {
+        self.mappings.as_ref().map_or(false, |mappings| {
+            mappings.iter().any(|mapping| {
+                if let Some(parent) = &mapping.parent {
+                    if let Some(excludes) = &parent.excludes {
+                        return excludes.iter().any(|excluded_process| {
+                            excluded_process
+                                .to_lowercase()
+                                .contains(&process.to_lowercase())
+                        });
+                    }
+                }
+
+                false
+            })
+        })
+    }
+
     fn check_parent_recursively<F>(
         &self,
         proc: &Process,
@@ -169,13 +192,15 @@ impl Config {
         level: usize,
     ) -> Option<u8>
     where
-        F: Fn(&AppConfig) -> &Option<String> + Copy,
+        F: Fn(&AppConfig) -> &Option<Parent> + Copy,
     {
         // Recursive call with the parent process
         if let Some(parent_pid) = proc.parent() {
             if let Some(parent_proc) = sys.processes().get(&parent_pid) {
                 debug!("Parent: {:?}, Level: {}", parent_proc.name(), level);
-                if let Some(layer) = self.match_property(parent_proc.name(), mapping_property) {
+                if let Some(layer) =
+                    self.match_property_opt_parent(parent_proc.name(), mapping_property)
+                {
                     return Some(layer);
                 }
                 return self.check_parent_recursively(
@@ -190,7 +215,25 @@ impl Config {
         None
     }
 
-    fn match_property<T, F>(&self, app_property: T, mapping_property: F) -> Option<u8>
+    fn match_property_opt_parent<T, F>(&self, app_property: T, mapping_property: F) -> Option<u8>
+    where
+        T: AsRef<str>,
+        F: Fn(&AppConfig) -> &Option<Parent>,
+    {
+        let app_prop = app_property.as_ref().to_lowercase();
+
+        self.mappings.as_ref()?.iter().find_map(|mapping| {
+            mapping_property(mapping)
+                .as_ref()?
+                .process
+                .as_ref()?
+                .to_lowercase()
+                .contains(&app_prop)
+                .then_some(mapping.layer)
+        })
+    }
+
+    fn match_property_opt_string<T, F>(&self, app_property: T, mapping_property: F) -> Option<u8>
     where
         T: AsRef<str>,
         F: Fn(&AppConfig) -> &Option<String>,

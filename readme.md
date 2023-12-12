@@ -17,19 +17,34 @@ base_layer: 1
 
 # The mappings, each mapping has a layer and a choice of `window`, `process`, and `parent`, ordered in respect to performance.
 # The settings aren't mutually exclusive nor are the layers.
+# All setting's values are case insensitive.
 
-# `window` is part of the title of the window, case insensitive.
-# `process` is part of the name of the process, case insensitive.
-# `parent` is part of the name of any parent process, case insensitive.
+# `window` is part of the title of the window.
+# `process` is part of the name of the process.
+# `parent` has a `process` and an optional `excludes` (array) section.
 mappings:
-  - layer: 5
-    window: "Blender"
-    process: "blender.exe"
+  # Using `window` only.
   - layer: 5
     window: "Maya"
+  # Using `process` only.
   - layer: 2
     process: "some_thing.exe"
+  # Using `window` and `process` together.
+  - layer: 3
+    window: "Parsec"
+    process: "parsecd.exe"
+  # Using `parent` only.
   - layer: 4
-    parent: "steam.exe"
+    parent:
+      process: "EpicGamesLauncher.exe"
+  # Using `parent` only, with excludes.
+  - layer: 4
+    parent:
+      process: "steam.exe"
+      excludes:
+        - "blender.exe"
+        - "Quake_x64_steam.exe"
+        - "bg3.exe"
+        - "bg3_dx11.exe"
 
 ```
