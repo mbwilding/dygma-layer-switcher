@@ -1,5 +1,4 @@
 use crate::app::{AppConfig, AppDetails, Parent};
-use crate::serial;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io;
@@ -19,23 +18,23 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
-        let ports = serial::detect_ports();
+        let focus = dygma_focus::Focus::default();
 
-        // NOTE: There are different port types, i.e. bluetooth, usb, etc.
-        // Could be useful for auto-detecting the correct port
-        let comm_port = match ports {
-            Ok(ports) => match ports.first() {
-                Some(port) => port.port_name.clone(),
-                None => {
-                    warn!("No serial ports detected, defaulting to COM5");
-                    String::from("COM4")
-                }
-            },
+        let ports = match focus.find() {
+            Ok(ports) => ports,
             Err(e) => {
                 error!("Failed to detect serial ports: {:?}", e);
-                String::from("COM4")
+                Vec::new()
             }
         };
+
+        let comm_port = ports.first().map_or_else(
+            || {
+                warn!("No serial ports detected, defaulting to COM4");
+                "COM4".to_string()
+            },
+            |port| port.port.clone(),
+        );
 
         Config {
             logging: Some(false),
