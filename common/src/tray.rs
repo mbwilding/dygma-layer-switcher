@@ -31,7 +31,7 @@ pub fn load() -> Result<()> {
 
     let item_quit = MenuItem::new("Quit", true, None);
 
-    let mut tray_icon;
+    let _tray_icon;
 
     #[cfg(not(target_os = "linux"))]
     {
@@ -40,7 +40,7 @@ pub fn load() -> Result<()> {
             .append(&item_quit)
             .context("Failed to append menu item")?;
 
-        tray_icon = TrayIconBuilder::new()
+        _tray_icon = TrayIconBuilder::new()
             .with_menu(Box::new(tray_menu))
             .with_tooltip(TITLE)
             .with_icon(icon)
@@ -51,7 +51,7 @@ pub fn load() -> Result<()> {
     std::thread::spawn(|| {
         gtk::init().unwrap();
 
-        let tray_icon = TrayIconBuilder::new()
+        _tray_icon = TrayIconBuilder::new()
             .with_menu(Box::new(Menu::new()))
             .with_tooltip(TITLE)
             .with_icon(icon)
