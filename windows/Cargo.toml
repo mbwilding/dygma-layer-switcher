@@ -7,6 +7,7 @@ authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 [target.'cfg(target_os = "windows")'.dependencies]
 common = { path = "../common" }
 anyhow = "1.0"
+lazy_static = "1.4"
 tracing = "0.1"
 windows = { version = "0.51", features = [
     "Win32_Foundation",

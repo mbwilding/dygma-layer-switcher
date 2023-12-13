@@ -1,14 +1,22 @@
 #[cfg(target_os = "windows")]
 use crate::collection;
+use std::sync::Mutex;
 
+use lazy_static::lazy_static;
 #[cfg(target_os = "windows")]
 use std::thread;
 
 #[cfg(target_os = "windows")]
 use windows::Win32::Foundation::HWND;
 
+use common::app::AppDetails;
 #[cfg(target_os = "windows")]
 use windows::Win32::UI::Accessibility::HWINEVENTHOOK;
+
+#[cfg(target_os = "windows")]
+lazy_static! {
+    static ref GLOBAL_STRING: Mutex<AppDetails> = Mutex::new(AppDetails::default());
+}
 
 /// # Safety
 ///
@@ -28,7 +36,13 @@ pub unsafe extern "system" fn get_focused_window_details(
     }
 
     thread::spawn(move || {
+        let mut cache = GLOBAL_STRING.lock().unwrap();
         let app_details = collection::hydrate(window_handle);
+        if app_details.window == cache.window || app_details.process == cache.process {
+            cache.window = app_details.window;
+            cache.process = app_details.process;
+            return;
+        }
         common::layer::process(&app_details);
     });
 }
