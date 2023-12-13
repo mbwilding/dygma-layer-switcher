@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io;
 use std::io::{Read, Write};
 use sysinfo::{Process, ProcessExt, System, SystemExt};
-use tracing::{debug, error, warn};
+use tracing::{debug, error, trace, warn};
 
 const CONFIG_PATH: &str = "config.yml";
 
@@ -54,7 +54,7 @@ impl Config {
                 match f.read_to_string(&mut contents) {
                     Ok(_) => match serde_yaml::from_str(&contents) {
                         Ok(data) => {
-                            debug!("Config loaded");
+                            trace!("Config loaded");
                             data
                         }
                         Err(e) => {

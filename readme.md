@@ -29,10 +29,10 @@ mappings:
   # Using `process` only.
   - layer: 2
     process: "some_thing.exe"
-  # Using `window` and `process` together.
-  - layer: 3
-    window: "Parsec"
-    process: "parsecd.exe"
+  # Using `window` and `process` together, overkill though.
+  - layer: 6
+    window: "Blender"
+    process: "blender.exe"
   # Using `parent` only.
   - layer: 4
     parent:
@@ -42,9 +42,7 @@ mappings:
     parent:
       process: "steam.exe"
       excludes:
+        - "steamwebhelper.exe"
         - "blender.exe"
-        - "Quake_x64_steam.exe"
-        - "bg3.exe"
-        - "bg3_dx11.exe"
 
 ```
