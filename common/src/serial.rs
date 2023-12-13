@@ -6,7 +6,7 @@ use tracing::{debug, error};
 pub fn configure(config: &Config) -> Result<Box<dyn SerialPort>> {
     let comm_port = config.comm_port.clone().unwrap_or_default();
 
-    let port = match serialport::new(&comm_port, 9_600)
+    let port = match serialport::new(&comm_port, 115_200)
         .data_bits(serialport::DataBits::Eight)
         .flow_control(serialport::FlowControl::None)
         .parity(serialport::Parity::None)
