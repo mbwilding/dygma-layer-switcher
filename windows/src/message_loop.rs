@@ -2,13 +2,10 @@
 use crate::collection;
 
 #[cfg(target_os = "windows")]
-use std::sync::Mutex;
+use std::sync::atomic::AtomicU32;
 
 #[cfg(target_os = "windows")]
-use lazy_static::lazy_static;
-
-#[cfg(target_os = "windows")]
-use std::thread;
+use std::sync::atomic::Ordering;
 
 #[cfg(target_os = "windows")]
 use windows::Win32::Foundation::HWND;
@@ -17,9 +14,7 @@ use windows::Win32::Foundation::HWND;
 use windows::Win32::UI::Accessibility::HWINEVENTHOOK;
 
 #[cfg(target_os = "windows")]
-lazy_static! {
-    static ref DEBOUNCER: Mutex<u32> = Mutex::new(0);
-}
+static DEBOUNCER: AtomicU32 = AtomicU32::new(0);
 
 /// # Safety
 ///
@@ -38,15 +33,12 @@ pub unsafe extern "system" fn get_focused_window_details(
         return;
     }
 
-    thread::spawn(move || {
-        let mut debouncer = DEBOUNCER.lock().unwrap();
-        let app_details = collection::hydrate(window_handle);
+    if dwms_event_time == DEBOUNCER.load(Ordering::SeqCst) {
+        return;
+    }
 
-        if dwms_event_time == *debouncer {
-            return;
-        }
+    DEBOUNCER.store(dwms_event_time, Ordering::SeqCst);
 
-        *debouncer = dwms_event_time;
-        common::layer::process(&app_details);
-    });
+    let app_details = collection::hydrate(window_handle);
+    common::layer::process(&app_details);
 }
