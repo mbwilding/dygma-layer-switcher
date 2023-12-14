@@ -47,19 +47,19 @@ pub fn load() -> Result<()> {
             .build()?;
     }
 
-    #[cfg(target_os = "linux")]
-    std::thread::spawn(|| {
-        gtk::init().unwrap();
-
-        _tray_icon = TrayIconBuilder::new()
-            .with_menu(Box::new(Menu::new()))
-            .with_tooltip(TITLE)
-            .with_icon(icon)
-            .build()
-            .unwrap();
-
-        gtk::main();
-    });
+    // #[cfg(target_os = "linux")]
+    // std::thread::spawn(move || {
+    //     gtk::init().unwrap();
+    //
+    //    _tray_icon = TrayIconBuilder::new()
+    //        .with_menu(Box::new(Menu::new()))
+    //        .with_tooltip(TITLE)
+    //        .with_icon(icon)
+    //        .build()
+    //        .unwrap();
+    //
+    //    gtk::main();
+    //});
 
     event_loop.run(move |_event, event_loop| {
         event_loop.set_control_flow(ControlFlow::Wait);

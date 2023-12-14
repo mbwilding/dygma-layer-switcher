@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io;
 use std::io::{Read, Write};
 use sysinfo::{Process, ProcessExt, System, SystemExt};
-use tracing::{debug, error, trace, warn};
+use tracing::{error, trace, warn};
 
 const CONFIG_PATH: &str = "config.yml";
 
@@ -137,11 +137,6 @@ impl Config {
 
     pub fn check_parent(&self, app_details: &AppDetails) -> Option<u8> {
         if let Some(process) = &app_details.process {
-            if self.is_process_excluded(process) {
-                debug!("Process was excluded from parent process: {:?}", process);
-                return None;
-            }
-
             let mut sys = System::new();
             sys.refresh_processes();
 
@@ -150,28 +145,35 @@ impl Config {
                 .iter()
                 .find(|(_, proc)| proc.name().to_lowercase().contains(&process.to_lowercase()))
             {
-                return self.check_parent_recursively(proc, &sys, |mapping| &mapping.parent, 1);
+                return self.check_parent_recursively(proc, &sys, |mapping| &mapping.parent, 0);
             }
         }
 
         None
     }
 
-    fn is_process_excluded(&self, process: &str) -> bool {
+    fn is_process_excluded(&self, process: &str, parent_process: &str) -> bool {
         if let Some(layers) = &self.mappings {
             layers.iter().any(|layer| {
-                return layer.apps.iter().any(|app| {
+                layer.apps.iter().any(|app| {
                     if let Some(parent) = &app.parent {
-                        if let Some(excludes) = &parent.excludes {
-                            return excludes.iter().any(|excluded_process| {
-                                excluded_process
-                                    .to_lowercase()
-                                    .contains(&process.to_lowercase())
-                            });
+                        if let Some(parent_process_name) = &parent.process {
+                            if parent_process_name
+                                .to_lowercase()
+                                .contains(&parent_process.to_lowercase())
+                            {
+                                if let Some(excludes) = &parent.excludes {
+                                    return excludes.iter().any(|excluded_process| {
+                                        excluded_process
+                                            .to_lowercase()
+                                            .contains(&process.to_lowercase())
+                                    });
+                                }
+                            }
                         }
                     }
                     false
-                });
+                })
             })
         } else {
             false
@@ -188,15 +190,20 @@ impl Config {
     where
         F: Fn(&AppConfig) -> &Option<Parent> + Copy,
     {
-        // Recursive call with the parent process
         if let Some(parent_pid) = proc.parent() {
             if let Some(parent_proc) = sys.processes().get(&parent_pid) {
+                if level > 0 && self.is_process_excluded(proc.name(), parent_proc.name()) {
+                    return None;
+                }
+
                 trace!("Parent: {:?}, Level: {}", parent_proc.name(), level);
+
                 if let Some(layer) =
                     self.match_property_opt_parent(parent_proc.name(), mapping_property)
                 {
                     return Some(layer);
                 }
+
                 return self.check_parent_recursively(
                     parent_proc,
                     sys,
