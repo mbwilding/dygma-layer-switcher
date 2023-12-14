@@ -1,4 +1,4 @@
-use crate::app::{AppConfig, AppDetails, Parent};
+use crate::app::{AppConfig, AppDetails, Layer, Parent};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io;
@@ -13,7 +13,7 @@ pub struct Config {
     pub logging: Option<bool>,
     pub comm_port: Option<String>,
     pub base_layer: Option<u8>,
-    pub mappings: Option<Vec<AppConfig>>,
+    pub mappings: Option<Vec<Layer>>,
 }
 
 impl Default for Config {
@@ -88,7 +88,7 @@ impl Config {
 
     pub fn add(&mut self) {
         if let Some(mappings) = self.mappings.as_mut() {
-            mappings.push(AppConfig::default());
+            mappings.push(Layer::default());
         } else {
             error!("Mappings not initialized");
         }
@@ -158,21 +158,24 @@ impl Config {
     }
 
     fn is_process_excluded(&self, process: &str) -> bool {
-        self.mappings.as_ref().map_or(false, |mappings| {
-            mappings.iter().any(|mapping| {
-                if let Some(parent) = &mapping.parent {
-                    if let Some(excludes) = &parent.excludes {
-                        return excludes.iter().any(|excluded_process| {
-                            excluded_process
-                                .to_lowercase()
-                                .contains(&process.to_lowercase())
-                        });
+        if let Some(layers) = &self.mappings {
+            layers.iter().any(|layer| {
+                return layer.apps.iter().any(|app| {
+                    if let Some(parent) = &app.parent {
+                        if let Some(excludes) = &parent.excludes {
+                            return excludes.iter().any(|excluded_process| {
+                                excluded_process
+                                    .to_lowercase()
+                                    .contains(&process.to_lowercase())
+                            });
+                        }
                     }
-                }
-
-                false
+                    false
+                });
             })
-        })
+        } else {
+            false
+        }
     }
 
     fn check_parent_recursively<F>(
@@ -214,13 +217,15 @@ impl Config {
         let app_prop = app_property.as_ref().to_lowercase();
 
         self.mappings.as_ref()?.iter().find_map(|mapping| {
-            mapping_property(mapping)
-                .as_ref()?
-                .process
-                .as_ref()?
-                .to_lowercase()
-                .contains(&app_prop)
-                .then_some(mapping.layer)
+            mapping.apps.iter().find_map(|app| {
+                mapping_property(app)
+                    .as_ref()?
+                    .process
+                    .as_ref()?
+                    .to_lowercase()
+                    .contains(&app_prop)
+                    .then_some(mapping.layer)
+            })
         })
     }
 
@@ -232,11 +237,13 @@ impl Config {
         let app_prop = app_property.as_ref().to_lowercase();
 
         self.mappings.as_ref()?.iter().find_map(|mapping| {
-            mapping_property(mapping)
-                .as_ref()?
-                .to_lowercase()
-                .contains(&app_prop)
-                .then_some(mapping.layer)
+            mapping.apps.iter().find_map(|app| {
+                mapping_property(app)
+                    .as_ref()?
+                    .to_lowercase()
+                    .contains(&app_prop)
+                    .then_some(mapping.layer)
+            })
         })
     }
 }

@@ -17,32 +17,26 @@ base_layer: 1
 
 # The mappings, each mapping has a layer and a choice of `window`, `process`, and `parent`, ordered in respect to performance.
 # The settings aren't mutually exclusive nor are the layers.
-# All setting's values are case insensitive.
+# All setting values are case-insensitive.
 
 # `window` is part of the title of the window.
 # `process` is part of the name of the process.
 # `parent` has a `process` and an optional `excludes` (array) section.
+
+# You can do any combination of the above, mix and match all you want under the layer's `app` section.
 mappings:
-  # Using `window` only.
+  - layer: 4
+    apps:
+      - parent:
+          process: "EpicGamesLauncher.exe"
+      - parent:
+          process: "steam.exe"
+          excludes:
+            - "steamwebhelper.exe"
+            - "blender.exe"
   - layer: 5
-    window: "Maya"
-  # Using `process` only.
-  - layer: 2
-    process: "some_thing.exe"
-  # Using `window` and `process` together, overkill though.
-  - layer: 6
-    window: "Blender"
-    process: "blender.exe"
-  # Using `parent` only.
-  - layer: 4
-    parent:
-      process: "EpicGamesLauncher.exe"
-  # Using `parent` only, with excludes.
-  - layer: 4
-    parent:
-      process: "steam.exe"
-      excludes:
-        - "steamwebhelper.exe"
-        - "blender.exe"
+    apps:
+      - window: "Autodesk MAYA"
+      - process: "blender.exe"
 
 ```

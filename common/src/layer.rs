@@ -7,19 +7,13 @@ pub fn process(app_details: &AppDetails) {
 
     let config = Config::load();
 
-    let layer_desired = config
+    let layer = config
         .check_window(app_details)
-        .or(config.check_process(app_details))
-        .or_else(|| {
-            if config.mappings.iter().flatten().any(|x| x.parent.is_some()) {
-                config.check_parent(app_details)
-            } else {
-                None
-            }
-        })
-        .unwrap_or(config.base_layer.unwrap());
+        .or_else(|| config.check_process(app_details))
+        .or_else(|| config.check_parent(app_details))
+        .unwrap_or_else(|| config.base_layer.unwrap_or_default());
 
-    layer_change(&config, layer_desired);
+    layer_change(&config, layer);
 }
 
 fn layer_change(config: &Config, layer: u8) {

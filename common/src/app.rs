@@ -7,8 +7,13 @@ pub struct AppDetails {
 }
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
-pub struct AppConfig {
+pub struct Layer {
     pub layer: u8,
+    pub apps: Vec<AppConfig>,
+}
+
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+pub struct AppConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub window: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
