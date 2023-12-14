@@ -1,15 +1,21 @@
 #[cfg(target_os = "windows")]
 use crate::collection;
+
+#[cfg(target_os = "windows")]
 use std::sync::Mutex;
 
+#[cfg(target_os = "windows")]
 use lazy_static::lazy_static;
+
 #[cfg(target_os = "windows")]
 use std::thread;
 
 #[cfg(target_os = "windows")]
 use windows::Win32::Foundation::HWND;
 
+#[cfg(target_os = "windows")]
 use common::app::AppDetails;
+
 #[cfg(target_os = "windows")]
 use windows::Win32::UI::Accessibility::HWINEVENTHOOK;
 
