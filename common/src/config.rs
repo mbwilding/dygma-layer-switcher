@@ -188,7 +188,7 @@ impl Config {
         // Recursive call with the parent process
         if let Some(parent_pid) = proc.parent() {
             if let Some(parent_proc) = sys.processes().get(&parent_pid) {
-                debug!("Parent: {:?}, Level: {}", parent_proc.name(), level);
+                trace!("Parent: {:?}, Level: {}", parent_proc.name(), level);
                 if let Some(layer) =
                     self.match_property_opt_parent(parent_proc.name(), mapping_property)
                 {

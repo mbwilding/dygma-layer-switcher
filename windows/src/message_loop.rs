@@ -14,14 +14,11 @@ use std::thread;
 use windows::Win32::Foundation::HWND;
 
 #[cfg(target_os = "windows")]
-use common::app::AppDetails;
-
-#[cfg(target_os = "windows")]
 use windows::Win32::UI::Accessibility::HWINEVENTHOOK;
 
 #[cfg(target_os = "windows")]
 lazy_static! {
-    static ref GLOBAL_STRING: Mutex<AppDetails> = Mutex::new(AppDetails::default());
+    static ref DEBOUNCER: Mutex<u32> = Mutex::new(0);
 }
 
 /// # Safety
@@ -35,20 +32,21 @@ pub unsafe extern "system" fn get_focused_window_details(
     _id_object: i32,
     _id_child: i32,
     _id_event_thread: u32,
-    _dwms_event_time: u32,
+    dwms_event_time: u32,
 ) {
     if window_handle.0 == 0 {
         return;
     }
 
     thread::spawn(move || {
-        let mut cache = GLOBAL_STRING.lock().unwrap();
+        let mut debouncer = DEBOUNCER.lock().unwrap();
         let app_details = collection::hydrate(window_handle);
-        if app_details.window == cache.window || app_details.process == cache.process {
-            cache.window = app_details.window;
-            cache.process = app_details.process;
+
+        if dwms_event_time == *debouncer {
             return;
         }
+
+        *debouncer = dwms_event_time;
         common::layer::process(&app_details);
     });
 }
