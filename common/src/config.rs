@@ -20,13 +20,10 @@ impl Default for Config {
     fn default() -> Self {
         let focus = dygma_focus::Focus::default();
 
-        let ports = match focus.find() {
-            Ok(ports) => ports,
-            Err(e) => {
-                error!("Failed to detect serial ports: {:?}", e);
-                Vec::new()
-            }
-        };
+        let ports = focus.find().unwrap_or_else(|e| {
+            error!("Failed to detect serial ports: {:?}", e);
+            Vec::new()
+        });
 
         let comm_port = ports.first().map_or_else(
             || {
