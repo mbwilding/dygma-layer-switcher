@@ -20,22 +20,17 @@ impl Default for Config {
     fn default() -> Self {
         let focus = dygma_focus::Focus::default();
 
-        let ports = focus.find().unwrap_or_else(|e| {
-            error!("Failed to detect serial ports: {:?}", e);
-            Vec::new()
+        let device = focus.find_first().unwrap_or_else(|e| {
+            error!(
+                "Connect a Dygma keyboard and restart the application: {:?}",
+                e
+            );
+            std::process::exit(1);
         });
-
-        let comm_port = ports.first().map_or_else(
-            || {
-                warn!("No serial ports detected, defaulting to COM4");
-                "COM4".to_string()
-            },
-            |port| port.port.clone(),
-        );
 
         Config {
             logging: Some(false),
-            comm_port: Some(comm_port),
+            comm_port: Some(device.port),
             base_layer: Some(1),
             mappings: Some(vec![]),
         }
