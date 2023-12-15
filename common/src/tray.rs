@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use std::path::Path;
 use tracing::trace;
 use tray_icon::menu::{Menu, MenuEvent, MenuEventReceiver, MenuItem};
-use tray_icon::{Icon, TrayIcon, TrayIconBuilder, TrayIconEvent, TrayIconEventReceiver};
+use tray_icon::{Icon, TrayIconBuilder, TrayIconEvent, TrayIconEventReceiver};
 use winit::event_loop::{ControlFlow, EventLoop, EventLoopBuilder};
 
 const TITLE: &str = "Dygma Layer Switcher";
@@ -59,7 +59,7 @@ pub fn load() -> Result<()> {
 
         gtk::main();
 
-        tray_loop(event_loop, menu_channel, tray_channel, item_quit)?;
+        tray_loop(event_loop, menu_channel, tray_channel, item_quit).unwrap();
     });
 
     Ok(())
