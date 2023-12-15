@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use std::path::Path;
 use tracing::trace;
 use tray_icon::menu::{Menu, MenuEvent, MenuItem};
-use tray_icon::{Icon, TrayIconBuilder, TrayIconEvent};
+use tray_icon::{Icon, TrayIcon, TrayIconBuilder, TrayIconEvent};
 use winit::event_loop::{ControlFlow, EventLoopBuilder};
 
 const TITLE: &str = "Dygma Layer Switcher";
@@ -25,13 +25,12 @@ pub fn load() -> Result<()> {
         load_icon(Path::new(&icon_path)).context(format!("Could not find icon: {}", &icon_path))?;
 
     let event_loop = EventLoopBuilder::new().build()?;
-
     let menu_channel = MenuEvent::receiver();
     let tray_channel = TrayIconEvent::receiver();
 
     let item_quit = MenuItem::new("Quit", true, None);
 
-    let _tray_icon;
+    let _tray_icon: TrayIcon;
 
     #[cfg(not(target_os = "linux"))]
     {
@@ -47,19 +46,18 @@ pub fn load() -> Result<()> {
             .build()?;
     }
 
-    // #[cfg(target_os = "linux")]
-    // std::thread::spawn(move || {
-    //     gtk::init().unwrap();
-    //
-    //    _tray_icon = TrayIconBuilder::new()
-    //        .with_menu(Box::new(Menu::new()))
-    //        .with_tooltip(TITLE)
-    //        .with_icon(icon)
-    //        .build()
-    //        .unwrap();
-    //
-    //    gtk::main();
-    //});
+    #[cfg(target_os = "linux")]
+    std::thread::spawn(move || {
+        gtk::init().unwrap();
+        _tray_icon = TrayIconBuilder::new()
+            .with_menu(Box::new(Menu::new()))
+            .with_tooltip(TITLE)
+            .with_icon(icon)
+            .build()
+            .unwrap();
+
+        gtk::main();
+    });
 
     event_loop.run(move |_event, event_loop| {
         event_loop.set_control_flow(ControlFlow::Wait);
