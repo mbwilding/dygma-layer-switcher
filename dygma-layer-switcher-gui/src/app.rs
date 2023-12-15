@@ -94,13 +94,19 @@ impl DygmaLayerSwitcher {
                     ui.horizontal(|ui| {
                         if ui.button("Add Window").clicked() {
                             layer.apps.push(App {
-                                mode: Mode::Window(EDIT_TEXT.to_string()),
+                                mode: Mode::Window(Window {
+                                    name: EDIT_TEXT.to_string(),
+                                    is_editing: false,
+                                }),
                                 is_enabled: true,
                             });
                         }
                         if ui.button("Add Process").clicked() {
                             layer.apps.push(App {
-                                mode: Mode::Process(EDIT_TEXT.to_string()),
+                                mode: Mode::Process(Process {
+                                    name: EDIT_TEXT.to_string(),
+                                    is_editing: false,
+                                }),
                                 is_enabled: true,
                             });
                         }
@@ -116,45 +122,49 @@ impl DygmaLayerSwitcher {
                         }
                     });
 
-                    layer.apps.iter_mut().for_each(|app| match &mut app.mode {
-                        Mode::Window(window) => {
-                            ui.horizontal(|ui| {
-                                ui.checkbox(&mut app.is_enabled, "");
+                    ui.collapsing("Windows", |ui| {
+                        layer.apps.iter_mut().for_each(|app| {
+                            if let Mode::Window(window) = &mut app.mode {
                                 ui.horizontal(|ui| {
-                                    ui.label("Window: ");
-                                    ui.label(window.as_str());
+                                    ui.checkbox(&mut app.is_enabled, "");
+                                    templates::editable_label(
+                                        ui,
+                                        &mut window.name,
+                                        &mut window.is_editing,
+                                    );
                                 });
-                            });
-                        }
-                        Mode::Process(process) => {
-                            ui.horizontal(|ui| {
-                                ui.checkbox(&mut app.is_enabled, "");
-                                ui.horizontal(|ui| {
-                                    ui.label("Process: ");
-                                    ui.label(process.as_str());
-                                });
-                            });
-                        }
-                        Mode::Parent(parent) => {
-                            ui.horizontal(|ui| {
-                                ui.checkbox(&mut app.is_enabled, "");
-                                ui.horizontal(|ui| {
-                                    ui.label("Parent: ");
-                                    ui.label(&parent.process);
-                                });
+                            }
+                        });
+                    });
 
-                                if ui.button("Add Exclude").clicked() {
-                                    parent.excludes.push(EDIT_TEXT.to_string());
-                                }
-
-                                parent.excludes.iter().for_each(|exclude| {
-                                    ui.horizontal(|ui| {
-                                        ui.label("Exclude: ");
-                                        ui.label(exclude);
-                                    });
+                    ui.collapsing("Processes", |ui| {
+                        layer.apps.iter_mut().for_each(|app| {
+                            if let Mode::Process(process) = &mut app.mode {
+                                ui.horizontal(|ui| {
+                                    ui.checkbox(&mut app.is_enabled, "");
+                                    templates::editable_label(
+                                        ui,
+                                        &mut process.name,
+                                        &mut process.is_editing,
+                                    );
                                 });
-                            });
-                        }
+                            }
+                        });
+                    });
+
+                    ui.collapsing("Parents", |ui| {
+                        layer.apps.iter_mut().for_each(|app| {
+                            if let Mode::Parent(parent) = &mut app.mode {
+                                ui.horizontal(|ui| {
+                                    ui.checkbox(&mut app.is_enabled, "");
+                                    templates::editable_label(
+                                        ui,
+                                        &mut parent.process,
+                                        &mut parent.is_editing,
+                                    );
+                                });
+                            }
+                        });
                     });
                 });
             }

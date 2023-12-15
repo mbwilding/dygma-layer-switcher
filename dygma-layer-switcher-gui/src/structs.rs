@@ -17,9 +17,21 @@ pub struct App {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum Mode {
-    Window(String),
-    Process(String),
+    Window(Window),
+    Process(Process),
     Parent(Parent),
+}
+
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+pub struct Window {
+    pub name: String,
+    pub is_editing: bool,
+}
+
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+pub struct Process {
+    pub name: String,
+    pub is_editing: bool,
 }
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
