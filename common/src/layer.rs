@@ -1,5 +1,4 @@
-use crate::app::AppDetails;
-use crate::config::Config;
+use crate::config::{AppDetails, Config};
 use tracing::{debug, error, info};
 
 pub fn process(app_details: &AppDetails) {

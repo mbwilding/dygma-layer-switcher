@@ -1,0 +1,17 @@
+[package]
+name = "dygma-layer-switcher-gui"
+version = "0.1.0"
+edition = "2021"
+authors = ["Matthew Wilding <mbwilding@gmail.com>"]
+
+[dependencies]
+eframe = { version = "0.24", default-features = false, features = [
+    "default_fonts",
+    "wgpu",
+    "persistence",
+] }
+serde = { version = "1.0", features = ["derive"] }
+
+#tracing = "0.1"
+#tracing-appender = "0.2"
+#tracing-subscriber = "0.3"

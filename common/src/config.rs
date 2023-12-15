@@ -1,4 +1,4 @@
-use crate::app::{AppConfig, AppDetails, Layer, Parent};
+use crate::app::{App, Layer, Parent};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io;
@@ -14,6 +14,12 @@ pub struct Config {
     pub comm_port: Option<String>,
     pub base_layer: Option<u8>,
     pub mappings: Option<Vec<Layer>>,
+}
+
+#[derive(Debug, Default, Clone, Deserialize, Serialize)]
+pub struct AppDetails {
+    pub window: Option<String>,
+    pub process: Option<String>,
 }
 
 impl Default for Config {
@@ -188,7 +194,7 @@ impl Config {
         level: usize,
     ) -> Option<u8>
     where
-        F: Fn(&AppConfig) -> &Option<Parent> + Copy,
+        F: Fn(&App) -> &Option<Parent> + Copy,
     {
         if let Some(parent_pid) = proc.parent() {
             if let Some(parent_proc) = sys.processes().get(&parent_pid) {
@@ -219,7 +225,7 @@ impl Config {
     fn match_property_opt_parent<T, F>(&self, app_property: T, mapping_property: F) -> Option<u8>
     where
         T: AsRef<str>,
-        F: Fn(&AppConfig) -> &Option<Parent>,
+        F: Fn(&App) -> &Option<Parent>,
     {
         let app_prop = app_property.as_ref().to_lowercase();
 
@@ -239,7 +245,7 @@ impl Config {
     fn match_property_opt_string<T, F>(&self, app_property: T, mapping_property: F) -> Option<u8>
     where
         T: AsRef<str>,
-        F: Fn(&AppConfig) -> &Option<String>,
+        F: Fn(&App) -> &Option<String>,
     {
         let app_prop = app_property.as_ref().to_lowercase();
 

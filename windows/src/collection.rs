@@ -1,4 +1,4 @@
-use common::app::AppDetails;
+use common::config::AppDetails;
 use std::path::Path;
 use tracing::{error, trace};
 use windows::Win32::{
