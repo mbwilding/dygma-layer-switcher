@@ -1,6 +1,6 @@
 use crate::structs::*;
 use crate::templates;
-use eframe::egui::{CentralPanel, Context, DragValue, TopBottomPanel};
+use eframe::egui::{CentralPanel, CollapsingHeader, Context, DragValue, TopBottomPanel};
 use eframe::{egui, Frame, Storage};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -93,65 +93,71 @@ impl DygmaLayerSwitcher {
                         }
                     });
 
-                    ui.collapsing("Windows", |ui| {
-                        layer.apps.iter_mut().for_each(|app| {
-                            if let Mode::Window(window) = &mut app.mode {
-                                ui.horizontal(|ui| {
-                                    ui.checkbox(&mut app.is_enabled, "");
-                                    templates::editable_label(
-                                        ui,
-                                        &mut window.name,
-                                        &mut window.is_editing,
-                                    );
-                                });
-                            }
+                    CollapsingHeader::new("Windows")
+                        .default_open(true)
+                        .show(ui, |ui| {
+                            layer.apps.iter_mut().for_each(|app| {
+                                if let Mode::Window(window) = &mut app.mode {
+                                    ui.horizontal(|ui| {
+                                        ui.checkbox(&mut app.is_enabled, "");
+                                        templates::editable_label(
+                                            ui,
+                                            &mut window.name,
+                                            &mut window.is_editing,
+                                        );
+                                    });
+                                }
+                            });
                         });
-                    });
 
-                    ui.collapsing("Processes", |ui| {
-                        layer.apps.iter_mut().for_each(|app| {
-                            if let Mode::Process(process) = &mut app.mode {
-                                ui.horizontal(|ui| {
-                                    ui.checkbox(&mut app.is_enabled, "");
-                                    templates::editable_label(
-                                        ui,
-                                        &mut process.name,
-                                        &mut process.is_editing,
-                                    );
-                                });
-                            }
+                    CollapsingHeader::new("Processes")
+                        .default_open(true)
+                        .show(ui, |ui| {
+                            layer.apps.iter_mut().for_each(|app| {
+                                if let Mode::Process(process) = &mut app.mode {
+                                    ui.horizontal(|ui| {
+                                        ui.checkbox(&mut app.is_enabled, "");
+                                        templates::editable_label(
+                                            ui,
+                                            &mut process.name,
+                                            &mut process.is_editing,
+                                        );
+                                    });
+                                }
+                            });
                         });
-                    });
 
-                    ui.collapsing("Parents", |ui| {
-                        layer.apps.iter_mut().for_each(|app| {
-                            if let Mode::Parent(parent) = &mut app.mode {
-                                ui.horizontal(|ui| {
-                                    ui.checkbox(&mut app.is_enabled, "");
-                                    if ui.button("Add Exclude").clicked() {
-                                        parent.excludes.push(Exclude::new());
-                                    }
-                                    templates::editable_label(
-                                        ui,
-                                        &mut parent.name,
-                                        &mut parent.is_editing,
-                                    );
-                                });
-                                ui.indent("Excludes", |ui| {
-                                    parent.excludes.iter_mut().for_each(|exclude| {
-                                        ui.horizontal(|ui| {
-                                            ui.checkbox(&mut exclude.is_enabled, "");
-                                            templates::editable_label(
-                                                ui,
-                                                &mut exclude.name,
-                                                &mut exclude.is_editing,
-                                            );
+                    CollapsingHeader::new("Parents")
+                        .default_open(true)
+                        .show(ui, |ui| {
+                            layer.apps.iter_mut().for_each(|app| {
+                                if let Mode::Parent(parent) = &mut app.mode {
+                                    ui.horizontal(|ui| {
+                                        ui.checkbox(&mut app.is_enabled, "");
+                                        if ui.button("Add Exclude").clicked() {
+                                            parent.excludes.push(Exclude::new());
+                                        }
+                                        templates::editable_label(
+                                            ui,
+                                            &mut parent.name,
+                                            &mut parent.is_editing,
+                                        );
+                                    });
+                                    ui.indent("Excludes", |ui| {
+                                        parent.excludes.iter_mut().for_each(|exclude| {
+                                            ui.horizontal(|ui| {
+                                                ui.checkbox(&mut exclude.is_enabled, "");
+                                                templates::editable_label(
+                                                    ui,
+                                                    &mut exclude.name,
+                                                    &mut exclude.is_editing,
+                                                );
+                                            });
                                         });
                                     });
-                                });
-                            }
+                                }
+                            });
                         });
-                    });
                 });
             }
         });
