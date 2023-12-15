@@ -1,4 +1,4 @@
-use crate::helpers::remove_app;
+use crate::helpers::remove_opt_index;
 use crate::structs::*;
 use crate::templates;
 use eframe::egui::{CentralPanel, CollapsingHeader, Context, DragValue, TopBottomPanel};
@@ -21,6 +21,9 @@ pub struct DygmaLayerSwitcher {
 
     #[serde(skip)]
     pub remove_app: Option<usize>,
+
+    #[serde(skip)]
+    pub remove_exclude: Option<usize>,
 }
 
 impl Default for DygmaLayerSwitcher {
@@ -35,6 +38,7 @@ impl Default for DygmaLayerSwitcher {
 
             editing_port: false,
             remove_app: None,
+            remove_exclude: None,
         }
     }
 }
@@ -157,23 +161,36 @@ impl DygmaLayerSwitcher {
                                             &mut parent.is_editing,
                                         );
                                     });
-                                    ui.indent("Excludes", |ui| {
-                                        parent.excludes.iter_mut().for_each(|exclude| {
-                                            ui.horizontal(|ui| {
-                                                ui.checkbox(&mut exclude.is_enabled, "");
-                                                templates::editable_label(
-                                                    ui,
-                                                    &mut exclude.name,
-                                                    &mut exclude.is_editing,
-                                                );
+
+                                    if !parent.excludes.is_empty() {
+                                        CollapsingHeader::new("Excludes")
+                                            .id_source(format!("excludes_{}", index))
+                                            .default_open(true)
+                                            .show(ui, |ui| {
+                                                parent.excludes.iter_mut().for_each(|exclude| {
+                                                    ui.horizontal(|ui| {
+                                                        ui.checkbox(&mut exclude.is_enabled, "");
+                                                        if ui.button(" - ").clicked() {
+                                                            self.remove_exclude = Some(index);
+                                                        }
+                                                        templates::editable_label(
+                                                            ui,
+                                                            &mut exclude.name,
+                                                            &mut exclude.is_editing,
+                                                        );
+                                                    });
+                                                });
+                                                remove_opt_index(
+                                                    &mut parent.excludes,
+                                                    &mut self.remove_exclude,
+                                                )
                                             });
-                                        });
-                                    });
+                                    }
                                 }
                             }
                         });
 
-                    remove_app(&mut layer.apps, &mut self.remove_app);
+                    remove_opt_index(&mut layer.apps, &mut self.remove_app);
                 });
             }
         });
