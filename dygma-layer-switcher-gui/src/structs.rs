@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+const EDIT_TEXT: &str = "*Click to edit*";
+
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct Layer {
     pub name: String,
@@ -64,7 +66,7 @@ pub struct Window {
 impl Window {
     pub fn new() -> Self {
         Self {
-            name: "Window Placeholder".to_string(),
+            name: EDIT_TEXT.to_string(),
             is_editing: false,
         }
     }
@@ -79,7 +81,7 @@ pub struct Process {
 impl Process {
     pub fn new() -> Self {
         Self {
-            name: "Process Placeholder".to_string(),
+            name: EDIT_TEXT.to_string(),
             is_editing: false,
         }
     }
@@ -97,7 +99,7 @@ pub struct Parent {
 impl Parent {
     pub fn new() -> Self {
         Self {
-            name: "Parent Placeholder".to_string(),
+            name: EDIT_TEXT.to_string(),
             excludes: vec![],
             is_editing: false,
         }
@@ -116,7 +118,7 @@ pub struct Exclude {
 impl Exclude {
     pub fn new() -> Self {
         Self {
-            name: "Exclude Placeholder".to_string(),
+            name: EDIT_TEXT.to_string(),
             is_enabled: true,
             is_editing: false,
         }
