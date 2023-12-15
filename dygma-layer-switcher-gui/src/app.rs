@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 const MAX_LAYERS: u8 = 10;
-const EDIT_TEXT: &str = "Placeholder";
 
 #[derive(Deserialize, Serialize)]
 #[serde(default)]
@@ -27,16 +26,7 @@ impl Default for DygmaLayerSwitcher {
             port: String::new(),
             base_layer: 1,
             mappings: (0..MAX_LAYERS)
-                .map(|i| {
-                    (
-                        i,
-                        Layer {
-                            name: format!("Layer {}", i + 1),
-                            apps: vec![],
-                            is_editing: false,
-                        },
-                    )
-                })
+                .map(|i| (i, Layer::new(i)))
                 .collect::<BTreeMap<u8, Layer>>(),
 
             editing_port: false,
@@ -93,32 +83,13 @@ impl DygmaLayerSwitcher {
                 templates::editable_collapsing(ui, &mut layer.name, &mut layer.is_editing, |ui| {
                     ui.horizontal(|ui| {
                         if ui.button("Add Window").clicked() {
-                            layer.apps.push(App {
-                                mode: Mode::Window(Window {
-                                    name: EDIT_TEXT.to_string(),
-                                    is_editing: false,
-                                }),
-                                is_enabled: true,
-                            });
+                            layer.apps.push(App::new_window());
                         }
                         if ui.button("Add Process").clicked() {
-                            layer.apps.push(App {
-                                mode: Mode::Process(Process {
-                                    name: EDIT_TEXT.to_string(),
-                                    is_editing: false,
-                                }),
-                                is_enabled: true,
-                            });
+                            layer.apps.push(App::new_process());
                         }
                         if ui.button("Add Parent").clicked() {
-                            layer.apps.push(App {
-                                mode: Mode::Parent(Parent {
-                                    process: EDIT_TEXT.to_string(),
-                                    excludes: vec![],
-                                    is_editing: false,
-                                }),
-                                is_enabled: true,
-                            });
+                            layer.apps.push(App::new_parent());
                         }
                     });
 
@@ -157,11 +128,26 @@ impl DygmaLayerSwitcher {
                             if let Mode::Parent(parent) = &mut app.mode {
                                 ui.horizontal(|ui| {
                                     ui.checkbox(&mut app.is_enabled, "");
+                                    if ui.button("Add Exclude").clicked() {
+                                        parent.excludes.push(Exclude::new());
+                                    }
                                     templates::editable_label(
                                         ui,
-                                        &mut parent.process,
+                                        &mut parent.name,
                                         &mut parent.is_editing,
                                     );
+                                });
+                                ui.indent("Excludes", |ui| {
+                                    parent.excludes.iter_mut().for_each(|exclude| {
+                                        ui.horizontal(|ui| {
+                                            ui.checkbox(&mut exclude.is_enabled, "");
+                                            templates::editable_label(
+                                                ui,
+                                                &mut exclude.name,
+                                                &mut exclude.is_editing,
+                                            );
+                                        });
+                                    });
                                 });
                             }
                         });
