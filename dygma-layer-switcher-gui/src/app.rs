@@ -1,6 +1,6 @@
 use crate::structs::*;
 use crate::templates;
-use eframe::egui::{CentralPanel, Context, Slider, TopBottomPanel};
+use eframe::egui::{CentralPanel, Context, DragValue, TopBottomPanel};
 use eframe::{egui, Frame, Storage};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -73,7 +73,7 @@ impl DygmaLayerSwitcher {
     fn base_layer_control(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
             ui.label("Base Layer");
-            ui.add(Slider::new(&mut self.base_layer, 1..=MAX_LAYERS - 1).trailing_fill(true));
+            ui.add(DragValue::new(&mut self.base_layer));
         });
     }
 
@@ -96,49 +96,41 @@ impl DygmaLayerSwitcher {
                 let mut add_parent = false;
 
                 ui.horizontal(|ui| {
-                    if layer.is_being_renamed {
-                        let focus_lost = ui.text_edit_singleline(&mut layer.name).lost_focus();
-                        let enter_pressed = ui.input(|i| i.key_pressed(egui::Key::Enter));
-                        if focus_lost && enter_pressed {
-                            layer.is_being_renamed = false;
-                        }
-                    } else {
-                        let collapsing_response = ui
-                            .collapsing(&layer.name, |ui| {
-                                ui.horizontal(|ui| {
-                                    if ui.button("Add Window").clicked() {
-                                        add_window = true;
-                                    }
-                                    if ui.button("Add Process").clicked() {
-                                        add_process = true;
-                                    }
-                                    if ui.button("Add Parent").clicked() {
-                                        add_parent = true;
-                                    }
-                                });
+                    let collapsing_response = ui
+                        .collapsing(&layer.name, |ui| {
+                            ui.horizontal(|ui| {
+                                if ui.button("Add Window").clicked() {
+                                    add_window = true;
+                                }
+                                if ui.button("Add Process").clicked() {
+                                    add_process = true;
+                                }
+                                if ui.button("Add Parent").clicked() {
+                                    add_parent = true;
+                                }
+                            });
 
-                                layer.apps.iter_mut().for_each(|app| match &mut app.mode {
-                                    Mode::Window(window) => {
-                                        ui.horizontal(|ui| {
-                                            ui.checkbox(&mut app.is_enabled, "");
-                                            ui.label(format!("Window: {:?}", window));
-                                        });
-                                    }
-                                    Mode::Process(process) => {
-                                        ui.label(format!("Process: {}", process));
-                                    }
-                                    Mode::Parent(parent) => {
-                                        ui.label(format!("Parent: {}", parent.process));
-                                        parent.excludes.iter().for_each(|exclude| {
-                                            ui.label(format!("Exclude: {}", exclude));
-                                        });
-                                    }
-                                });
-                            })
-                            .header_response;
+                            layer.apps.iter_mut().for_each(|app| match &mut app.mode {
+                                Mode::Window(window) => {
+                                    ui.horizontal(|ui| {
+                                        ui.checkbox(&mut app.is_enabled, "");
+                                        ui.label(format!("Window: {:?}", window));
+                                    });
+                                }
+                                Mode::Process(process) => {
+                                    ui.label(format!("Process: {}", process));
+                                }
+                                Mode::Parent(parent) => {
+                                    ui.label(format!("Parent: {}", parent.process));
+                                    parent.excludes.iter().for_each(|exclude| {
+                                        ui.label(format!("Exclude: {}", exclude));
+                                    });
+                                }
+                            });
+                        })
+                        .header_response;
 
-                        rename_layer = collapsing_response.secondary_clicked();
-                    }
+                    rename_layer = collapsing_response.secondary_clicked();
                 });
 
                 if rename_layer {
