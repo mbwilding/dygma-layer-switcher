@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-const EDIT_TEXT: &str = "*Click to edit*";
+const EDIT_TEXT: &str = "Click to edit";
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct Layer {

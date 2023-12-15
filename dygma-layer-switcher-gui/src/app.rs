@@ -1,3 +1,4 @@
+use crate::helpers::remove_app;
 use crate::structs::*;
 use crate::templates;
 use eframe::egui::{CentralPanel, CollapsingHeader, Context, DragValue, TopBottomPanel};
@@ -17,6 +18,9 @@ pub struct DygmaLayerSwitcher {
 
     #[serde(skip)]
     pub editing_port: bool,
+
+    #[serde(skip)]
+    pub remove_app: Option<usize>,
 }
 
 impl Default for DygmaLayerSwitcher {
@@ -30,6 +34,7 @@ impl Default for DygmaLayerSwitcher {
                 .collect::<BTreeMap<u8, Layer>>(),
 
             editing_port: false,
+            remove_app: None,
         }
     }
 }
@@ -96,7 +101,7 @@ impl DygmaLayerSwitcher {
                     CollapsingHeader::new("Windows")
                         .default_open(true)
                         .show(ui, |ui| {
-                            layer.apps.iter_mut().for_each(|app| {
+                            for (index, app) in layer.apps.iter_mut().enumerate() {
                                 if let Mode::Window(window) = &mut app.mode {
                                     ui.horizontal(|ui| {
                                         ui.checkbox(&mut app.is_enabled, "");
@@ -105,15 +110,18 @@ impl DygmaLayerSwitcher {
                                             &mut window.name,
                                             &mut window.is_editing,
                                         );
+                                        if ui.button("Remove").clicked() {
+                                            self.remove_app = Some(index);
+                                        }
                                     });
                                 }
-                            });
+                            }
                         });
 
                     CollapsingHeader::new("Processes")
                         .default_open(true)
                         .show(ui, |ui| {
-                            layer.apps.iter_mut().for_each(|app| {
+                            for (index, app) in layer.apps.iter_mut().enumerate() {
                                 if let Mode::Process(process) = &mut app.mode {
                                     ui.horizontal(|ui| {
                                         ui.checkbox(&mut app.is_enabled, "");
@@ -122,15 +130,18 @@ impl DygmaLayerSwitcher {
                                             &mut process.name,
                                             &mut process.is_editing,
                                         );
+                                        if ui.button("Remove").clicked() {
+                                            self.remove_app = Some(index);
+                                        }
                                     });
                                 }
-                            });
+                            }
                         });
 
                     CollapsingHeader::new("Parents")
                         .default_open(true)
                         .show(ui, |ui| {
-                            layer.apps.iter_mut().for_each(|app| {
+                            for (index, app) in layer.apps.iter_mut().enumerate() {
                                 if let Mode::Parent(parent) = &mut app.mode {
                                     ui.horizontal(|ui| {
                                         ui.checkbox(&mut app.is_enabled, "");
@@ -142,6 +153,9 @@ impl DygmaLayerSwitcher {
                                             &mut parent.name,
                                             &mut parent.is_editing,
                                         );
+                                        if ui.button("Remove").clicked() {
+                                            self.remove_app = Some(index);
+                                        }
                                     });
                                     ui.indent("Excludes", |ui| {
                                         parent.excludes.iter_mut().for_each(|exclude| {
@@ -156,8 +170,10 @@ impl DygmaLayerSwitcher {
                                         });
                                     });
                                 }
-                            });
+                            }
                         });
+
+                    remove_app(&mut layer.apps, &mut self.remove_app);
                 });
             }
         });

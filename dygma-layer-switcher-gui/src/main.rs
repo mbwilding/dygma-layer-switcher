@@ -1,6 +1,7 @@
 extern crate core;
 
 mod app;
+mod helpers;
 mod structs;
 mod templates;
 
