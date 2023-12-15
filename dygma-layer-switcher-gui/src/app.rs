@@ -1,6 +1,6 @@
 use crate::helpers::remove_opt_index;
 use crate::structs::*;
-use crate::templates;
+use crate::templates::*;
 use eframe::egui::{CentralPanel, CollapsingHeader, Context, DragValue, TopBottomPanel};
 use eframe::{egui, Frame, Storage};
 use serde::{Deserialize, Serialize};
@@ -57,7 +57,8 @@ impl DygmaLayerSwitcher {
 
     fn logging_control(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
-            ui.label("Logging");
+            ui.label("Logging")
+                .on_hover_text("This setting will enable logging to file.");
             ui.checkbox(&mut self.logging, "");
         });
     }
@@ -65,7 +66,7 @@ impl DygmaLayerSwitcher {
     fn port_control(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
             ui.label("Port");
-            templates::editable_label(ui, &mut self.port, &mut self.editing_port);
+            editable_label(ui, &mut self.port, &mut self.editing_port);
         });
     }
 
@@ -89,7 +90,7 @@ impl DygmaLayerSwitcher {
     fn central_panel(&mut self, ctx: &Context) {
         CentralPanel::default().show(ctx, |ui| {
             for (_index, layer) in self.mappings.iter_mut() {
-                templates::editable_collapsing(ui, &mut layer.name, &mut layer.is_editing, |ui| {
+                editable_collapsing(ui, &mut layer.name, &mut layer.is_editing, |ui| {
                     ui.horizontal(|ui| {
                         if ui.button("Add Window").clicked() {
                             layer.apps.push(App::new_window());
@@ -112,7 +113,7 @@ impl DygmaLayerSwitcher {
                                         if ui.button(" - ").clicked() {
                                             self.remove_app = Some(index);
                                         }
-                                        templates::editable_label(
+                                        editable_label(
                                             ui,
                                             &mut window.name,
                                             &mut window.is_editing,
@@ -132,7 +133,7 @@ impl DygmaLayerSwitcher {
                                         if ui.button(" - ").clicked() {
                                             self.remove_app = Some(index);
                                         }
-                                        templates::editable_label(
+                                        editable_label(
                                             ui,
                                             &mut process.name,
                                             &mut process.is_editing,
@@ -155,7 +156,7 @@ impl DygmaLayerSwitcher {
                                         if ui.button("Add Exclude").clicked() {
                                             parent.excludes.push(Exclude::new());
                                         }
-                                        templates::editable_label(
+                                        editable_label(
                                             ui,
                                             &mut parent.name,
                                             &mut parent.is_editing,
@@ -173,7 +174,7 @@ impl DygmaLayerSwitcher {
                                                         if ui.button(" - ").clicked() {
                                                             self.remove_exclude = Some(index);
                                                         }
-                                                        templates::editable_label(
+                                                        editable_label(
                                                             ui,
                                                             &mut exclude.name,
                                                             &mut exclude.is_editing,
