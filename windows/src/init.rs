@@ -1,10 +1,5 @@
-#[cfg(target_os = "windows")]
 use crate::message_loop::get_focused_window_details;
-
-#[cfg(target_os = "windows")]
 use tracing::{error, info};
-
-#[cfg(target_os = "windows")]
 use windows::{
     core::PCWSTR,
     Win32::{
@@ -17,7 +12,6 @@ use windows::{
     },
 };
 
-#[cfg(target_os = "windows")]
 pub fn start() {
     std::thread::spawn(|| {
         unsafe {

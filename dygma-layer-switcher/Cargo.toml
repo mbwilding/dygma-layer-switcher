@@ -8,6 +8,8 @@ authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 common = { path = "../common" }
 anyhow = "1.0"
 tracing = "0.1"
+tracing-appender = "0.2"
+tracing-subscriber = "0.3"
 
 [target.'cfg(windows)'.dependencies]
 windows = { path = "../windows" }

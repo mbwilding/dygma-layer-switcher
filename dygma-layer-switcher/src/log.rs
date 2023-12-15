@@ -1,4 +1,4 @@
-use crate::config::Config;
+use common::config::Config;
 use tracing_subscriber::filter::LevelFilter;
 use tracing_subscriber::fmt;
 use tracing_subscriber::prelude::*;

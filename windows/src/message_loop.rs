@@ -1,25 +1,14 @@
-#[cfg(target_os = "windows")]
 use crate::collection;
-
-#[cfg(target_os = "windows")]
 use std::sync::atomic::AtomicU32;
-
-#[cfg(target_os = "windows")]
 use std::sync::atomic::Ordering;
-
-#[cfg(target_os = "windows")]
 use windows::Win32::Foundation::HWND;
-
-#[cfg(target_os = "windows")]
 use windows::Win32::UI::Accessibility::HWINEVENTHOOK;
 
-#[cfg(target_os = "windows")]
 static DEBOUNCER: AtomicU32 = AtomicU32::new(0);
 
 /// # Safety
 ///
 /// WinAPI.
-#[cfg(target_os = "windows")]
 pub unsafe extern "system" fn get_focused_window_details(
     _h_win_event_hook: HWINEVENTHOOK,
     _event: u32,
