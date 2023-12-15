@@ -105,14 +105,14 @@ impl DygmaLayerSwitcher {
                                 if let Mode::Window(window) = &mut app.mode {
                                     ui.horizontal(|ui| {
                                         ui.checkbox(&mut app.is_enabled, "");
+                                        if ui.button(" - ").clicked() {
+                                            self.remove_app = Some(index);
+                                        }
                                         templates::editable_label(
                                             ui,
                                             &mut window.name,
                                             &mut window.is_editing,
                                         );
-                                        if ui.button("Remove").clicked() {
-                                            self.remove_app = Some(index);
-                                        }
                                     });
                                 }
                             }
@@ -125,14 +125,14 @@ impl DygmaLayerSwitcher {
                                 if let Mode::Process(process) = &mut app.mode {
                                     ui.horizontal(|ui| {
                                         ui.checkbox(&mut app.is_enabled, "");
+                                        if ui.button(" - ").clicked() {
+                                            self.remove_app = Some(index);
+                                        }
                                         templates::editable_label(
                                             ui,
                                             &mut process.name,
                                             &mut process.is_editing,
                                         );
-                                        if ui.button("Remove").clicked() {
-                                            self.remove_app = Some(index);
-                                        }
                                     });
                                 }
                             }
@@ -145,6 +145,9 @@ impl DygmaLayerSwitcher {
                                 if let Mode::Parent(parent) = &mut app.mode {
                                     ui.horizontal(|ui| {
                                         ui.checkbox(&mut app.is_enabled, "");
+                                        if ui.button(" - ").clicked() {
+                                            self.remove_app = Some(index);
+                                        }
                                         if ui.button("Add Exclude").clicked() {
                                             parent.excludes.push(Exclude::new());
                                         }
@@ -153,9 +156,6 @@ impl DygmaLayerSwitcher {
                                             &mut parent.name,
                                             &mut parent.is_editing,
                                         );
-                                        if ui.button("Remove").clicked() {
-                                            self.remove_app = Some(index);
-                                        }
                                     });
                                     ui.indent("Excludes", |ui| {
                                         parent.excludes.iter_mut().for_each(|exclude| {
