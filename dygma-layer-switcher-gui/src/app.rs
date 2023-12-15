@@ -1,11 +1,12 @@
-use crate::structs::{App, Layer, Mode, Parent};
-use eframe::egui;
-use eframe::egui::{CentralPanel, Context, Slider};
+use crate::structs::*;
+use crate::templates;
+use eframe::egui::{CentralPanel, Context, Slider, TopBottomPanel};
+use eframe::{egui, Frame, Storage};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 const MAX_LAYERS: u8 = 10;
-const DEFAULT_TEXT: &str = "Right click to edit";
+const EDIT_TEXT: &str = "Placeholder";
 
 #[derive(Deserialize, Serialize)]
 #[serde(default)]
@@ -14,6 +15,9 @@ pub struct DygmaLayerSwitcher {
     pub port: String,
     pub base_layer: u8,
     pub mappings: BTreeMap<u8, Layer>,
+
+    #[serde(skip)]
+    pub editing_port: bool,
 }
 
 impl Default for DygmaLayerSwitcher {
@@ -34,6 +38,8 @@ impl Default for DygmaLayerSwitcher {
                     )
                 })
                 .collect::<BTreeMap<u8, Layer>>(),
+
+            editing_port: false,
         }
     }
 }
@@ -49,36 +55,40 @@ impl DygmaLayerSwitcher {
 
         Default::default()
     }
-}
 
-impl eframe::App for DygmaLayerSwitcher {
-    fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
+    fn logging_control(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            ui.label("Logging");
+            ui.checkbox(&mut self.logging, "");
+        });
+    }
+
+    fn port_control(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            ui.label("Port");
+            templates::editable_label(ui, &mut self.port, &mut self.editing_port);
+        });
+    }
+
+    fn base_layer_control(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            ui.label("Base Layer");
+            ui.add(Slider::new(&mut self.base_layer, 1..=MAX_LAYERS - 1).trailing_fill(true));
+        });
+    }
+
+    fn top_panel(&mut self, ctx: &Context) {
+        TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            ui.collapsing("Settings", |ui| {
+                self.logging_control(ui);
+                self.port_control(ui);
+                self.base_layer_control(ui);
+            });
+        });
+    }
+
+    fn central_panel(&mut self, ctx: &Context) {
         CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Dygma Layer Switcher");
-
-            ui.separator();
-
-            ui.horizontal(|ui| {
-                ui.label("Logging");
-                ui.checkbox(&mut self.logging, "");
-            });
-
-            ui.separator();
-
-            ui.horizontal(|ui| {
-                ui.label("Port");
-                ui.text_edit_singleline(&mut self.port);
-            });
-
-            ui.separator();
-
-            ui.horizontal(|ui| {
-                ui.label("Base Layer");
-                ui.add(Slider::new(&mut self.base_layer, 1..=MAX_LAYERS - 1).trailing_fill(true));
-            });
-
-            ui.separator();
-
             for (_index, layer) in self.mappings.iter_mut() {
                 let mut rename_layer = false;
                 let mut add_window = false;
@@ -137,14 +147,14 @@ impl eframe::App for DygmaLayerSwitcher {
 
                 if add_window {
                     layer.apps.push(App {
-                        mode: Mode::Window(DEFAULT_TEXT.to_string()),
+                        mode: Mode::Window(EDIT_TEXT.to_string()),
                         is_enabled: true,
                     });
                 }
 
                 if add_process {
                     layer.apps.push(App {
-                        mode: Mode::Process(DEFAULT_TEXT.to_string()),
+                        mode: Mode::Process(EDIT_TEXT.to_string()),
                         is_enabled: true,
                     });
                 }
@@ -152,7 +162,7 @@ impl eframe::App for DygmaLayerSwitcher {
                 if add_parent {
                     layer.apps.push(App {
                         mode: Mode::Parent(Parent {
-                            process: DEFAULT_TEXT.to_string(),
+                            process: EDIT_TEXT.to_string(),
                             excludes: vec![],
                         }),
                         is_enabled: true,
@@ -161,8 +171,15 @@ impl eframe::App for DygmaLayerSwitcher {
             }
         });
     }
+}
 
-    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+impl eframe::App for DygmaLayerSwitcher {
+    fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+        self.top_panel(ctx);
+        self.central_panel(ctx);
+    }
+
+    fn save(&mut self, storage: &mut dyn Storage) {
         eframe::set_value(storage, eframe::APP_KEY, self);
     }
 }

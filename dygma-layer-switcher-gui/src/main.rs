@@ -2,6 +2,7 @@ extern crate core;
 
 mod app;
 mod structs;
+mod templates;
 
 pub fn main() {
     eframe::run_native(
