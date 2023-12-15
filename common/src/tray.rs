@@ -1,9 +1,9 @@
 use anyhow::{Context, Result};
 use std::path::Path;
 use tracing::trace;
-use tray_icon::menu::{Menu, MenuEvent, MenuEventReceiver, MenuItem};
-use tray_icon::{Icon, TrayIconBuilder, TrayIconEvent, TrayIconEventReceiver};
-use winit::event_loop::{ControlFlow, EventLoop, EventLoopBuilder};
+use tray_icon::menu::{Menu, MenuEvent, MenuItem};
+use tray_icon::{Icon, TrayIconBuilder, TrayIconEvent};
+use winit::event_loop::{ControlFlow, EventLoopBuilder};
 
 const TITLE: &str = "Dygma Layer Switcher";
 
@@ -25,52 +25,23 @@ pub fn load() -> Result<()> {
         load_icon(Path::new(&icon_path)).context(format!("Could not find icon: {}", &icon_path))?;
 
     let event_loop = EventLoopBuilder::new().build()?;
+
     let menu_channel = MenuEvent::receiver();
     let tray_channel = TrayIconEvent::receiver();
 
     let item_quit = MenuItem::new("Quit", true, None);
 
-    #[cfg(target_os = "windows")]
-    {
-        let tray_menu = Menu::new();
-        tray_menu
-            .append(&item_quit)
-            .context("Failed to append menu item")?;
+    let tray_menu = Menu::new();
+    tray_menu
+        .append(&item_quit)
+        .context("Failed to append menu item")?;
 
-        let _tray_icon = TrayIconBuilder::new()
-            .with_menu(Box::new(tray_menu))
-            .with_tooltip(TITLE)
-            .with_icon(icon)
-            .build()?;
+    let _tray_icon = TrayIconBuilder::new()
+        .with_menu(Box::new(tray_menu))
+        .with_tooltip(TITLE)
+        .with_icon(icon)
+        .build()?;
 
-        tray_loop(event_loop, menu_channel, tray_channel, item_quit)?;
-    }
-
-    #[cfg(target_os = "linux")]
-    std::thread::spawn(move || {
-        gtk::init().unwrap();
-
-        let _tray_icon = TrayIconBuilder::new()
-            .with_menu(Box::new(Menu::new()))
-            .with_tooltip(TITLE)
-            .with_icon(icon)
-            .build()
-            .unwrap();
-
-        gtk::main();
-
-        tray_loop(event_loop, menu_channel, tray_channel, item_quit).unwrap();
-    });
-
-    Ok(())
-}
-
-fn tray_loop(
-    event_loop: EventLoop<()>,
-    menu_channel: &MenuEventReceiver,
-    tray_channel: &TrayIconEventReceiver,
-    item_quit: MenuItem,
-) -> Result<()> {
     event_loop.run(move |_event, event_loop| {
         event_loop.set_control_flow(ControlFlow::Wait);
 

@@ -15,12 +15,14 @@ fn main() -> anyhow::Result<()> {
     single::check()?;
 
     #[cfg(windows)]
-    windows::init::start();
+    {
+        tray::load().unwrap_or_else(|e| {
+            error!("Failed to load tray: {}", e);
+            std::process::exit(1);
+        });
 
-    tray::load().unwrap_or_else(|e| {
-        error!("Failed to load tray: {}", e);
-        std::process::exit(1);
-    });
+        windows::init::start();
+    }
 
     Ok(())
 }
