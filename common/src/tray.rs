@@ -1,9 +1,9 @@
 use anyhow::{Context, Result};
 use std::path::Path;
 use tracing::trace;
-use tray_icon::menu::{Menu, MenuEvent, MenuItem};
-use tray_icon::{Icon, TrayIcon, TrayIconBuilder, TrayIconEvent};
-use winit::event_loop::{ControlFlow, EventLoopBuilder};
+use tray_icon::menu::{Menu, MenuEvent, MenuEventReceiver, MenuItem};
+use tray_icon::{Icon, TrayIcon, TrayIconBuilder, TrayIconEvent, TrayIconEventReceiver};
+use winit::event_loop::{ControlFlow, EventLoop, EventLoopBuilder};
 
 const TITLE: &str = "Dygma Layer Switcher";
 
@@ -30,26 +30,27 @@ pub fn load() -> Result<()> {
 
     let item_quit = MenuItem::new("Quit", true, None);
 
-    let _tray_icon: TrayIcon;
-
-    #[cfg(not(target_os = "linux"))]
+    #[cfg(target_os = "windows")]
     {
         let tray_menu = Menu::new();
         tray_menu
             .append(&item_quit)
             .context("Failed to append menu item")?;
 
-        _tray_icon = TrayIconBuilder::new()
+        let _tray_icon = TrayIconBuilder::new()
             .with_menu(Box::new(tray_menu))
             .with_tooltip(TITLE)
             .with_icon(icon)
             .build()?;
+
+        tray_loop(event_loop, menu_channel, tray_channel, item_quit)?;
     }
 
     #[cfg(target_os = "linux")]
     std::thread::spawn(move || {
         gtk::init().unwrap();
-        _tray_icon = TrayIconBuilder::new()
+
+        let _tray_icon = TrayIconBuilder::new()
             .with_menu(Box::new(Menu::new()))
             .with_tooltip(TITLE)
             .with_icon(icon)
@@ -57,8 +58,19 @@ pub fn load() -> Result<()> {
             .unwrap();
 
         gtk::main();
+
+        tray_loop(event_loop, menu_channel, tray_channel, item_quit)?;
     });
 
+    Ok(())
+}
+
+fn tray_loop(
+    event_loop: EventLoop<()>,
+    menu_channel: &MenuEventReceiver,
+    tray_channel: &TrayIconEventReceiver,
+    item_quit: MenuItem,
+) -> Result<()> {
     event_loop.run(move |_event, event_loop| {
         event_loop.set_control_flow(ControlFlow::Wait);
 
