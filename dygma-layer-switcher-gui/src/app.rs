@@ -33,7 +33,7 @@ impl Default for DygmaLayerSwitcher {
                         Layer {
                             name: format!("Layer {}", i + 1),
                             apps: vec![],
-                            is_being_renamed: false,
+                            is_editing: false,
                         },
                     )
                 })
@@ -90,69 +90,73 @@ impl DygmaLayerSwitcher {
     fn central_panel(&mut self, ctx: &Context) {
         CentralPanel::default().show(ctx, |ui| {
             for (_index, layer) in self.mappings.iter_mut() {
-                templates::editable_collapsing(
-                    ui,
-                    &mut layer.name,
-                    &mut layer.is_being_renamed,
-                    |ui| {
-                        ui.horizontal(|ui| {
-                            if ui.button("Add Window").clicked() {
-                                layer.apps.push(App {
-                                    mode: Mode::Window(EDIT_TEXT.to_string()),
-                                    is_enabled: true,
-                                });
-                            }
-                            if ui.button("Add Process").clicked() {
-                                layer.apps.push(App {
-                                    mode: Mode::Process(EDIT_TEXT.to_string()),
-                                    is_enabled: true,
-                                });
-                            }
-                            if ui.button("Add Parent").clicked() {
-                                layer.apps.push(App {
-                                    mode: Mode::Parent(Parent {
-                                        process: EDIT_TEXT.to_string(),
-                                        excludes: vec![],
-                                    }),
-                                    is_enabled: true,
-                                });
-                            }
-                        });
+                templates::editable_collapsing(ui, &mut layer.name, &mut layer.is_editing, |ui| {
+                    ui.horizontal(|ui| {
+                        if ui.button("Add Window").clicked() {
+                            layer.apps.push(App {
+                                mode: Mode::Window(EDIT_TEXT.to_string()),
+                                is_enabled: true,
+                            });
+                        }
+                        if ui.button("Add Process").clicked() {
+                            layer.apps.push(App {
+                                mode: Mode::Process(EDIT_TEXT.to_string()),
+                                is_enabled: true,
+                            });
+                        }
+                        if ui.button("Add Parent").clicked() {
+                            layer.apps.push(App {
+                                mode: Mode::Parent(Parent {
+                                    process: EDIT_TEXT.to_string(),
+                                    excludes: vec![],
+                                    is_editing: false,
+                                }),
+                                is_enabled: true,
+                            });
+                        }
+                    });
 
-                        layer.apps.iter_mut().for_each(|app| match &mut app.mode {
-                            Mode::Window(window) => {
+                    layer.apps.iter_mut().for_each(|app| match &mut app.mode {
+                        Mode::Window(window) => {
+                            ui.horizontal(|ui| {
+                                ui.checkbox(&mut app.is_enabled, "");
                                 ui.horizontal(|ui| {
-                                    ui.checkbox(&mut app.is_enabled, "");
+                                    ui.label("Window: ");
+                                    ui.label(window.as_str());
+                                });
+                            });
+                        }
+                        Mode::Process(process) => {
+                            ui.horizontal(|ui| {
+                                ui.checkbox(&mut app.is_enabled, "");
+                                ui.horizontal(|ui| {
+                                    ui.label("Process: ");
+                                    ui.label(process.as_str());
+                                });
+                            });
+                        }
+                        Mode::Parent(parent) => {
+                            ui.horizontal(|ui| {
+                                ui.checkbox(&mut app.is_enabled, "");
+                                ui.horizontal(|ui| {
+                                    ui.label("Parent: ");
+                                    ui.label(&parent.process);
+                                });
+
+                                if ui.button("Add Exclude").clicked() {
+                                    parent.excludes.push(EDIT_TEXT.to_string());
+                                }
+
+                                parent.excludes.iter().for_each(|exclude| {
                                     ui.horizontal(|ui| {
-                                        ui.label("Window: ");
-                                        ui.label(window.as_str());
+                                        ui.label("Exclude: ");
+                                        ui.label(exclude);
                                     });
                                 });
-                            }
-                            Mode::Process(process) => {
-                                ui.horizontal(|ui| {
-                                    ui.checkbox(&mut app.is_enabled, "");
-                                    ui.horizontal(|ui| {
-                                        ui.label("Process: ");
-                                        ui.label(process.as_str());
-                                    });
-                                });
-                            }
-                            Mode::Parent(parent) => {
-                                ui.horizontal(|ui| {
-                                    ui.checkbox(&mut app.is_enabled, "");
-                                    ui.horizontal(|ui| {
-                                        ui.label("Parent: ");
-                                        ui.label(&parent.process);
-                                    });
-                                    parent.excludes.iter().for_each(|exclude| {
-                                        ui.label(format!("Exclude: {}", exclude));
-                                    });
-                                });
-                            }
-                        });
-                    },
-                );
+                            });
+                        }
+                    });
+                });
             }
         });
     }

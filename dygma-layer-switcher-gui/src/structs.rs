@@ -6,7 +6,7 @@ pub struct Layer {
     pub apps: Vec<App>,
 
     #[serde(skip)]
-    pub is_being_renamed: bool,
+    pub is_editing: bool,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -26,4 +26,7 @@ pub enum Mode {
 pub struct Parent {
     pub process: String,
     pub excludes: Vec<String>,
+
+    #[serde(skip)]
+    pub is_editing: bool,
 }
