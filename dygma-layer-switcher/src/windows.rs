@@ -111,6 +111,8 @@ pub unsafe extern "system" fn get_focused_window_details(
         return;
     }
 
+    trace!("window_handle: {:?}", window_handle);
+
     if dwms_event_time == DEBOUNCER.load(Ordering::SeqCst) {
         return;
     }

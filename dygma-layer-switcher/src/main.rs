@@ -54,6 +54,7 @@ pub fn main() -> Result<()> {
             );
             let app = app::DygmaLayerSwitcher::new(cc);
             log::init(app.logging);
+            windows::start();
             Box::new(app)
         }),
     )?;
