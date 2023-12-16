@@ -11,7 +11,7 @@ use tray_icon::TrayIconBuilder;
 
 mod app;
 mod helpers;
-mod images;
+mod icon;
 mod layer;
 mod log;
 mod single;
@@ -25,11 +25,9 @@ pub const ICON: &[u8] = include_bytes!("../../assets/icons/icon.ico");
 pub fn main() -> Result<()> {
     single::check()?;
 
-    let icon = images::load_tray_icon(ICON)?;
+    let icon = icon::load_tray_icon(ICON)?;
     let mut _tray_icon = Rc::new(RefCell::new(None));
     let tray_rc = _tray_icon.clone();
-
-    egui::IconData::default();
 
     let tray_menu = Menu::new();
     tray_menu
@@ -44,7 +42,7 @@ pub fn main() -> Result<()> {
             persist_window: true,
             centered: false,
             vsync: true,
-            viewport: { ViewportBuilder::default().with_icon(Arc::new(images::load_icon(ICON))) },
+            viewport: ViewportBuilder::default().with_icon(Arc::new(icon::load_icon(ICON))),
             ..Default::default()
         },
         Box::new(move |cc| {
