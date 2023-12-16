@@ -1,5 +1,5 @@
 use crate::structs::AppDetails;
-use tracing::{debug, error, info};
+use tracing::debug;
 
 pub fn process(app_details: &AppDetails) {
     debug!("{:?}", app_details);

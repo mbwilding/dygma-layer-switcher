@@ -4,18 +4,19 @@
 use anyhow::Result;
 use eframe::egui::ViewportBuilder;
 use eframe::*;
+use std::sync::Arc;
 use std::{cell::RefCell, rc::Rc};
 use tray_icon::menu::{Menu, MenuItem};
 use tray_icon::TrayIconBuilder;
 
 mod app;
 mod helpers;
+mod images;
 mod layer;
 mod log;
 mod single;
 mod structs;
 mod templates;
-mod tray;
 mod windows;
 
 pub const TITLE: &str = "Dygma Layer Switcher";
@@ -24,27 +25,28 @@ pub const ICON: &[u8] = include_bytes!("../../assets/icons/icon.ico");
 pub fn main() -> Result<()> {
     single::check()?;
 
-    let icon = tray::load_tray_icon(ICON)?;
+    let icon = images::load_tray_icon(ICON)?;
     let mut _tray_icon = Rc::new(RefCell::new(None));
     let tray_rc = _tray_icon.clone();
+
+    egui::IconData::default();
 
     let tray_menu = Menu::new();
     tray_menu
         .append(&MenuItem::new("Quit", true, None))
         .expect("Failed to append menu item");
 
-    let options = NativeOptions {
-        default_theme: Theme::Dark,
-        follow_system_theme: true,
-        persist_window: true,
-        centered: false,
-        vsync: true,
-        ..Default::default()
-    };
-
     run_native(
         "Dygma Layer Switcher",
-        options,
+        NativeOptions {
+            default_theme: Theme::Dark,
+            follow_system_theme: true,
+            persist_window: true,
+            centered: false,
+            vsync: true,
+            viewport: { ViewportBuilder::default().with_icon(Arc::new(images::load_icon(ICON))) },
+            ..Default::default()
+        },
         Box::new(move |cc| {
             tray_rc.borrow_mut().replace(
                 TrayIconBuilder::new()
