@@ -1,30 +1,43 @@
 // hide console window on Windows in release
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use anyhow::Result;
+use eframe::*;
+
+mod app;
+mod helpers;
 mod log;
+mod single;
+mod structs;
+mod templates;
+mod windows;
+mod layer;
+mod tray;
 
-use common::config::Config;
-use common::single;
-use tracing::error;
-
-fn main() -> anyhow::Result<()> {
-    let config = Config::load();
-    log::init(&config);
-
-    #[cfg(not(windows))]
-    error!("Platform not yet supported");
-
+pub fn main() -> Result<()> {
     single::check()?;
 
-    #[cfg(windows)]
-    {
-        windows::init::start();
+    let options = NativeOptions {
+        // viewport: Default::default(),
+        vsync: true,
+        follow_system_theme: true,
+        default_theme: Theme::Dark,
+        // run_and_return: false,
+        // event_loop_builder: None,
+        centered: false,
+        persist_window: true,
+        ..Default::default()
+    };
 
-        windows::tray::load().unwrap_or_else(|e| {
-            error!("Failed to load tray: {}", e);
-            std::process::exit(1);
-        });
-    }
+    run_native(
+        "Dygma Layer Switcher",
+        options,
+        Box::new(|cc| {
+            let app = app::DygmaLayerSwitcher::new(cc);
+            log::init(app.logging);
+            Box::new(app)
+        }),
+    )?;
 
     Ok(())
 }

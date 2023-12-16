@@ -4,10 +4,9 @@ use crate::templates::*;
 use dygma_focus::Focus;
 use eframe::egui::{CentralPanel, CollapsingHeader, Context, DragValue, TopBottomPanel};
 use eframe::{egui, Frame, Storage};
-use log::warn;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
-use tracing::error;
+use tracing::{error, warn};
 
 const MAX_LAYERS: u8 = 10;
 

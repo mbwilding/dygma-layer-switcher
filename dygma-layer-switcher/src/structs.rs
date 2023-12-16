@@ -124,3 +124,9 @@ impl Exclude {
         }
     }
 }
+
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+pub struct AppDetails {
+    pub window: String,
+    pub process: String,
+}
