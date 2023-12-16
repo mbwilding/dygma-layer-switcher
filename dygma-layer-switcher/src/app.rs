@@ -7,6 +7,8 @@ use eframe::{egui, Frame, Storage};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use tracing::{error, warn};
+use tray_icon::menu::{MenuEvent, MenuId};
+use tray_icon::TrayIconEvent;
 
 const MAX_LAYERS: u8 = 10;
 
@@ -294,6 +296,15 @@ impl DygmaLayerSwitcher {
 
 impl eframe::App for DygmaLayerSwitcher {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+        if let Ok(event) = TrayIconEvent::receiver().try_recv() {
+            println!("tray event: {event:?}");
+        }
+        if let Ok(event) = MenuEvent::receiver().try_recv() {
+            // Exit
+            if event.id == "1001" {
+                ctx.send_viewport_cmd(egui::ViewportCommand::Close);
+            }
+        }
         self.top_panel(ctx);
         self.central_panel(ctx);
     }

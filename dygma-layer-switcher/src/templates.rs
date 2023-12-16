@@ -2,10 +2,7 @@ use eframe::egui;
 
 pub fn editable_label(ui: &mut egui::Ui, value: &mut String, editing: &mut bool) {
     if *editing {
-        if ui
-            .text_edit_singleline(value)
-            .lost_focus()
-        {
+        if ui.text_edit_singleline(value).lost_focus() {
             *editing = false;
         }
     } else if ui.button(value.as_str()).clicked() {
@@ -20,10 +17,7 @@ pub fn editable_collapsing<F: FnMut(&mut egui::Ui)>(
     mut content: F,
 ) {
     if *editing {
-        if ui
-            .text_edit_singleline(value)
-            .lost_focus()
-        {
+        if ui.text_edit_singleline(value).lost_focus() {
             *editing = false;
         }
     } else {

@@ -4,7 +4,7 @@ use tracing_subscriber::prelude::*;
 
 pub fn init(logging: bool) {
     let base_filter = EnvFilter::new("info")
-        .add_directive("dygma-layer-switcher-gui=trace".parse().unwrap())
+        .add_directive("dygma-layer-switcher=trace".parse().unwrap())
         .add_directive("egui=warn".parse().unwrap())
         .add_directive("wgpu=warn".parse().unwrap());
 
@@ -22,8 +22,7 @@ pub fn init(logging: bool) {
             .with(
                 fmt::layer()
                     .with_ansi(false)
-                    .with_writer(tracing_appender::rolling::daily("logs", "dsl"))
-                    .with_filter(LevelFilter::DEBUG),
+                    .with_writer(tracing_appender::rolling::daily("logs", "dsl")),
             )
             .init();
     } else {
