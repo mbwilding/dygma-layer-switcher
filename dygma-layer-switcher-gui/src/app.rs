@@ -4,7 +4,7 @@ use crate::templates::*;
 use eframe::egui::{CentralPanel, CollapsingHeader, Context, DragValue, TopBottomPanel};
 use eframe::{egui, Frame, Storage};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 const MAX_LAYERS: u8 = 10;
 
@@ -15,6 +15,7 @@ pub struct DygmaLayerSwitcher {
     pub port: String,
     pub base_layer: u8,
     pub mappings: BTreeMap<u8, Layer>,
+    pub hidden_layers: BTreeSet<u8>,
 
     #[serde(skip)]
     pub editing_port: bool,
@@ -24,6 +25,9 @@ pub struct DygmaLayerSwitcher {
 
     #[serde(skip)]
     pub remove_exclude: Option<usize>,
+
+    #[serde(skip)]
+    pub remove_hidden_layer: Option<u8>,
 }
 
 impl Default for DygmaLayerSwitcher {
@@ -35,10 +39,12 @@ impl Default for DygmaLayerSwitcher {
             mappings: (0..MAX_LAYERS)
                 .map(|i| (i, Layer::new(i)))
                 .collect::<BTreeMap<u8, Layer>>(),
+            hidden_layers: BTreeSet::new(),
 
             editing_port: false,
             remove_app: None,
             remove_exclude: None,
+            remove_hidden_layer: None,
         }
     }
 }
@@ -73,125 +79,168 @@ impl DygmaLayerSwitcher {
     fn base_layer_control(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
             ui.label("Base Layer");
-            ui.add(DragValue::new(&mut self.base_layer));
+            ui.add(DragValue::new(&mut self.base_layer).clamp_range(1..=MAX_LAYERS));
+        });
+    }
+
+    fn hidden_layer_control(&mut self, ui: &mut egui::Ui) {
+        ui.horizontal(|ui| {
+            if !self.hidden_layers.is_empty() {
+                CollapsingHeader::new("Hidden Layers")
+                    .default_open(false)
+                    .show(ui, |ui| {
+                        for layer in self.hidden_layers.iter() {
+                            ui.horizontal(|ui| {
+                                if ui.button(" - ").clicked() {
+                                    self.remove_hidden_layer = Some(*layer);
+                                }
+                                ui.label(format!("{}: {}", layer + 1, &self.mappings[layer].name));
+                            });
+                        }
+                        if let Some(layer) = self.remove_hidden_layer {
+                            self.hidden_layers.remove(&layer);
+                            self.remove_hidden_layer = None;
+                        }
+                    });
+                if ui.button("Clear All").clicked() {
+                    self.hidden_layers.clear();
+                }
+            }
         });
     }
 
     fn top_panel(&mut self, ctx: &Context) {
         TopBottomPanel::top("top_panel").show(ctx, |ui| {
-            ui.collapsing("Settings", |ui| {
-                self.logging_control(ui);
-                self.port_control(ui);
-                self.base_layer_control(ui);
-            });
+            CollapsingHeader::new("Settings")
+                .default_open(true)
+                .show(ui, |ui| {
+                    self.logging_control(ui);
+                    self.port_control(ui);
+                    self.base_layer_control(ui);
+                    self.hidden_layer_control(ui);
+                });
         });
     }
 
     fn central_panel(&mut self, ctx: &Context) {
         CentralPanel::default().show(ctx, |ui| {
-            for (_index, layer) in self.mappings.iter_mut() {
-                editable_collapsing(ui, &mut layer.name, &mut layer.is_editing, |ui| {
-                    ui.horizontal(|ui| {
-                        if ui.button("Add Window").clicked() {
-                            layer.apps.push(App::new_window());
-                        }
-                        if ui.button("Add Process").clicked() {
-                            layer.apps.push(App::new_process());
-                        }
-                        if ui.button("Add Parent").clicked() {
-                            layer.apps.push(App::new_parent());
-                        }
-                    });
-
-                    CollapsingHeader::new("Windows")
-                        .default_open(true)
-                        .show(ui, |ui| {
-                            for (index, app) in layer.apps.iter_mut().enumerate() {
-                                if let Mode::Window(window) = &mut app.mode {
-                                    ui.horizontal(|ui| {
-                                        ui.checkbox(&mut app.is_enabled, "");
-                                        if ui.button(" - ").clicked() {
-                                            self.remove_app = Some(index);
-                                        }
-                                        editable_label(
-                                            ui,
-                                            &mut window.name,
-                                            &mut window.is_editing,
-                                        );
-                                    });
-                                }
+            for (index, layer) in self.mappings.iter_mut() {
+                if self.hidden_layers.contains(index) {
+                    continue;
+                }
+                ui.horizontal(|ui| {
+                    if ui.button("👁").clicked() {
+                        self.hidden_layers.insert(*index);
+                    }
+                    editable_collapsing(ui, &mut layer.name, &mut layer.is_editing, |ui| {
+                        ui.horizontal(|ui| {
+                            if ui.button("Add Window").clicked() {
+                                layer.apps.push(App::new_window());
+                            }
+                            if ui.button("Add Process").clicked() {
+                                layer.apps.push(App::new_process());
+                            }
+                            if ui.button("Add Parent").clicked() {
+                                layer.apps.push(App::new_parent());
                             }
                         });
 
-                    CollapsingHeader::new("Processes")
-                        .default_open(true)
-                        .show(ui, |ui| {
-                            for (index, app) in layer.apps.iter_mut().enumerate() {
-                                if let Mode::Process(process) = &mut app.mode {
-                                    ui.horizontal(|ui| {
-                                        ui.checkbox(&mut app.is_enabled, "");
-                                        if ui.button(" - ").clicked() {
-                                            self.remove_app = Some(index);
-                                        }
-                                        editable_label(
-                                            ui,
-                                            &mut process.name,
-                                            &mut process.is_editing,
-                                        );
-                                    });
-                                }
-                            }
-                        });
-
-                    CollapsingHeader::new("Parents")
-                        .default_open(true)
-                        .show(ui, |ui| {
-                            for (index, app) in layer.apps.iter_mut().enumerate() {
-                                if let Mode::Parent(parent) = &mut app.mode {
-                                    ui.horizontal(|ui| {
-                                        ui.checkbox(&mut app.is_enabled, "");
-                                        if ui.button(" - ").clicked() {
-                                            self.remove_app = Some(index);
-                                        }
-                                        if ui.button("Add Exclude").clicked() {
-                                            parent.excludes.push(Exclude::new());
-                                        }
-                                        editable_label(
-                                            ui,
-                                            &mut parent.name,
-                                            &mut parent.is_editing,
-                                        );
-                                    });
-
-                                    if !parent.excludes.is_empty() {
-                                        CollapsingHeader::new("Excludes")
-                                            .id_source(format!("excludes_{}", index))
-                                            .default_open(true)
-                                            .show(ui, |ui| {
-                                                parent.excludes.iter_mut().for_each(|exclude| {
-                                                    ui.horizontal(|ui| {
-                                                        ui.checkbox(&mut exclude.is_enabled, "");
-                                                        if ui.button(" - ").clicked() {
-                                                            self.remove_exclude = Some(index);
-                                                        }
-                                                        editable_label(
-                                                            ui,
-                                                            &mut exclude.name,
-                                                            &mut exclude.is_editing,
-                                                        );
-                                                    });
-                                                });
-                                                remove_opt_index(
-                                                    &mut parent.excludes,
-                                                    &mut self.remove_exclude,
-                                                )
-                                            });
+                        CollapsingHeader::new("Windows")
+                            .default_open(true)
+                            .show(ui, |ui| {
+                                for (index, app) in layer.apps.iter_mut().enumerate() {
+                                    if let Mode::Window(window) = &mut app.mode {
+                                        ui.horizontal(|ui| {
+                                            ui.checkbox(&mut app.is_enabled, "");
+                                            if ui.button(" - ").clicked() {
+                                                self.remove_app = Some(index);
+                                            }
+                                            editable_label(
+                                                ui,
+                                                &mut window.name,
+                                                &mut window.is_editing,
+                                            );
+                                        });
                                     }
                                 }
-                            }
-                        });
+                            });
 
-                    remove_opt_index(&mut layer.apps, &mut self.remove_app);
+                        CollapsingHeader::new("Processes")
+                            .default_open(true)
+                            .show(ui, |ui| {
+                                for (index, app) in layer.apps.iter_mut().enumerate() {
+                                    if let Mode::Process(process) = &mut app.mode {
+                                        ui.horizontal(|ui| {
+                                            ui.checkbox(&mut app.is_enabled, "");
+                                            if ui.button(" - ").clicked() {
+                                                self.remove_app = Some(index);
+                                            }
+                                            editable_label(
+                                                ui,
+                                                &mut process.name,
+                                                &mut process.is_editing,
+                                            );
+                                        });
+                                    }
+                                }
+                            });
+
+                        CollapsingHeader::new("Parents")
+                            .default_open(true)
+                            .show(ui, |ui| {
+                                for (index, app) in layer.apps.iter_mut().enumerate() {
+                                    if let Mode::Parent(parent) = &mut app.mode {
+                                        ui.horizontal(|ui| {
+                                            ui.checkbox(&mut app.is_enabled, "");
+                                            if ui.button(" - ").clicked() {
+                                                self.remove_app = Some(index);
+                                            }
+                                            if ui.button("Add Exclude").clicked() {
+                                                parent.excludes.push(Exclude::new());
+                                            }
+                                            editable_label(
+                                                ui,
+                                                &mut parent.name,
+                                                &mut parent.is_editing,
+                                            );
+                                        });
+
+                                        if !parent.excludes.is_empty() {
+                                            CollapsingHeader::new("Excludes")
+                                                .id_source(format!("excludes_{}", index))
+                                                .default_open(true)
+                                                .show(ui, |ui| {
+                                                    parent.excludes.iter_mut().for_each(
+                                                        |exclude| {
+                                                            ui.horizontal(|ui| {
+                                                                ui.checkbox(
+                                                                    &mut exclude.is_enabled,
+                                                                    "",
+                                                                );
+                                                                if ui.button(" - ").clicked() {
+                                                                    self.remove_exclude =
+                                                                        Some(index);
+                                                                }
+                                                                editable_label(
+                                                                    ui,
+                                                                    &mut exclude.name,
+                                                                    &mut exclude.is_editing,
+                                                                );
+                                                            });
+                                                        },
+                                                    );
+                                                    remove_opt_index(
+                                                        &mut parent.excludes,
+                                                        &mut self.remove_exclude,
+                                                    )
+                                                });
+                                        }
+                                    }
+                                }
+                            });
+
+                        remove_opt_index(&mut layer.apps, &mut self.remove_app);
+                    });
                 });
             }
         });
