@@ -6,9 +6,9 @@ use eframe::egui::{CentralPanel, CollapsingHeader, Context, DragValue, TopBottom
 use eframe::{egui, Frame, Storage};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
-use tracing::{error, warn};
-use tray_icon::menu::{MenuEvent, MenuId};
-use tray_icon::TrayIconEvent;
+use tracing::{error, trace, warn};
+use tray_icon::menu::MenuEvent;
+use tray_icon::{ClickType, TrayIconEvent};
 
 const MAX_LAYERS: u8 = 10;
 
@@ -32,6 +32,9 @@ pub struct DygmaLayerSwitcher {
 
     #[serde(skip)]
     pub remove_hidden_layer: Option<u8>,
+
+    #[serde(skip)]
+    pub window_visible: bool,
 }
 
 impl Default for DygmaLayerSwitcher {
@@ -58,6 +61,7 @@ impl Default for DygmaLayerSwitcher {
             remove_app: None,
             remove_exclude: None,
             remove_hidden_layer: None,
+            window_visible: true,
         }
     }
 }
@@ -297,9 +301,20 @@ impl DygmaLayerSwitcher {
 impl eframe::App for DygmaLayerSwitcher {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
         if let Ok(event) = TrayIconEvent::receiver().try_recv() {
-            println!("tray event: {event:?}");
+            trace!("Tray icon event: {event:?}");
+            match event.click_type {
+                ClickType::Left => {}
+                ClickType::Right => {
+                    // Menu
+                }
+                ClickType::Double => {
+                    self.window_visible = !self.window_visible;
+                    ctx.send_viewport_cmd(egui::ViewportCommand::Visible(self.window_visible))
+                }
+            }
         }
         if let Ok(event) = MenuEvent::receiver().try_recv() {
+            trace!("Tray menu event: {event:?}");
             // Exit
             if event.id == "1001" {
                 ctx.send_viewport_cmd(egui::ViewportCommand::Close);

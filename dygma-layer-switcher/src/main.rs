@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use anyhow::Result;
+use eframe::egui::ViewportBuilder;
 use eframe::*;
 use std::{cell::RefCell, rc::Rc};
 use tray_icon::menu::{Menu, MenuItem};
@@ -18,11 +19,12 @@ mod tray;
 mod windows;
 
 pub const TITLE: &str = "Dygma Layer Switcher";
+pub const ICON: &[u8] = include_bytes!("../../assets/icons/icon.ico");
 
 pub fn main() -> Result<()> {
     single::check()?;
 
-    let icon = tray::load_icon("assets/icons/icon.ico")?;
+    let icon = tray::load_tray_icon(ICON)?;
     let mut _tray_icon = Rc::new(RefCell::new(None));
     let tray_rc = _tray_icon.clone();
 
