@@ -1,10 +1,13 @@
 use crate::helpers::remove_opt_index;
 use crate::structs::*;
 use crate::templates::*;
+use dygma_focus::Focus;
 use eframe::egui::{CentralPanel, CollapsingHeader, Context, DragValue, TopBottomPanel};
 use eframe::{egui, Frame, Storage};
+use log::warn;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
+use tracing::error;
 
 const MAX_LAYERS: u8 = 10;
 
@@ -32,9 +35,18 @@ pub struct DygmaLayerSwitcher {
 
 impl Default for DygmaLayerSwitcher {
     fn default() -> Self {
+        let focus = Focus::default();
+        let port = focus.find_first().unwrap_or_else(|e| {
+            error!(
+                "Connect a Dygma keyboard and restart the application: {:?}",
+                e
+            );
+            std::process::exit(1);
+        });
+
         Self {
             logging: false,
-            port: String::new(),
+            port: port.port,
             base_layer: 1,
             mappings: (0..MAX_LAYERS)
                 .map(|i| (i, Layer::new(i)))
@@ -64,22 +76,36 @@ impl DygmaLayerSwitcher {
     fn logging_control(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
             ui.label("Logging")
-                .on_hover_text("This setting will enable logging to file.");
+                .on_hover_text("Enables logging to file.");
             ui.checkbox(&mut self.logging, "");
         });
     }
 
     fn port_control(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
-            ui.label("Port");
+            ui.label("Port")
+                .on_hover_text("The serial port to communicate with.");
+            if ui
+                .button("↻")
+                .on_hover_text("Rescan for the communication port.")
+                .clicked()
+            {
+                let focus = Focus::default();
+                match focus.find_first() {
+                    Ok(port) => self.port = port.port,
+                    Err(e) => warn!("No Dygma keyboard detected: {:?}", e),
+                }
+            };
             editable_label(ui, &mut self.port, &mut self.editing_port);
         });
     }
 
     fn base_layer_control(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
-            ui.label("Base Layer");
-            ui.add(DragValue::new(&mut self.base_layer).clamp_range(1..=MAX_LAYERS));
+            ui.label("Base Layer")
+                .on_hover_text("The layer to return to.");
+            ui.add(DragValue::new(&mut self.base_layer).clamp_range(1..=MAX_LAYERS))
+                .on_hover_text("Click and drag to change the base layer.");
         });
     }
 
@@ -91,7 +117,11 @@ impl DygmaLayerSwitcher {
                     .show(ui, |ui| {
                         for layer in self.hidden_layers.iter() {
                             ui.horizontal(|ui| {
-                                if ui.button(" - ").clicked() {
+                                if ui
+                                    .button(" - ")
+                                    .on_hover_text(format!("Unhide layer {}.", layer + 1))
+                                    .clicked()
+                                {
                                     self.remove_hidden_layer = Some(*layer);
                                 }
                                 ui.label(format!("{}: {}", layer + 1, &self.mappings[layer].name));
@@ -102,9 +132,6 @@ impl DygmaLayerSwitcher {
                             self.remove_hidden_layer = None;
                         }
                     });
-                if ui.button("Clear All").clicked() {
-                    self.hidden_layers.clear();
-                }
             }
         });
     }
@@ -124,6 +151,7 @@ impl DygmaLayerSwitcher {
 
     fn central_panel(&mut self, ctx: &Context) {
         CentralPanel::default().show(ctx, |ui| {
+            ui.label("Right click to rename the layer.");
             for (index, layer) in self.mappings.iter_mut() {
                 if self.hidden_layers.contains(index) {
                     continue;
@@ -152,7 +180,11 @@ impl DygmaLayerSwitcher {
                                     if let Mode::Window(window) = &mut app.mode {
                                         ui.horizontal(|ui| {
                                             ui.checkbox(&mut app.is_enabled, "");
-                                            if ui.button(" - ").clicked() {
+                                            if ui
+                                                .button(" - ")
+                                                .on_hover_text("Remove this window.")
+                                                .clicked()
+                                            {
                                                 self.remove_app = Some(index);
                                             }
                                             editable_label(
@@ -172,7 +204,11 @@ impl DygmaLayerSwitcher {
                                     if let Mode::Process(process) = &mut app.mode {
                                         ui.horizontal(|ui| {
                                             ui.checkbox(&mut app.is_enabled, "");
-                                            if ui.button(" - ").clicked() {
+                                            if ui
+                                                .button(" - ")
+                                                .on_hover_text("Remove this process.")
+                                                .clicked()
+                                            {
                                                 self.remove_app = Some(index);
                                             }
                                             editable_label(
@@ -192,7 +228,11 @@ impl DygmaLayerSwitcher {
                                     if let Mode::Parent(parent) = &mut app.mode {
                                         ui.horizontal(|ui| {
                                             ui.checkbox(&mut app.is_enabled, "");
-                                            if ui.button(" - ").clicked() {
+                                            if ui
+                                                .button(" - ")
+                                                .on_hover_text("Remove this parent.")
+                                                .clicked()
+                                            {
                                                 self.remove_app = Some(index);
                                             }
                                             if ui.button("Add Exclude").clicked() {
@@ -217,7 +257,13 @@ impl DygmaLayerSwitcher {
                                                                     &mut exclude.is_enabled,
                                                                     "",
                                                                 );
-                                                                if ui.button(" - ").clicked() {
+                                                                if ui
+                                                                    .button(" - ")
+                                                                    .on_hover_text(
+                                                                        "Remove this exclude.",
+                                                                    )
+                                                                    .clicked()
+                                                                {
                                                                     self.remove_exclude =
                                                                         Some(index);
                                                                 }

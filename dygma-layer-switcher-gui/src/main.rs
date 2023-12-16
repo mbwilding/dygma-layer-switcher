@@ -1,20 +1,24 @@
 // hide console window on Windows in release
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-extern crate core;
+use anyhow::Result;
+use eframe::*;
 
 mod app;
 mod helpers;
 mod log;
+mod single;
 mod structs;
 mod templates;
 
-pub fn main() {
-    let options = eframe::NativeOptions {
+pub fn main() -> Result<()> {
+    single::check()?;
+
+    let options = NativeOptions {
         // viewport: Default::default(),
         vsync: true,
         follow_system_theme: true,
-        default_theme: eframe::Theme::Dark,
+        default_theme: Theme::Dark,
         // run_and_return: false,
         // event_loop_builder: None,
         centered: true,
@@ -22,7 +26,7 @@ pub fn main() {
         ..Default::default()
     };
 
-    eframe::run_native(
+    run_native(
         "Dygma Layer Switcher",
         options,
         Box::new(|cc| {
@@ -30,6 +34,7 @@ pub fn main() {
             log::init(app.logging);
             Box::new(app)
         }),
-    )
-    .unwrap();
+    )?;
+
+    Ok(())
 }
