@@ -1,3 +1,4 @@
+use crate::verbiage;
 use eframe::egui;
 use eframe::egui::CollapsingHeader;
 
@@ -30,7 +31,7 @@ pub fn editable_collapsing<F: FnMut(&mut egui::Ui)>(
             .header_response;
 
         if header_response
-            .on_hover_text("Right click to rename.")
+            .on_hover_text(verbiage::RENAME_HINT)
             .secondary_clicked()
         {
             *editing = true;

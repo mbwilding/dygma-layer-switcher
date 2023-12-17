@@ -44,8 +44,11 @@ pub fn main() -> Result<()> {
             centered: false,
             vsync: true,
             viewport: ViewportBuilder::default()
-                .with_minimize_button(false)
-                .with_maximize_button(false)
+                .with_inner_size((400.0, 320.0))
+                .with_resizable(true)
+                .with_close_button(true)
+                .with_minimize_button(true)
+                .with_maximize_button(true)
                 .with_icon(Arc::new(icon::load_icon(ICON))),
             ..Default::default()
         },

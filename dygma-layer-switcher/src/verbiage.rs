@@ -1,7 +1,5 @@
 pub const NO_KEYBOARD_MESSAGE: &str = "Connect a Dygma keyboard and restart the application.";
 pub const APP_NAME: &str = "Dygma Layer Switcher";
-pub const MENU_TRAY_HEADING: &str = "Tray";
-pub const MENU_TRAY_HINT: &str = "Minimize to the system tray.";
 pub const SETTINGS_HEADING: &str = "Settings";
 pub const BUTTON_ADD_WINDOW: &str = "Add window";
 pub const BUTTON_ADD_PROCESS: &str = "Add process";
@@ -31,3 +29,4 @@ pub const WINDOW: &str = "Partial match of window title.";
 pub const PROCESS: &str = "The executable name including extension.";
 pub const PARENT: &str = "The parent executable name, and optional excludes of child processes.";
 pub const EXCLUDES_HINT: &str = "Exclude a child process.";
+pub const RENAME_HINT: &str = "Right click to rename.";

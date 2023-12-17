@@ -5,7 +5,7 @@ use crate::{layer, verbiage};
 use crossbeam_channel::{Receiver, Sender};
 use dygma_focus::Focus;
 use eframe::egui::{
-    Align, CentralPanel, CollapsingHeader, Context, DragValue, Layout, ScrollArea, TopBottomPanel,
+    CentralPanel, CollapsingHeader, Context, DragValue, ScrollArea, TopBottomPanel,
 };
 use eframe::{egui, Frame, Storage};
 use lazy_static::lazy_static;
@@ -155,15 +155,6 @@ impl DygmaLayerSwitcher {
 
     fn top_panel(&mut self, ctx: &Context) {
         TopBottomPanel::top("top_panel").show(ctx, |ui| {
-            ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
-                ui.horizontal(|ui| {
-                    ui.button(verbiage::MENU_TRAY_HEADING)
-                        .on_hover_text(verbiage::MENU_TRAY_HINT)
-                        .clicked()
-                        .then(|| self.window_visible = !self.window_visible);
-                });
-            });
-            ui.separator();
             CollapsingHeader::new(verbiage::SETTINGS_HEADING)
                 .default_open(true)
                 .show(ui, |ui| {
