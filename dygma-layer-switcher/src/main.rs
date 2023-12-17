@@ -18,9 +18,9 @@ mod log;
 mod single;
 mod structs;
 mod templates;
+mod verbiage;
 mod windows;
 
-pub const TITLE: &str = "Dygma Layer Switcher";
 pub const ICON: &[u8] = include_bytes!("../../assets/icons/icon.ico");
 
 pub fn main() -> Result<()> {
@@ -36,7 +36,7 @@ pub fn main() -> Result<()> {
         .expect("Failed to append menu item");
 
     run_native(
-        "Dygma Layer Switcher",
+        verbiage::APP_NAME,
         NativeOptions {
             default_theme: Theme::Dark,
             // follow_system_theme: true,
@@ -53,7 +53,7 @@ pub fn main() -> Result<()> {
             tray_rc.borrow_mut().replace(
                 TrayIconBuilder::new()
                     .with_menu(Box::new(tray_menu))
-                    .with_tooltip(TITLE)
+                    .with_tooltip(verbiage::APP_NAME)
                     .with_icon(icon)
                     .build()
                     .unwrap(),

@@ -1,7 +1,7 @@
 use crate::helpers::remove_opt_index;
-use crate::layer;
 use crate::structs::*;
 use crate::templates::*;
+use crate::{layer, verbiage};
 use crossbeam_channel::{Receiver, Sender};
 use dygma_focus::Focus;
 use eframe::egui::{
@@ -50,11 +50,8 @@ pub struct DygmaLayerSwitcher {
 impl Default for DygmaLayerSwitcher {
     fn default() -> Self {
         let focus = Focus::default();
-        let port = focus.find_first().unwrap_or_else(|e| {
-            error!(
-                "Connect a Dygma keyboard and restart the application: {:?}",
-                e
-            );
+        let port = focus.find_first().unwrap_or_else(|_| {
+            error!("{}", verbiage::NO_KEYBOARD_MESSAGE);
             std::process::exit(1);
         });
 
@@ -90,25 +87,25 @@ impl DygmaLayerSwitcher {
 
     fn logging_control(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
-            ui.label("Logging")
-                .on_hover_text("Enables logging to file.");
+            ui.label(verbiage::LOGGING_SETTING_HEADING)
+                .on_hover_text(verbiage::LOGGING_SETTING_HINT);
             ui.checkbox(&mut self.logging, "");
         });
     }
 
     fn port_control(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
-            ui.label("Port")
-                .on_hover_text("The serial port to communicate with.");
+            ui.label(verbiage::PORT_SETTING_HEADING)
+                .on_hover_text(verbiage::PORT_SETTING_HINT);
             if ui
-                .button("↻")
-                .on_hover_text("Rescan for the communication port.")
+                .button(verbiage::PORT_SETTING_REFRESH_HEADING)
+                .on_hover_text(verbiage::PORT_SETTING_REFRESH_HINT)
                 .clicked()
             {
                 let focus = Focus::default();
                 match focus.find_first() {
                     Ok(port) => self.port = port.port,
-                    Err(e) => warn!("No Dygma keyboard detected: {:?}", e),
+                    Err(_) => warn!("{}", verbiage::NO_KEYBOARD_MESSAGE),
                 }
             };
             editable_label(ui, &mut self.port, &mut self.editing_port);
@@ -117,24 +114,28 @@ impl DygmaLayerSwitcher {
 
     fn base_layer_control(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
-            ui.label("Base Layer")
-                .on_hover_text("The layer to return to.");
+            ui.label(verbiage::BASE_LAYER_SETTING_HEADING)
+                .on_hover_text(verbiage::BASE_LAYER_SETTING_HINT);
             ui.add(DragValue::new(&mut self.base_layer).clamp_range(1..=MAX_LAYERS))
-                .on_hover_text("Click and drag to change the base layer.");
+                .on_hover_text(verbiage::BASE_LAYER_VALUE_HINT);
         });
     }
 
     fn hidden_layer_control(&mut self, ui: &mut egui::Ui) {
         ui.horizontal(|ui| {
             if !self.hidden_layers.is_empty() {
-                CollapsingHeader::new("Hidden Layers")
+                CollapsingHeader::new(verbiage::HIDDEN_LAYERS_HEADING)
                     .default_open(false)
                     .show(ui, |ui| {
                         for layer in self.hidden_layers.iter() {
                             ui.horizontal(|ui| {
                                 if ui
-                                    .button(" - ")
-                                    .on_hover_text(format!("Unhide layer {}.", layer + 1))
+                                    .button(verbiage::BUTTON_REMOVE)
+                                    .on_hover_text(format!(
+                                        "{} {}.",
+                                        verbiage::HIDDEN_LAYERS_UNHIDE_HINT,
+                                        layer + 1
+                                    ))
                                     .clicked()
                                 {
                                     self.remove_hidden_layer = Some(*layer);
@@ -156,14 +157,14 @@ impl DygmaLayerSwitcher {
         TopBottomPanel::top("top_panel").show(ctx, |ui| {
             ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
                 ui.horizontal(|ui| {
-                    ui.button("Tray")
-                        .on_hover_text("Minimize to the system tray.")
+                    ui.button(verbiage::MENU_TRAY_HEADING)
+                        .on_hover_text(verbiage::MENU_TRAY_HINT)
                         .clicked()
                         .then(|| self.window_visible = !self.window_visible);
                 });
             });
             ui.separator();
-            CollapsingHeader::new("Settings")
+            CollapsingHeader::new(verbiage::SETTINGS_HEADING)
                 .default_open(true)
                 .show(ui, |ui| {
                     self.logging_control(ui);
@@ -191,27 +192,39 @@ impl DygmaLayerSwitcher {
                             ui.label(format!("{}", index + 1));
                             editable_collapsing(ui, &mut layer.name, &mut layer.is_editing, |ui| {
                                 ui.horizontal(|ui| {
-                                    if ui.button("Add Window").clicked() {
+                                    if ui
+                                        .button(verbiage::BUTTON_ADD_WINDOW)
+                                        .on_hover_text(verbiage::WINDOW)
+                                        .clicked()
+                                    {
                                         layer.apps.push(App::new_window());
                                     }
-                                    if ui.button("Add Process").clicked() {
+                                    if ui
+                                        .button(verbiage::BUTTON_ADD_PROCESS)
+                                        .on_hover_text(verbiage::PROCESS)
+                                        .clicked()
+                                    {
                                         layer.apps.push(App::new_process());
                                     }
-                                    if ui.button("Add Parent").clicked() {
+                                    if ui
+                                        .button(verbiage::BUTTON_ADD_PARENT)
+                                        .on_hover_text(verbiage::PARENT)
+                                        .clicked()
+                                    {
                                         layer.apps.push(App::new_parent());
                                     }
                                 });
 
-                                CollapsingHeader::new("Windows").default_open(true).show(
-                                    ui,
-                                    |ui| {
+                                CollapsingHeader::new(verbiage::MODE_WINDOWS_HEADING)
+                                    .default_open(true)
+                                    .show(ui, |ui| {
                                         for (index, app) in layer.apps.iter_mut().enumerate() {
                                             if let Mode::Window(window) = &mut app.mode {
                                                 ui.horizontal(|ui| {
                                                     ui.checkbox(&mut app.is_enabled, "");
                                                     if ui
-                                                        .button(" - ")
-                                                        .on_hover_text("Remove this window.")
+                                                        .button(verbiage::BUTTON_REMOVE)
+                                                        .on_hover_text(verbiage::MODE_WINDOWS_HINT)
                                                         .clicked()
                                                     {
                                                         self.remove_app = Some(index);
@@ -224,19 +237,20 @@ impl DygmaLayerSwitcher {
                                                 });
                                             }
                                         }
-                                    },
-                                );
+                                    })
+                                    .header_response
+                                    .on_hover_text(verbiage::WINDOW);
 
-                                CollapsingHeader::new("Processes").default_open(true).show(
-                                    ui,
-                                    |ui| {
+                                CollapsingHeader::new(verbiage::MODE_PROCESSES_HEADING)
+                                    .default_open(true)
+                                    .show(ui, |ui| {
                                         for (index, app) in layer.apps.iter_mut().enumerate() {
                                             if let Mode::Process(process) = &mut app.mode {
                                                 ui.horizontal(|ui| {
                                                     ui.checkbox(&mut app.is_enabled, "");
                                                     if ui
-                                                        .button(" - ")
-                                                        .on_hover_text("Remove this process.")
+                                                        .button(verbiage::BUTTON_REMOVE)
+                                                        .on_hover_text(verbiage::MODE_PROCESSES_HINT)
                                                         .clicked()
                                                     {
                                                         self.remove_app = Some(index);
@@ -249,24 +263,29 @@ impl DygmaLayerSwitcher {
                                                 });
                                             }
                                         }
-                                    },
-                                );
+                                    })
+                                    .header_response
+                                    .on_hover_text(verbiage::PROCESS);
 
-                                CollapsingHeader::new("Parents").default_open(true).show(
-                                    ui,
-                                    |ui| {
+                                CollapsingHeader::new(verbiage::MODE_PARENT_HEADING)
+                                    .default_open(true)
+                                    .show(ui, |ui| {
                                         for (index, app) in layer.apps.iter_mut().enumerate() {
                                             if let Mode::Parent(parent) = &mut app.mode {
                                                 ui.horizontal(|ui| {
                                                     ui.checkbox(&mut app.is_enabled, "");
                                                     if ui
-                                                        .button(" - ")
-                                                        .on_hover_text("Remove this parent.")
+                                                        .button(verbiage::BUTTON_REMOVE)
+                                                        .on_hover_text(verbiage::MODE_PARENT_HINT)
                                                         .clicked()
                                                     {
                                                         self.remove_app = Some(index);
                                                     }
-                                                    if ui.button("Add Exclude").clicked() {
+                                                    if ui
+                                                        .button(verbiage::BUTTON_ADD_EXCLUDE)
+                                                        .on_hover_text(verbiage::EXCLUDES_HINT)
+                                                        .clicked()
+                                                    {
                                                         parent.excludes.push(Exclude::new());
                                                     }
                                                     editable_label(
@@ -277,7 +296,7 @@ impl DygmaLayerSwitcher {
                                                 });
 
                                                 if !parent.excludes.is_empty() {
-                                                    CollapsingHeader::new("Excludes")
+                                                    CollapsingHeader::new(verbiage::MODE_PARENT_EXCLUDES_HEADING)
                                                         .id_source(format!("excludes_{}", index))
                                                         .default_open(true)
                                                         .show(ui, |ui| {
@@ -292,9 +311,9 @@ impl DygmaLayerSwitcher {
                                                                             "",
                                                                         );
                                                                         if ui
-                                                                        .button(" - ")
+                                                                        .button(verbiage::BUTTON_REMOVE)
                                                                         .on_hover_text(
-                                                                            "Remove this exclude.",
+                                                                            verbiage::MODE_PARENT_EXCLUDES_HINT,
                                                                         )
                                                                         .clicked()
                                                                     {
@@ -312,12 +331,15 @@ impl DygmaLayerSwitcher {
                                                                 &mut parent.excludes,
                                                                 &mut self.remove_exclude,
                                                             );
-                                                        });
+                                                        })
+                                                        .header_response
+                                                        .on_hover_text(verbiage::EXCLUDES_HINT);
                                                 }
                                             }
                                         }
-                                    },
-                                );
+                                    })
+                                    .header_response
+                                    .on_hover_text(verbiage::PARENT);
                                 remove_opt_index(&mut layer.apps, &mut self.remove_app);
                             });
                         });
