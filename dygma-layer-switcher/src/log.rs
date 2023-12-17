@@ -6,6 +6,7 @@ pub fn init(logging: bool) {
     let console_filter = EnvFilter::new("debug")
         .add_directive("dygma-layer-switcher=trace".parse().unwrap())
         .add_directive("egui=warn".parse().unwrap())
+        .add_directive("eframe=warn".parse().unwrap())
         .add_directive("wgpu=warn".parse().unwrap());
 
     let console_layer = fmt::layer()
@@ -19,6 +20,7 @@ pub fn init(logging: bool) {
     if logging {
         let file_filter = EnvFilter::new("trace")
             .add_directive("dygma-layer-switcher=trace".parse().unwrap())
+            .add_directive("eframe=warn".parse().unwrap())
             .add_directive("egui=warn".parse().unwrap())
             .add_directive("wgpu=warn".parse().unwrap());
 

@@ -1,9 +1,8 @@
-use crate::layer;
 use crate::structs::AppDetails;
 use std::path::Path;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;
-use tracing::{debug, error, info, trace};
+use tracing::{debug, error, trace};
 use windows::core::PCWSTR;
 use windows::Win32::{
     Foundation::{HWND, MAX_PATH},

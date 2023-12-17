@@ -11,9 +11,6 @@ use eframe::{egui, Frame, Storage};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
-use std::sync::{Arc, Mutex};
-use std::thread;
-use std::thread::Thread;
 use tracing::{error, trace, warn};
 use tray_icon::menu::MenuEvent;
 use tray_icon::{ClickType, TrayIconEvent};
@@ -346,7 +343,7 @@ impl eframe::App for DygmaLayerSwitcher {
             }
         }
         if let Ok(event) = MenuEvent::receiver().try_recv() {
-            trace!("Tray menu event: {event:?}");
+            trace!("Tray menu event: {:?}", event);
             // Exit
             if event.id == "1001" {
                 ctx.send_viewport_cmd(egui::ViewportCommand::Close);

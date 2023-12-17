@@ -55,6 +55,6 @@ fn check_process(config: &DygmaLayerSwitcher, app_details: &AppDetails) -> Optio
     None
 }
 
-fn check_parent(config: &DygmaLayerSwitcher, app_details: &AppDetails) -> Option<u8> {
+fn check_parent(_config: &DygmaLayerSwitcher, _app_details: &AppDetails) -> Option<u8> {
     None
 }
