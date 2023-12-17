@@ -255,8 +255,11 @@ impl DygmaLayerSwitcher {
                                                 .id_source(format!("excludes_{}", index))
                                                 .default_open(true)
                                                 .show(ui, |ui| {
-                                                    parent.excludes.iter_mut().for_each(
-                                                        |exclude| {
+                                                    parent
+                                                        .excludes
+                                                        .iter_mut()
+                                                        .enumerate()
+                                                        .for_each(|(index, exclude)| {
                                                             ui.horizontal(|ui| {
                                                                 ui.checkbox(
                                                                     &mut exclude.is_enabled,
@@ -278,18 +281,16 @@ impl DygmaLayerSwitcher {
                                                                     &mut exclude.is_editing,
                                                                 );
                                                             });
-                                                        },
-                                                    );
+                                                        });
                                                     remove_opt_index(
                                                         &mut parent.excludes,
                                                         &mut self.remove_exclude,
-                                                    )
+                                                    );
                                                 });
                                         }
                                     }
                                 }
                             });
-
                         remove_opt_index(&mut layer.apps, &mut self.remove_app);
                     });
                 });
