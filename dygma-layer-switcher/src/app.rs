@@ -5,7 +5,7 @@ use crate::templates::*;
 use crossbeam_channel::{Receiver, Sender};
 use dygma_focus::Focus;
 use eframe::egui::{
-    CentralPanel, CollapsingHeader, Context, DragValue, ScrollArea, TopBottomPanel,
+    Align, CentralPanel, CollapsingHeader, Context, DragValue, Layout, ScrollArea, TopBottomPanel,
 };
 use eframe::{egui, Frame, Storage};
 use lazy_static::lazy_static;
@@ -154,6 +154,15 @@ impl DygmaLayerSwitcher {
 
     fn top_panel(&mut self, ctx: &Context) {
         TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
+                ui.horizontal(|ui| {
+                    ui.button("Tray")
+                        .on_hover_text("Minimize to the system tray.")
+                        .clicked()
+                        .then(|| self.window_visible = !self.window_visible);
+                });
+            });
+            ui.separator();
             CollapsingHeader::new("Settings")
                 .default_open(true)
                 .show(ui, |ui| {

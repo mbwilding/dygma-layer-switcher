@@ -32,7 +32,12 @@ fn check_window(config: &DygmaLayerSwitcher, app_details: &AppDetails) -> Option
     for (&layer_number, layer) in &config.mappings {
         for app in &layer.apps {
             if let Mode::Window(ref window) = app.mode {
-                if app.is_enabled && window.name == app_details.window {
+                if app.is_enabled
+                    && window
+                        .name
+                        .to_lowercase()
+                        .contains(&app_details.window.to_lowercase())
+                {
                     return Some(layer_number);
                 }
             }
@@ -46,7 +51,9 @@ fn check_process(config: &DygmaLayerSwitcher, app_details: &AppDetails) -> Optio
     for (&layer_number, layer) in &config.mappings {
         for app in &layer.apps {
             if let Mode::Process(ref process) = app.mode {
-                if app.is_enabled && process.name == app_details.process {
+                if app.is_enabled
+                    && process.name.to_lowercase() == app_details.process.to_lowercase()
+                {
                     return Some(layer_number);
                 }
             }

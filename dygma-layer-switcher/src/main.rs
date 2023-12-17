@@ -39,11 +39,14 @@ pub fn main() -> Result<()> {
         "Dygma Layer Switcher",
         NativeOptions {
             default_theme: Theme::Dark,
-            follow_system_theme: true,
+            // follow_system_theme: true,
             persist_window: true,
             centered: false,
             vsync: true,
-            viewport: ViewportBuilder::default().with_icon(Arc::new(icon::load_icon(ICON))),
+            viewport: ViewportBuilder::default()
+                .with_minimize_button(false)
+                .with_maximize_button(false)
+                .with_icon(Arc::new(icon::load_icon(ICON))),
             ..Default::default()
         },
         Box::new(move |cc| {
