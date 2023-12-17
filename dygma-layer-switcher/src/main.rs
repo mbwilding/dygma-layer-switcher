@@ -1,30 +1,72 @@
 // hide console window on Windows in release
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use crate::app::DygmaLayerSwitcher;
+use anyhow::Result;
+use eframe::egui::ViewportBuilder;
+use eframe::*;
+use std::sync::Arc;
+use std::{cell::RefCell, rc::Rc};
+use tray_icon::menu::{Menu, MenuItem};
+use tray_icon::TrayIconBuilder;
+
+mod app;
+mod helpers;
+mod icon;
+mod layer;
 mod log;
+mod single;
+mod structs;
+mod templates;
+mod verbiage;
+mod windows;
 
-use common::config::Config;
-use common::single;
-use tracing::error;
+pub const ICON: &[u8] = include_bytes!("../../assets/icons/icon.ico");
 
-fn main() -> anyhow::Result<()> {
-    let config = Config::load();
-    log::init(&config);
-
-    #[cfg(not(windows))]
-    error!("Platform not yet supported");
-
+pub fn main() -> Result<()> {
     single::check()?;
 
-    #[cfg(windows)]
-    {
-        windows::init::start();
+    let icon = icon::load_tray_icon(ICON)?;
+    let mut _tray_icon = Rc::new(RefCell::new(None));
+    let tray_rc = _tray_icon.clone();
 
-        windows::tray::load().unwrap_or_else(|e| {
-            error!("Failed to load tray: {}", e);
-            std::process::exit(1);
-        });
-    }
+    let tray_menu = Menu::new();
+    tray_menu
+        .append(&MenuItem::new(verbiage::TRAY_QUIT, true, None))
+        .unwrap();
+
+    run_native(
+        verbiage::APP_NAME,
+        NativeOptions {
+            default_theme: Theme::Dark,
+            // follow_system_theme: true,
+            persist_window: true,
+            centered: false,
+            vsync: true,
+            viewport: ViewportBuilder::default()
+                .with_inner_size((400.0, 320.0))
+                .with_resizable(true)
+                .with_close_button(true)
+                .with_minimize_button(true)
+                .with_maximize_button(true)
+                .with_icon(Arc::new(icon::load_icon(ICON))),
+            ..Default::default()
+        },
+        Box::new(move |cc| {
+            tray_rc.borrow_mut().replace(
+                TrayIconBuilder::new()
+                    .with_menu(Box::new(tray_menu))
+                    .with_tooltip(verbiage::APP_NAME)
+                    .with_icon(icon)
+                    .build()
+                    .unwrap(),
+            );
+            let app = DygmaLayerSwitcher::new(cc);
+            log::init(app.logging);
+            windows::start();
+            Box::new(app)
+        }),
+    )?;
 
     Ok(())
 }

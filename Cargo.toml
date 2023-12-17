@@ -2,8 +2,6 @@
 resolver = "2"
 members = [
     "dygma-layer-switcher",
-    "common",
-    "windows",
 ]
 
 [profile.release]

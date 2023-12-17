@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: ["x86_64-pc-windows-gnu"] # Waiting for `aarch64-pc-windows-gnu` to be available.
+        target: ["x86_64-pc-windows-gnu"]
 
     steps:
       - name: "Checkout"
@@ -31,10 +31,10 @@ jobs:
       - name: "Zip"
         run: |
           cp target/${{ matrix.target }}/release/dygma-layer-switcher.exe .
-          zip windows-${{ github.ref_name }}-${{ matrix.target }}.zip readme.md dygma-layer-switcher.exe assets/icons/icon.ico
+          zip dls-${{ github.ref_name }}-${{ matrix.target }}.zip dygma-layer-switcher.exe
 
       - name: "Release"
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            windows-${{ github.ref_name }}-${{ matrix.target }}.zip
+            dls-${{ github.ref_name }}-${{ matrix.target }}.zip
