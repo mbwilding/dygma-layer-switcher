@@ -89,7 +89,8 @@ impl DygmaLayerSwitcher {
         ui.horizontal(|ui| {
             ui.label(verbiage::LOGGING_SETTING_HEADING)
                 .on_hover_text(verbiage::LOGGING_SETTING_HINT);
-            ui.checkbox(&mut self.logging, "");
+            ui.checkbox(&mut self.logging, "")
+                .on_hover_text(verbiage::LOGGING_SETTING_HINT);
         });
     }
 
@@ -212,7 +213,7 @@ impl DygmaLayerSwitcher {
                                         for (index, app) in layer.apps.iter_mut().enumerate() {
                                             if let Mode::Window(window) = &mut app.mode {
                                                 ui.horizontal(|ui| {
-                                                    ui.checkbox(&mut app.is_enabled, "");
+                                                    ui.checkbox(&mut app.is_enabled, "").on_hover_text(verbiage::CHECKBOX_ACTIVE);
                                                     if ui
                                                         .button(verbiage::BUTTON_REMOVE)
                                                         .on_hover_text(verbiage::MODE_WINDOWS_HINT)
@@ -238,7 +239,7 @@ impl DygmaLayerSwitcher {
                                         for (index, app) in layer.apps.iter_mut().enumerate() {
                                             if let Mode::Process(process) = &mut app.mode {
                                                 ui.horizontal(|ui| {
-                                                    ui.checkbox(&mut app.is_enabled, "");
+                                                    ui.checkbox(&mut app.is_enabled, "").on_hover_text(verbiage::CHECKBOX_ACTIVE);
                                                     if ui
                                                         .button(verbiage::BUTTON_REMOVE)
                                                         .on_hover_text(verbiage::MODE_PROCESSES_HINT)
@@ -264,7 +265,7 @@ impl DygmaLayerSwitcher {
                                         for (index, app) in layer.apps.iter_mut().enumerate() {
                                             if let Mode::Parent(parent) = &mut app.mode {
                                                 ui.horizontal(|ui| {
-                                                    ui.checkbox(&mut app.is_enabled, "");
+                                                    ui.checkbox(&mut app.is_enabled, "").on_hover_text(verbiage::CHECKBOX_ACTIVE);
                                                     if ui
                                                         .button(verbiage::BUTTON_REMOVE)
                                                         .on_hover_text(verbiage::MODE_PARENT_HINT)
@@ -300,7 +301,7 @@ impl DygmaLayerSwitcher {
                                                                         ui.checkbox(
                                                                             &mut exclude.is_enabled,
                                                                             "",
-                                                                        );
+                                                                        ).on_hover_text(verbiage::CHECKBOX_ACTIVE);
                                                                         if ui
                                                                         .button(verbiage::BUTTON_REMOVE)
                                                                         .on_hover_text(
