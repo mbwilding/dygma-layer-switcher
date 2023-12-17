@@ -13,14 +13,17 @@ pub fn process(config: &DygmaLayerSwitcher, app_details: &AppDetails) {
 
 fn layer_change(config: &DygmaLayerSwitcher, layer: u8) {
     let mut focus = dygma_focus::Focus::default();
-    if focus.open_via_port(&config.port).is_ok() {
-        if focus.layer_move_to(layer - 1).is_ok() {
-            info!("Changed layer: {}", layer);
-        } else {
-            error!("Failed to write to serial port: {:?}", &config.port);
+    match focus.open_via_port(&config.port) {
+        Ok(_) => {
+            if let Err(e) = focus.layer_move_to(layer - 1) {
+                error!("Failed to write to serial port '{}': {:?}", &config.port, e);
+            } else {
+                info!("Changed layer: {}", layer);
+            }
         }
-    } else {
-        error!("Failed to open serial port: {:?}", &config.port);
+        Err(e) => {
+            error!("Failed to open serial port '{}': {:?}", &config.port, e);
+        }
     }
 }
 
