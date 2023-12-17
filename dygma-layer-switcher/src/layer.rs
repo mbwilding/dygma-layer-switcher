@@ -1,11 +1,11 @@
 use crate::app::DygmaLayerSwitcher;
-use crate::structs::AppDetails;
+use crate::structs::{AppDetails, Mode};
 use tracing::{error, info};
 
 pub fn process(config: &DygmaLayerSwitcher, app_details: &AppDetails) {
-    let layer = check_window(app_details)
-        .or_else(|| check_process(app_details))
-        .or_else(|| check_parent(app_details))
+    let layer = check_window(config, app_details)
+        .or_else(|| check_process(config, app_details))
+        .or_else(|| check_parent(config, app_details))
         .unwrap_or(config.base_layer);
 
     layer_change(config, layer);
@@ -24,14 +24,34 @@ fn layer_change(config: &DygmaLayerSwitcher, layer: u8) {
     }
 }
 
-fn check_window(app_details: &AppDetails) -> Option<u8> {
+fn check_window(config: &DygmaLayerSwitcher, app_details: &AppDetails) -> Option<u8> {
+    for (&layer_number, layer) in &config.mappings {
+        for app in &layer.apps {
+            if let Mode::Window(ref window) = app.mode {
+                if app.is_enabled && window.name == app_details.window {
+                    return Some(layer_number);
+                }
+            }
+        }
+    }
+
     None
 }
 
-fn check_process(app_details: &AppDetails) -> Option<u8> {
+fn check_process(config: &DygmaLayerSwitcher, app_details: &AppDetails) -> Option<u8> {
+    for (&layer_number, layer) in &config.mappings {
+        for app in &layer.apps {
+            if let Mode::Process(ref process) = app.mode {
+                if app.is_enabled && process.name == app_details.process {
+                    return Some(layer_number);
+                }
+            }
+        }
+    }
+
     None
 }
 
-fn check_parent(app_details: &AppDetails) -> Option<u8> {
+fn check_parent(config: &DygmaLayerSwitcher, app_details: &AppDetails) -> Option<u8> {
     None
 }
