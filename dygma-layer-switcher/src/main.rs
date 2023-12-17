@@ -32,8 +32,8 @@ pub fn main() -> Result<()> {
 
     let tray_menu = Menu::new();
     tray_menu
-        .append(&MenuItem::new("Quit", true, None))
-        .expect("Failed to append menu item");
+        .append(&MenuItem::new(verbiage::TRAY_QUIT, true, None))
+        .unwrap();
 
     run_native(
         verbiage::APP_NAME,
