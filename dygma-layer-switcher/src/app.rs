@@ -1,11 +1,14 @@
 use crate::helpers::remove_opt_index;
+use crate::layer;
 use crate::structs::*;
 use crate::templates::*;
+use crossbeam_channel::{Receiver, Sender};
 use dygma_focus::Focus;
 use eframe::egui::{
     CentralPanel, CollapsingHeader, Context, DragValue, ScrollArea, TopBottomPanel,
 };
 use eframe::{egui, Frame, Storage};
+use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use tracing::{error, trace, warn};
@@ -13,6 +16,11 @@ use tray_icon::menu::MenuEvent;
 use tray_icon::{ClickType, TrayIconEvent};
 
 const MAX_LAYERS: u8 = 10;
+
+lazy_static! {
+    pub static ref CHANNELS: (Sender<AppDetails>, Receiver<AppDetails>) =
+        crossbeam_channel::unbounded::<AppDetails>();
+}
 
 #[derive(Deserialize, Serialize)]
 #[serde(default)]
@@ -310,6 +318,12 @@ impl DygmaLayerSwitcher {
 
 impl eframe::App for DygmaLayerSwitcher {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+        // Window focus
+        if let Ok(event) = CHANNELS.1.try_recv() {
+            layer::process(self, &event);
+        }
+
+        // Tray
         if let Ok(event) = TrayIconEvent::receiver().try_recv() {
             trace!("Tray icon event: {event:?}");
             match event.click_type {
@@ -330,6 +344,8 @@ impl eframe::App for DygmaLayerSwitcher {
                 ctx.send_viewport_cmd(egui::ViewportCommand::Close);
             }
         }
+
+        // UI
         self.top_panel(ctx);
         self.central_panel(ctx);
     }

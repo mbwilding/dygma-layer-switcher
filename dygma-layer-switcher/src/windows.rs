@@ -3,7 +3,7 @@ use crate::structs::AppDetails;
 use std::path::Path;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;
-use tracing::{error, info, trace};
+use tracing::{debug, error, info, trace};
 use windows::core::PCWSTR;
 use windows::Win32::{
     Foundation::{HWND, MAX_PATH},
@@ -25,10 +25,14 @@ use windows::Win32::{
 ///
 /// WinAPI.
 pub unsafe fn hydrate(window_handle: HWND) -> AppDetails {
-    AppDetails {
+    let app_details = AppDetails {
         window: get_window(window_handle),
         process: get_process(window_handle),
-    }
+    };
+
+    debug!("{:?}", app_details);
+
+    app_details
 }
 
 /// # Safety
@@ -98,7 +102,7 @@ static DEBOUNCER: AtomicU32 = AtomicU32::new(0);
 /// # Safety
 ///
 /// WinAPI.
-pub unsafe extern "system" fn get_focused_window_details(
+pub unsafe extern "system" fn new_window_focused(
     _h_win_event_hook: HWINEVENTHOOK,
     _event: u32,
     window_handle: HWND,
@@ -120,13 +124,18 @@ pub unsafe extern "system" fn get_focused_window_details(
     DEBOUNCER.store(dwms_event_time, Ordering::SeqCst);
 
     let app_details = hydrate(window_handle);
-    layer::process(&app_details);
+    crate::app::CHANNELS
+        .0
+        .send(app_details)
+        .unwrap_or_else(|e| {
+            error!("Failed to send app details: {:?}", e);
+        });
 }
 
 pub fn start() {
     std::thread::spawn(|| {
         unsafe {
-            info!("Attempting Hook");
+            debug!("Hooking");
 
             let module_handle = GetModuleHandleW(PCWSTR::null()).unwrap_or_else(|e| {
                 error!("Failed to get module handle: {:?}", e);
@@ -137,13 +146,13 @@ pub fn start() {
                 EVENT_OBJECT_FOCUS,
                 EVENT_OBJECT_FOCUS,
                 module_handle,
-                Some(get_focused_window_details),
+                Some(new_window_focused),
                 0,
                 0,
                 WINEVENT_OUTOFCONTEXT,
             );
 
-            info!("Hooked");
+            debug!("Hooked");
 
             let mut msg = MSG::default();
 

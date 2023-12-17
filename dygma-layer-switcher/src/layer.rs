@@ -1,34 +1,37 @@
+use crate::app::DygmaLayerSwitcher;
 use crate::structs::AppDetails;
-use tracing::debug;
+use tracing::{error, info};
 
-pub fn process(app_details: &AppDetails) {
-    debug!("{:?}", app_details);
+pub fn process(config: &DygmaLayerSwitcher, app_details: &AppDetails) {
+    let layer = check_window(app_details)
+        .or_else(|| check_process(app_details))
+        .or_else(|| check_parent(app_details))
+        .unwrap_or(config.base_layer);
 
-    // TODO
-    // let config = Config::load();
-
-    // let layer = config
-    //     .check_window(app_details)
-    //     .or_else(|| config.check_process(app_details))
-    //     .or_else(|| config.check_parent(app_details))
-    //     .unwrap_or_else(|| config.base_layer.unwrap_or_default());
-
-    // layer_change(&config, layer);
+    layer_change(config, layer);
 }
 
-fn layer_change(layer: u8) {
-    // if let Some(port) = &config.comm_port {
-    //     let mut focus = dygma_focus::Focus::default();
-    //     if focus.open_via_port(port).is_ok() {
-    //         if focus.layer_move_to(layer - 1).is_ok() {
-    //             info!("Changed layer: {}", layer);
-    //         } else {
-    //             error!("Failed to write to serial port: {:?}", &config.comm_port);
-    //         }
-    //     } else {
-    //         error!("Failed to open serial port: {:?}", &config.comm_port);
-    //     }
-    // } else {
-    //     error!("No serial port specified");
-    // }
+fn layer_change(config: &DygmaLayerSwitcher, layer: u8) {
+    let mut focus = dygma_focus::Focus::default();
+    if focus.open_via_port(&config.port).is_ok() {
+        if focus.layer_move_to(layer - 1).is_ok() {
+            info!("Changed layer: {}", layer);
+        } else {
+            error!("Failed to write to serial port: {:?}", &config.port);
+        }
+    } else {
+        error!("Failed to open serial port: {:?}", &config.port);
+    }
+}
+
+fn check_window(app_details: &AppDetails) -> Option<u8> {
+    None
+}
+
+fn check_process(app_details: &AppDetails) -> Option<u8> {
+    None
+}
+
+fn check_parent(app_details: &AppDetails) -> Option<u8> {
+    None
 }

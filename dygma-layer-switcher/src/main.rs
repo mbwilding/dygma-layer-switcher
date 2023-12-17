@@ -1,6 +1,7 @@
 // hide console window on Windows in release
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use crate::app::DygmaLayerSwitcher;
 use anyhow::Result;
 use eframe::egui::ViewportBuilder;
 use eframe::*;
@@ -54,7 +55,7 @@ pub fn main() -> Result<()> {
                     .build()
                     .unwrap(),
             );
-            let app = app::DygmaLayerSwitcher::new(cc);
+            let app = DygmaLayerSwitcher::new(cc);
             log::init(app.logging);
             windows::start();
             Box::new(app)
