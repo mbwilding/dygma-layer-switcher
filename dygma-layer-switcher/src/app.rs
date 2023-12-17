@@ -158,7 +158,6 @@ impl DygmaLayerSwitcher {
 
     fn central_panel(&mut self, ctx: &Context) {
         CentralPanel::default().show(ctx, |ui| {
-            ui.label("Right click to rename the layer.");
             ScrollArea::new([true, true])
                 .drag_to_scroll(true)
                 .auto_shrink(false)

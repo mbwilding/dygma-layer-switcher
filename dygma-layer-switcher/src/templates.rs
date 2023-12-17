@@ -1,4 +1,5 @@
 use eframe::egui;
+use eframe::egui::CollapsingHeader;
 
 pub fn editable_label(ui: &mut egui::Ui, value: &mut String, editing: &mut bool) {
     if *editing {
@@ -21,13 +22,17 @@ pub fn editable_collapsing<F: FnMut(&mut egui::Ui)>(
             *editing = false;
         }
     } else {
-        let header_response = ui
-            .collapsing(&value.clone(), |ui| {
+        let header_response = CollapsingHeader::new(value.clone())
+            .default_open(false)
+            .show(ui, |ui| {
                 content(ui);
             })
             .header_response;
 
-        if header_response.secondary_clicked() {
+        if header_response
+            .on_hover_text("Right click to rename.")
+            .secondary_clicked()
+        {
             *editing = true;
         }
     }
