@@ -23,6 +23,7 @@ jobs:
         with:
           toolchain: stable
           components: rustfmt, clippy
+          target: x86_64-pc-windows-gnu
 
       - name: "Dependencies"
         run: sudo apt-get install -y ${{ env.APT_PACKAGES }}
@@ -31,4 +32,4 @@ jobs:
         run: cargo fmt -- --check
 
       - name: "Clippy"
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --target x86_64-pc-windows-gnu -- -D warnings
