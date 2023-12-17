@@ -31,3 +31,4 @@ pub const PARENT: &str = "The parent executable name, and optional excludes of c
 pub const EXCLUDES_HINT: &str = "Exclude a child process.";
 pub const RENAME_HINT: &str = "Right click to rename.";
 pub const TRAY_QUIT: &str = "Quit";
+pub const LAYER: &str = "Layer";

@@ -140,8 +140,8 @@ impl DygmaLayerSwitcher {
                                 {
                                     self.remove_hidden_layer = Some(*layer);
                                 }
-                                ui.label(format!("{}", layer + 1));
-                                ui.label(self.mappings[layer].name.as_str());
+                                ui.label(self.mappings[layer].name.as_str())
+                                    .on_hover_text(format!("{} {}.", verbiage::LAYER, layer + 1));
                             });
                         }
                         if let Some(layer) = self.remove_hidden_layer {
@@ -180,9 +180,9 @@ impl DygmaLayerSwitcher {
                             if ui.button("👁").clicked() {
                                 self.hidden_layers.insert(*index);
                             }
-                            ui.label(format!("{}", index + 1));
                             editable_collapsing(ui, &mut layer.name, &mut layer.is_editing, |ui| {
                                 ui.horizontal(|ui| {
+                                    ui.label(format!("{} {}", verbiage::LAYER, index + 1));
                                     if ui
                                         .button(verbiage::BUTTON_ADD_WINDOW)
                                         .on_hover_text(verbiage::WINDOW)
