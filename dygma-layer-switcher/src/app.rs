@@ -2,7 +2,9 @@ use crate::helpers::remove_opt_index;
 use crate::structs::*;
 use crate::templates::*;
 use dygma_focus::Focus;
-use eframe::egui::{CentralPanel, CollapsingHeader, Context, DragValue, TopBottomPanel};
+use eframe::egui::{
+    CentralPanel, CollapsingHeader, Context, DragValue, ScrollArea, TopBottomPanel,
+};
 use eframe::{egui, Frame, Storage};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -157,144 +159,152 @@ impl DygmaLayerSwitcher {
     fn central_panel(&mut self, ctx: &Context) {
         CentralPanel::default().show(ctx, |ui| {
             ui.label("Right click to rename the layer.");
-            for (index, layer) in self.mappings.iter_mut() {
-                if self.hidden_layers.contains(index) {
-                    continue;
-                }
-                ui.horizontal(|ui| {
-                    if ui.button("👁").clicked() {
-                        self.hidden_layers.insert(*index);
-                    }
-                    editable_collapsing(ui, &mut layer.name, &mut layer.is_editing, |ui| {
+            ScrollArea::new([true, true])
+                .drag_to_scroll(true)
+                .auto_shrink(false)
+                .show(ui, |ui| {
+                    for (index, layer) in self.mappings.iter_mut() {
+                        if self.hidden_layers.contains(index) {
+                            continue;
+                        }
                         ui.horizontal(|ui| {
-                            if ui.button("Add Window").clicked() {
-                                layer.apps.push(App::new_window());
+                            if ui.button("👁").clicked() {
+                                self.hidden_layers.insert(*index);
                             }
-                            if ui.button("Add Process").clicked() {
-                                layer.apps.push(App::new_process());
-                            }
-                            if ui.button("Add Parent").clicked() {
-                                layer.apps.push(App::new_parent());
-                            }
-                        });
-
-                        CollapsingHeader::new("Windows")
-                            .default_open(true)
-                            .show(ui, |ui| {
-                                for (index, app) in layer.apps.iter_mut().enumerate() {
-                                    if let Mode::Window(window) = &mut app.mode {
-                                        ui.horizontal(|ui| {
-                                            ui.checkbox(&mut app.is_enabled, "");
-                                            if ui
-                                                .button(" - ")
-                                                .on_hover_text("Remove this window.")
-                                                .clicked()
-                                            {
-                                                self.remove_app = Some(index);
-                                            }
-                                            editable_label(
-                                                ui,
-                                                &mut window.name,
-                                                &mut window.is_editing,
-                                            );
-                                        });
+                            editable_collapsing(ui, &mut layer.name, &mut layer.is_editing, |ui| {
+                                ui.horizontal(|ui| {
+                                    if ui.button("Add Window").clicked() {
+                                        layer.apps.push(App::new_window());
                                     }
-                                }
-                            });
-
-                        CollapsingHeader::new("Processes")
-                            .default_open(true)
-                            .show(ui, |ui| {
-                                for (index, app) in layer.apps.iter_mut().enumerate() {
-                                    if let Mode::Process(process) = &mut app.mode {
-                                        ui.horizontal(|ui| {
-                                            ui.checkbox(&mut app.is_enabled, "");
-                                            if ui
-                                                .button(" - ")
-                                                .on_hover_text("Remove this process.")
-                                                .clicked()
-                                            {
-                                                self.remove_app = Some(index);
-                                            }
-                                            editable_label(
-                                                ui,
-                                                &mut process.name,
-                                                &mut process.is_editing,
-                                            );
-                                        });
+                                    if ui.button("Add Process").clicked() {
+                                        layer.apps.push(App::new_process());
                                     }
-                                }
-                            });
+                                    if ui.button("Add Parent").clicked() {
+                                        layer.apps.push(App::new_parent());
+                                    }
+                                });
 
-                        CollapsingHeader::new("Parents")
-                            .default_open(true)
-                            .show(ui, |ui| {
-                                for (index, app) in layer.apps.iter_mut().enumerate() {
-                                    if let Mode::Parent(parent) = &mut app.mode {
-                                        ui.horizontal(|ui| {
-                                            ui.checkbox(&mut app.is_enabled, "");
-                                            if ui
-                                                .button(" - ")
-                                                .on_hover_text("Remove this parent.")
-                                                .clicked()
-                                            {
-                                                self.remove_app = Some(index);
-                                            }
-                                            if ui.button("Add Exclude").clicked() {
-                                                parent.excludes.push(Exclude::new());
-                                            }
-                                            editable_label(
-                                                ui,
-                                                &mut parent.name,
-                                                &mut parent.is_editing,
-                                            );
-                                        });
-
-                                        if !parent.excludes.is_empty() {
-                                            CollapsingHeader::new("Excludes")
-                                                .id_source(format!("excludes_{}", index))
-                                                .default_open(true)
-                                                .show(ui, |ui| {
-                                                    parent
-                                                        .excludes
-                                                        .iter_mut()
-                                                        .enumerate()
-                                                        .for_each(|(index, exclude)| {
-                                                            ui.horizontal(|ui| {
-                                                                ui.checkbox(
-                                                                    &mut exclude.is_enabled,
-                                                                    "",
-                                                                );
-                                                                if ui
-                                                                    .button(" - ")
-                                                                    .on_hover_text(
-                                                                        "Remove this exclude.",
-                                                                    )
-                                                                    .clicked()
-                                                                {
-                                                                    self.remove_exclude =
-                                                                        Some(index);
-                                                                }
-                                                                editable_label(
-                                                                    ui,
-                                                                    &mut exclude.name,
-                                                                    &mut exclude.is_editing,
-                                                                );
-                                                            });
-                                                        });
-                                                    remove_opt_index(
-                                                        &mut parent.excludes,
-                                                        &mut self.remove_exclude,
+                                CollapsingHeader::new("Windows").default_open(true).show(
+                                    ui,
+                                    |ui| {
+                                        for (index, app) in layer.apps.iter_mut().enumerate() {
+                                            if let Mode::Window(window) = &mut app.mode {
+                                                ui.horizontal(|ui| {
+                                                    ui.checkbox(&mut app.is_enabled, "");
+                                                    if ui
+                                                        .button(" - ")
+                                                        .on_hover_text("Remove this window.")
+                                                        .clicked()
+                                                    {
+                                                        self.remove_app = Some(index);
+                                                    }
+                                                    editable_label(
+                                                        ui,
+                                                        &mut window.name,
+                                                        &mut window.is_editing,
                                                     );
                                                 });
+                                            }
                                         }
-                                    }
-                                }
+                                    },
+                                );
+
+                                CollapsingHeader::new("Processes").default_open(true).show(
+                                    ui,
+                                    |ui| {
+                                        for (index, app) in layer.apps.iter_mut().enumerate() {
+                                            if let Mode::Process(process) = &mut app.mode {
+                                                ui.horizontal(|ui| {
+                                                    ui.checkbox(&mut app.is_enabled, "");
+                                                    if ui
+                                                        .button(" - ")
+                                                        .on_hover_text("Remove this process.")
+                                                        .clicked()
+                                                    {
+                                                        self.remove_app = Some(index);
+                                                    }
+                                                    editable_label(
+                                                        ui,
+                                                        &mut process.name,
+                                                        &mut process.is_editing,
+                                                    );
+                                                });
+                                            }
+                                        }
+                                    },
+                                );
+
+                                CollapsingHeader::new("Parents").default_open(true).show(
+                                    ui,
+                                    |ui| {
+                                        for (index, app) in layer.apps.iter_mut().enumerate() {
+                                            if let Mode::Parent(parent) = &mut app.mode {
+                                                ui.horizontal(|ui| {
+                                                    ui.checkbox(&mut app.is_enabled, "");
+                                                    if ui
+                                                        .button(" - ")
+                                                        .on_hover_text("Remove this parent.")
+                                                        .clicked()
+                                                    {
+                                                        self.remove_app = Some(index);
+                                                    }
+                                                    if ui.button("Add Exclude").clicked() {
+                                                        parent.excludes.push(Exclude::new());
+                                                    }
+                                                    editable_label(
+                                                        ui,
+                                                        &mut parent.name,
+                                                        &mut parent.is_editing,
+                                                    );
+                                                });
+
+                                                if !parent.excludes.is_empty() {
+                                                    CollapsingHeader::new("Excludes")
+                                                        .id_source(format!("excludes_{}", index))
+                                                        .default_open(true)
+                                                        .show(ui, |ui| {
+                                                            parent
+                                                                .excludes
+                                                                .iter_mut()
+                                                                .enumerate()
+                                                                .for_each(|(index, exclude)| {
+                                                                    ui.horizontal(|ui| {
+                                                                        ui.checkbox(
+                                                                            &mut exclude.is_enabled,
+                                                                            "",
+                                                                        );
+                                                                        if ui
+                                                                        .button(" - ")
+                                                                        .on_hover_text(
+                                                                            "Remove this exclude.",
+                                                                        )
+                                                                        .clicked()
+                                                                    {
+                                                                        self.remove_exclude =
+                                                                            Some(index);
+                                                                    }
+                                                                        editable_label(
+                                                                            ui,
+                                                                            &mut exclude.name,
+                                                                            &mut exclude.is_editing,
+                                                                        );
+                                                                    });
+                                                                });
+                                                            remove_opt_index(
+                                                                &mut parent.excludes,
+                                                                &mut self.remove_exclude,
+                                                            );
+                                                        });
+                                                }
+                                            }
+                                        }
+                                    },
+                                );
+                                remove_opt_index(&mut layer.apps, &mut self.remove_app);
                             });
-                        remove_opt_index(&mut layer.apps, &mut self.remove_app);
-                    });
+                        });
+                    }
                 });
-            }
         });
     }
 }
