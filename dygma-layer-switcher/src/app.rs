@@ -11,6 +11,9 @@ use eframe::{egui, Frame, Storage};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::thread::Thread;
 use tracing::{error, trace, warn};
 use tray_icon::menu::MenuEvent;
 use tray_icon::{ClickType, TrayIconEvent};
@@ -22,7 +25,7 @@ lazy_static! {
         crossbeam_channel::unbounded::<AppDetails>();
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 #[serde(default)]
 pub struct DygmaLayerSwitcher {
     pub logging: bool,
@@ -318,9 +321,14 @@ impl DygmaLayerSwitcher {
 
 impl eframe::App for DygmaLayerSwitcher {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
+        // TODO: Temp fix to run loop while app is out of focus
+        ctx.request_repaint();
+
         // Window focus
         if let Ok(event) = CHANNELS.1.try_recv() {
-            layer::process(self, &event);
+            // let config = self.clone();
+            // thread::spawn(move || layer::process(&config, &event));
+            layer::process(self, &event)
         }
 
         // Tray
