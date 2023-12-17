@@ -19,7 +19,7 @@ fn layer_change(config: &DygmaLayerSwitcher, layer: u8) {
             if let Err(e) = focus.layer_move_to(layer) {
                 error!("Failed to write to serial port '{}': {:?}", &config.port, e);
             } else {
-                info!("Changed layer: {}", layer);
+                info!("Changed layer: {}", config.mappings[&layer].name);
             }
         }
         Err(e) => {
