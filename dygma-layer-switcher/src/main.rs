@@ -61,9 +61,11 @@ pub fn main() -> Result<()> {
                     .build()
                     .unwrap(),
             );
-            let app = DygmaLayerSwitcher::new(cc);
+            let mut app = DygmaLayerSwitcher::new(cc);
+            app.mappings_changed = true;
+
             log::init(app.logging);
-            windows::start();
+            windows::start(); // Creates a thread that listens for window focus changes.
             Box::new(app)
         }),
     )?;

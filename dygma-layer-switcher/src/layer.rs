@@ -1,15 +1,19 @@
-use crate::app::DygmaLayerSwitcher;
+use crate::app::{DygmaLayerSwitcher, SHARED_STATE};
 use crate::structs::{AppDetails, Mode};
 use sysinfo::{ProcessExt, System, SystemExt};
 use tracing::{error, info};
 
-pub fn process(config: &DygmaLayerSwitcher, app_details: &AppDetails) {
-    let layer = check_window(config, app_details)
-        .or_else(|| check_process(config, app_details))
-        .or_else(|| check_parent(config, app_details))
+pub fn process(app_details: &AppDetails) {
+    let config = SHARED_STATE.lock().unwrap();
+
+    let layer = check_window(&config, app_details)
+        .or_else(|| check_process(&config, app_details))
+        .or_else(|| check_parent(&config, app_details))
         .unwrap_or(config.base_layer - 1);
 
-    layer_change(config, layer);
+    layer_change(&config, layer);
+
+    drop(config);
 }
 
 fn layer_change(config: &DygmaLayerSwitcher, layer: u8) {

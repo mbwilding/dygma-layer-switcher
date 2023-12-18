@@ -11,7 +11,6 @@ pub fn init(logging: bool) {
 
     let console_layer = fmt::layer()
         .with_ansi(true)
-        .without_time()
         .compact()
         .with_filter(console_filter);
 

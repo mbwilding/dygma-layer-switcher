@@ -1,3 +1,4 @@
+use crate::layer;
 use crate::structs::AppDetails;
 use std::path::Path;
 use std::sync::atomic::AtomicU32;
@@ -124,12 +125,7 @@ pub unsafe extern "system" fn new_window_focused(
 
     let app_details = hydrate(window_handle);
 
-    crate::app::CHANNELS
-        .0
-        .send(app_details)
-        .unwrap_or_else(|e| {
-            error!("Failed to send app details: {:?}", e);
-        });
+    layer::process(&app_details);
 }
 
 pub fn start() {
