@@ -123,6 +123,7 @@ pub unsafe extern "system" fn new_window_focused(
     DEBOUNCER.store(dwms_event_time, Ordering::SeqCst);
 
     let app_details = hydrate(window_handle);
+
     crate::app::CHANNELS
         .0
         .send(app_details)
@@ -132,34 +133,32 @@ pub unsafe extern "system" fn new_window_focused(
 }
 
 pub fn start() {
-    std::thread::spawn(|| {
-        unsafe {
-            debug!("Hooking");
+    std::thread::spawn(|| unsafe {
+        debug!("Hooking");
 
-            let module_handle = GetModuleHandleW(PCWSTR::null()).unwrap_or_else(|e| {
-                error!("Failed to get module handle: {:?}", e);
-                std::process::exit(1);
-            });
+        let module_handle = GetModuleHandleW(PCWSTR::null()).unwrap_or_else(|e| {
+            error!("Failed to get module handle: {:?}", e);
+            std::process::exit(1);
+        });
 
-            let _event_hook = SetWinEventHook(
-                EVENT_OBJECT_FOCUS,
-                EVENT_OBJECT_FOCUS,
-                module_handle,
-                Some(new_window_focused),
-                0,
-                0,
-                WINEVENT_OUTOFCONTEXT,
-            );
+        let _event_hook = SetWinEventHook(
+            EVENT_OBJECT_FOCUS,
+            EVENT_OBJECT_FOCUS,
+            module_handle,
+            Some(new_window_focused),
+            0,
+            0,
+            WINEVENT_OUTOFCONTEXT,
+        );
 
-            debug!("Hooked");
+        debug!("Hooked");
 
-            let mut msg = MSG::default();
+        let mut msg = MSG::default();
 
-            loop {
-                // Will wait here for a message, so no sleep is needed in the loop
-                // This is a blocking call, but is required for the hook to work
-                while GetMessageW(&mut msg, HWND(0), 0, 0).as_bool() {}
-            }
+        loop {
+            // Will wait here for a message, so no sleep is needed in the loop
+            // This is a blocking call on a thread, but is required for the hook to work
+            GetMessageW(&mut msg, HWND(0), 0, 0);
         }
     });
 }

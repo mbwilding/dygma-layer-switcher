@@ -30,6 +30,7 @@ pub struct DygmaLayerSwitcher {
     pub base_layer: u8,
     pub mappings: BTreeMap<u8, Layer>,
     pub hidden_layers: BTreeSet<u8>,
+    pub window_visible: bool,
 
     #[serde(skip)]
     pub editing_port: bool,
@@ -42,9 +43,6 @@ pub struct DygmaLayerSwitcher {
 
     #[serde(skip)]
     pub remove_hidden_layer: Option<u8>,
-
-    #[serde(skip)]
-    pub window_visible: bool,
 }
 
 impl Default for DygmaLayerSwitcher {
@@ -348,8 +346,6 @@ impl eframe::App for DygmaLayerSwitcher {
 
         // Window focus
         if let Ok(event) = CHANNELS.1.try_recv() {
-            // let config = self.clone();
-            // thread::spawn(move || layer::process(&config, &event));
             layer::process(self, &event)
         }
 

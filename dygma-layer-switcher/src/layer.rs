@@ -83,7 +83,9 @@ fn check_parent(config: &DygmaLayerSwitcher, app_details: &AppDetails) -> Option
                         if app.is_enabled && parent.name == proc.name() {
                             // Check if the process is disabled or is not excluded.
                             let is_excluded = parent.excludes.iter().any(|exclude| {
-                                exclude.is_enabled && exclude.name == app_details.process
+                                exclude.is_enabled
+                                    && exclude.name.to_lowercase()
+                                        == app_details.process.to_lowercase()
                             });
 
                             if !is_excluded {
