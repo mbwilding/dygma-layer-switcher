@@ -2,9 +2,16 @@ use crate::verbiage;
 use eframe::egui;
 use eframe::egui::CollapsingHeader;
 
-pub fn editable_label(ui: &mut egui::Ui, value: &mut String, editing: &mut bool) -> bool {
+pub fn editable_label(
+    ui: &mut egui::Ui,
+    value: &mut String,
+    editing: &mut bool,
+    hint: Option<&str>,
+) -> bool {
     if *editing {
-        let response = ui.text_edit_singleline(value);
+        let response = ui
+            .text_edit_singleline(value)
+            .on_hover_text(hint.unwrap_or_default());
 
         if response.lost_focus() {
             *editing = false;
@@ -16,7 +23,7 @@ pub fn editable_label(ui: &mut egui::Ui, value: &mut String, editing: &mut bool)
     } else if ui.button(value.as_str()).clicked() {
         *editing = true;
     }
-    
+
     false
 }
 

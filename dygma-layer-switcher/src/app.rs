@@ -11,7 +11,7 @@ use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::{Arc, Mutex};
-use tracing::{debug, error, trace, warn};
+use tracing::{debug, error, warn};
 
 const MAX_LAYERS: u8 = 10;
 
@@ -117,7 +117,12 @@ impl DygmaLayerSwitcher {
                     Err(_) => warn!("{}", verbiage::NO_KEYBOARD_MESSAGE),
                 }
             };
-            if editable_label(ui, &mut self.port, &mut self.editing_port) {
+            if editable_label(
+                ui,
+                &mut self.port,
+                &mut self.editing_port,
+                Some(verbiage::PORT_SETTING_INPUT_HINT),
+            ) {
                 self.mappings_changed = true;
             }
         });
@@ -243,6 +248,7 @@ impl DygmaLayerSwitcher {
                                                         ui,
                                                         &mut window.name,
                                                         &mut window.is_editing,
+                                                        Some(verbiage::MODE_WINDOWS_INPUT_HINT),
                                                     ) {
                                                         self.mappings_changed = true;
                                                     };
@@ -273,6 +279,7 @@ impl DygmaLayerSwitcher {
                                                         ui,
                                                         &mut process.name,
                                                         &mut process.is_editing,
+                                                        Some(verbiage::MODE_PROCESSES_INPUT_HINT)
                                                     ) {
                                                         self.mappings_changed = true;
                                                     }
@@ -310,6 +317,7 @@ impl DygmaLayerSwitcher {
                                                         ui,
                                                         &mut parent.name,
                                                         &mut parent.is_editing,
+                                                        Some(verbiage::MODE_PARENT_INPUT_HINT),
                                                     ) {
                                                         self.mappings_changed = true;
                                                     }
@@ -347,6 +355,7 @@ impl DygmaLayerSwitcher {
                                                                             ui,
                                                                             &mut exclude.name,
                                                                             &mut exclude.is_editing,
+                                                                            Some(verbiage::MODE_PARENT_EXCLUDES_INPUT_HINT),
                                                                         ) {
                                                                             self.mappings_changed = true;
                                                                         }

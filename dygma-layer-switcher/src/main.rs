@@ -18,8 +18,6 @@ mod templates;
 mod verbiage;
 mod windows;
 
-pub const ICON: &[u8] = include_bytes!("../../assets/icons/icon.ico");
-
 pub fn main() -> Result<()> {
     single::check()?;
 
@@ -37,7 +35,9 @@ pub fn main() -> Result<()> {
                 .with_close_button(true)
                 .with_minimize_button(true)
                 .with_maximize_button(true)
-                .with_icon(Arc::new(icon::load_icon(ICON))),
+                .with_icon(Arc::new(icon::load_icon(include_bytes!(
+                    "../../assets/icons/icon.ico"
+                )))),
             ..Default::default()
         },
         Box::new(move |cc| {
