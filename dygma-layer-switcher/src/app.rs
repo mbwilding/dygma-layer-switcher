@@ -12,8 +12,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::{Arc, Mutex};
 use tracing::{debug, error, trace, warn};
-use tray_icon::menu::MenuEvent;
-use tray_icon::{ClickType, TrayIconEvent};
 
 const MAX_LAYERS: u8 = 10;
 
@@ -389,30 +387,6 @@ impl DygmaLayerSwitcher {
 impl eframe::App for DygmaLayerSwitcher {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
         self.detect_changes();
-
-        // Tray
-        if let Ok(event) = TrayIconEvent::receiver().try_recv() {
-            trace!("Tray icon event: {event:?}");
-            match event.click_type {
-                ClickType::Left => {}
-                ClickType::Right => {
-                    // Menu
-                }
-                ClickType::Double => {
-                    self.window_visible = !self.window_visible;
-                    ctx.send_viewport_cmd(egui::ViewportCommand::Visible(self.window_visible))
-                }
-            }
-        }
-        if let Ok(event) = MenuEvent::receiver().try_recv() {
-            trace!("Tray menu event: {:?}", event);
-            // Exit
-            if event.id == "1001" {
-                ctx.send_viewport_cmd(egui::ViewportCommand::Close);
-            }
-        }
-
-        // UI
         self.top_panel(ctx);
         self.central_panel(ctx);
     }

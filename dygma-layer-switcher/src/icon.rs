@@ -1,13 +1,4 @@
-use anyhow::Result;
 use eframe::egui::IconData;
-use tray_icon::Icon;
-
-pub fn load_tray_icon(bytes: &[u8]) -> Result<Icon> {
-    let icon = load_icon(bytes);
-    let icon = Icon::from_rgba(icon.rgba, icon.width, icon.height)?;
-
-    Ok(icon)
-}
 
 pub fn load_icon(bytes: &[u8]) -> IconData {
     let (icon_rgba, icon_width, icon_height) = {

@@ -6,9 +6,6 @@ use anyhow::Result;
 use eframe::egui::ViewportBuilder;
 use eframe::*;
 use std::sync::Arc;
-use std::{cell::RefCell, rc::Rc};
-use tray_icon::menu::{Menu, MenuItem};
-use tray_icon::TrayIconBuilder;
 
 mod app;
 mod helpers;
@@ -25,15 +22,6 @@ pub const ICON: &[u8] = include_bytes!("../../assets/icons/icon.ico");
 
 pub fn main() -> Result<()> {
     single::check()?;
-
-    let icon = icon::load_tray_icon(ICON)?;
-    let mut _tray_icon = Rc::new(RefCell::new(None));
-    let tray_rc = _tray_icon.clone();
-
-    let tray_menu = Menu::new();
-    tray_menu
-        .append(&MenuItem::new(verbiage::TRAY_QUIT, true, None))
-        .unwrap();
 
     run_native(
         verbiage::APP_NAME,
@@ -53,17 +41,8 @@ pub fn main() -> Result<()> {
             ..Default::default()
         },
         Box::new(move |cc| {
-            tray_rc.borrow_mut().replace(
-                TrayIconBuilder::new()
-                    .with_menu(Box::new(tray_menu))
-                    .with_tooltip(verbiage::APP_NAME)
-                    .with_icon(icon)
-                    .build()
-                    .unwrap(),
-            );
             let mut app = DygmaLayerSwitcher::new(cc);
             app.mappings_changed = true;
-
             log::init(app.logging);
             windows::start(); // Creates a thread that listens for window focus changes.
             Box::new(app)

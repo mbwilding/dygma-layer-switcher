@@ -30,6 +30,5 @@ pub const PROCESS: &str = "The executable name including extension.";
 pub const PARENT: &str = "The parent executable name, and optional excludes of child processes.";
 pub const EXCLUDES_HINT: &str = "Exclude a child process.";
 pub const RENAME_HINT: &str = "Right click to rename.";
-pub const TRAY_QUIT: &str = "Quit";
 pub const LAYER: &str = "Layer";
 pub const CHECKBOX_ACTIVE: &str = "Active?";

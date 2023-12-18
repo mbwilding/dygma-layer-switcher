@@ -20,7 +20,6 @@ sysinfo = "0.29"
 tracing = "0.1"
 tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-tray-icon = "0.11"
 windows = { version = "0.52", features = [
     "Win32_Foundation",
     "Win32_UI_Accessibility",
