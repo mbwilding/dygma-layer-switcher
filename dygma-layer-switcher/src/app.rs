@@ -11,12 +11,12 @@ use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::{Arc, Mutex};
-use tracing::{debug, error, warn};
+use tracing::{error, trace, warn};
 
 const MAX_LAYERS: u8 = 10;
 
 lazy_static! {
-    pub static ref SHARED_STATE: Arc<Mutex<Configuration>> =
+    pub static ref CONFIGURATION: Arc<Mutex<Configuration>> =
         Arc::new(Mutex::new(Configuration::default()));
 }
 
@@ -379,12 +379,12 @@ impl DygmaLayerSwitcher {
 
     fn detect_configuration_changes(&mut self) {
         if self.configuration_changed {
-            let mut state = SHARED_STATE.lock().unwrap();
+            let mut state = CONFIGURATION.lock().unwrap();
             state.port = self.port.clone();
             state.base_layer = self.base_layer;
             state.mappings = self.mappings.clone();
             self.configuration_changed = false;
-            debug!("Updated SHARED_STATE");
+            trace!("Updated configuration");
         }
     }
 }

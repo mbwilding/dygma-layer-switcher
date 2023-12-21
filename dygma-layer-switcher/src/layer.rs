@@ -1,10 +1,16 @@
-use crate::app::SHARED_STATE;
+use crate::app::CONFIGURATION;
 use crate::structs::{AppDetails, Configuration, Mode};
+use lazy_static::lazy_static;
+use std::sync::Mutex;
 use sysinfo::{ProcessExt, System, SystemExt};
-use tracing::{error, info};
+use tracing::{debug, error, info};
+
+lazy_static! {
+    static ref SYSTEM: Mutex<System> = Mutex::new(System::new_all());
+}
 
 pub fn process(app_details: &AppDetails) {
-    let config = SHARED_STATE.lock().unwrap();
+    let config = CONFIGURATION.lock().unwrap();
 
     let layer = check_window(&config, app_details)
         .or_else(|| check_process(&config, app_details))
@@ -68,8 +74,9 @@ fn check_process(config: &Configuration, app_details: &AppDetails) -> Option<u8>
 }
 
 fn check_parent(config: &Configuration, app_details: &AppDetails) -> Option<u8> {
-    let mut sys = System::new_all();
-    sys.refresh_all();
+    let mut sys = SYSTEM.lock().unwrap();
+    sys.refresh_processes();
+    debug!("Processes refreshed");
 
     // Find the specified process.
     let specified_process = sys
