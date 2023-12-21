@@ -102,7 +102,7 @@ static DEBOUNCER: AtomicU32 = AtomicU32::new(0);
 /// # Safety
 ///
 /// WinAPI.
-pub unsafe extern "system" fn new_window_focused(
+pub unsafe extern "system" fn window_focused(
     _h_win_event_hook: HWINEVENTHOOK,
     _event: u32,
     window_handle: HWND,
@@ -141,7 +141,7 @@ pub fn start() {
             EVENT_OBJECT_FOCUS,
             EVENT_OBJECT_FOCUS,
             module_handle,
-            Some(new_window_focused),
+            Some(window_focused),
             0,
             0,
             WINEVENT_OUTOFCONTEXT,
