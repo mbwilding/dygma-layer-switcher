@@ -1,8 +1,7 @@
 name: Windows
 
 on:
-  release:
-    types: [created]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -14,27 +13,40 @@ jobs:
 
     steps:
       - name: "Checkout"
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
 
-      - name: "Rust"
+      - name: "Set up Rust"
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
           targets: ${{ matrix.target }}
 
-      - name: "Dependencies"
+      - name: "Install Dependencies"
         run: sudo apt-get install -y mingw-w64 libudev-dev zip wine64
 
       - name: "Build"
         run: cargo build --release --target ${{ matrix.target }}
 
+      - name: "Extract Cargo Package Version"
+        id: cargo-version
+        run: echo "CARGO_VERSION=$(grep '^version' Cargo.toml | head -1 | cut -d '\"' -f 2)" >> $GITHUB_ENV
+
+      - name: "Create Git Tag"
+        run: |
+          git config --local user.name "GitHub Action"
+          git config --local user.email "action@github.com"
+          git tag -a v${{ env.CARGO_VERSION }} -m "Release v${{ env.CARGO_VERSION }}"
+          git push origin v${{ env.CARGO_VERSION }}
+
       - name: "Zip"
         run: |
           cp target/${{ matrix.target }}/release/dygma-layer-switcher.exe .
-          zip dls-${{ github.ref_name }}-${{ matrix.target }}.zip dygma-layer-switcher.exe
+          zip dls-v${{ env.CARGO_VERSION }}-${{ matrix.target }}.zip dygma-layer-switcher.exe
 
-      - name: "Release"
+      - name: "Create GitHub Release"
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: v${{ env.CARGO_VERSION }}
+          release_name: v${{ env.CARGO_VERSION }}
           files: |
-            dls-${{ github.ref_name }}-${{ matrix.target }}.zip
+            dls-v${{ env.CARGO_VERSION }}-${{ matrix.target }}.zip
