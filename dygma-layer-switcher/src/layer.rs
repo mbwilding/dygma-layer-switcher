@@ -19,8 +19,6 @@ pub fn process(app_details: &AppDetails) {
         .unwrap_or(config.base_layer - 1);
 
     layer_change(&config, layer);
-
-    drop(config);
 }
 
 fn layer_change(config: &Configuration, layer: u8) {
