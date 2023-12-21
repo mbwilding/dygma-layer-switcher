@@ -1,6 +1,22 @@
+use crate::verbiage::EDIT_TEXT;
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
-const EDIT_TEXT: &str = "Click to edit";
+pub struct Configuration {
+    pub port: String,
+    pub base_layer: u8,
+    pub mappings: BTreeMap<u8, Layer>,
+}
+
+impl Default for Configuration {
+    fn default() -> Self {
+        Self {
+            port: String::new(),
+            base_layer: 1,
+            mappings: BTreeMap::new(),
+        }
+    }
+}
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct Layer {

@@ -16,11 +16,11 @@ use tracing::{debug, error, warn};
 const MAX_LAYERS: u8 = 10;
 
 lazy_static! {
-    pub static ref SHARED_STATE: Arc<Mutex<DygmaLayerSwitcher>> =
-        Arc::new(Mutex::new(DygmaLayerSwitcher::default()));
+    pub static ref SHARED_STATE: Arc<Mutex<Configuration>> =
+        Arc::new(Mutex::new(Configuration::default()));
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize)]
 #[serde(default)]
 pub struct DygmaLayerSwitcher {
     pub logging: bool,
@@ -385,9 +385,9 @@ impl DygmaLayerSwitcher {
     fn detect_changes(&mut self) {
         if self.mappings_changed {
             let mut state = SHARED_STATE.lock().unwrap();
+            state.port = self.port.clone();
             state.mappings = self.mappings.clone();
             self.mappings_changed = false;
-            drop(state);
             debug!("Updated SHARED_STATE");
         }
     }

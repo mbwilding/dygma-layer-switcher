@@ -37,3 +37,4 @@ pub const EXCLUDES_HINT: &str = "Exclude a child process.";
 pub const RENAME_HINT: &str = "Right click to rename.";
 pub const LAYER: &str = "Layer";
 pub const CHECKBOX_ACTIVE: &str = "Active?";
+pub const EDIT_TEXT: &str = "Click to edit";

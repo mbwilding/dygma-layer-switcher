@@ -1,5 +1,5 @@
-use crate::app::{DygmaLayerSwitcher, SHARED_STATE};
-use crate::structs::{AppDetails, Mode};
+use crate::app::SHARED_STATE;
+use crate::structs::{AppDetails, Configuration, Mode};
 use sysinfo::{ProcessExt, System, SystemExt};
 use tracing::{error, info};
 
@@ -16,7 +16,7 @@ pub fn process(app_details: &AppDetails) {
     drop(config);
 }
 
-fn layer_change(config: &DygmaLayerSwitcher, layer: u8) {
+fn layer_change(config: &Configuration, layer: u8) {
     let mut focus = dygma_focus::Focus::default();
     match focus.open_via_port(&config.port) {
         Ok(_) => {
@@ -32,7 +32,7 @@ fn layer_change(config: &DygmaLayerSwitcher, layer: u8) {
     }
 }
 
-fn check_window(config: &DygmaLayerSwitcher, app_details: &AppDetails) -> Option<u8> {
+fn check_window(config: &Configuration, app_details: &AppDetails) -> Option<u8> {
     for (&layer_number, layer) in &config.mappings {
         for app in &layer.apps {
             if let Mode::Window(ref window) = app.mode {
@@ -51,7 +51,7 @@ fn check_window(config: &DygmaLayerSwitcher, app_details: &AppDetails) -> Option
     None
 }
 
-fn check_process(config: &DygmaLayerSwitcher, app_details: &AppDetails) -> Option<u8> {
+fn check_process(config: &Configuration, app_details: &AppDetails) -> Option<u8> {
     for (&layer_number, layer) in &config.mappings {
         for app in &layer.apps {
             if let Mode::Process(ref process) = app.mode {
@@ -67,7 +67,7 @@ fn check_process(config: &DygmaLayerSwitcher, app_details: &AppDetails) -> Optio
     None
 }
 
-fn check_parent(config: &DygmaLayerSwitcher, app_details: &AppDetails) -> Option<u8> {
+fn check_parent(config: &Configuration, app_details: &AppDetails) -> Option<u8> {
     let mut sys = System::new_all();
     sys.refresh_all();
 
