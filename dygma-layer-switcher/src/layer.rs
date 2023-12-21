@@ -85,30 +85,33 @@ fn check_parent(config: &Configuration, app_details: &AppDetails) -> Option<u8> 
         .values()
         .find(|p| p.name() == app_details.process);
 
+    let mut parent_level = 0;
+
     if let Some(proc) = specified_process {
-        // Check each parent process of the specified process.
         let mut current_proc = Some(proc);
         while let Some(proc) = current_proc {
-            for (&layer_number, layer) in &config.mappings {
-                for app in &layer.apps {
-                    if let Mode::Parent(ref parent) = app.mode {
-                        if app.is_enabled && parent.name == proc.name() {
-                            // Check if the process is disabled or is not excluded.
-                            let is_excluded = parent.excludes.iter().any(|exclude| {
-                                exclude.is_enabled
-                                    && exclude.name.to_lowercase()
-                                        == app_details.process.to_lowercase()
-                            });
+            if parent_level != 0 {
+                info!("Parent {}: {}", parent_level, proc.name());
+                for (&layer_number, layer) in &config.mappings {
+                    for app in &layer.apps {
+                        if let Mode::Parent(ref parent) = app.mode {
+                            if app.is_enabled && parent.name == proc.name() {
+                                let is_excluded = parent.excludes.iter().any(|exclude| {
+                                    exclude.is_enabled
+                                        && exclude.name.to_lowercase()
+                                            == app_details.process.to_lowercase()
+                                });
 
-                            if !is_excluded {
-                                return Some(layer_number);
+                                if !is_excluded {
+                                    return Some(layer_number);
+                                }
                             }
                         }
                     }
                 }
             }
 
-            // Move to the parent process in the next iteration.
+            parent_level += 1;
             current_proc = proc.parent().and_then(|pid| sys.process(pid));
         }
     }
