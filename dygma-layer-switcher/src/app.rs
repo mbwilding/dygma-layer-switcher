@@ -305,6 +305,7 @@ impl DygmaLayerSwitcher {
                                                         })
                                                         .header_response
                                                         .on_hover_text(verbiage::EXCLUDES_HINT);
+                                                    ui.separator();
                                                 }
                                             }
                                         }
