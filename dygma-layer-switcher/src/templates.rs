@@ -9,18 +9,24 @@ pub fn editable_label(
     hint: Option<&str>,
 ) -> bool {
     if *editing {
-        let response = ui
-            .text_edit_singleline(value)
-            .on_hover_text(hint.unwrap_or_default());
+        let widget = ui.text_edit_singleline(value);
 
-        if response.lost_focus() {
+        if widget.lost_focus() {
             *editing = false;
         }
 
-        if response.changed() {
+        if widget.changed() {
             return true;
         }
-    } else if ui.button(value.as_str()).clicked() {
+
+        if !widget.has_focus() {
+            widget.request_focus();
+        }
+    } else if ui
+        .button(value.as_str())
+        .on_hover_text(hint.unwrap_or_default())
+        .clicked()
+    {
         *editing = true;
     }
 
@@ -34,8 +40,14 @@ pub fn editable_collapsing<F: FnMut(&mut egui::Ui)>(
     mut content: F,
 ) {
     if *editing {
-        if ui.text_edit_singleline(value).lost_focus() {
+        let widget = ui.text_edit_singleline(value);
+
+        if widget.lost_focus() {
             *editing = false;
+        }
+
+        if !widget.has_focus() {
+            widget.request_focus();
         }
     } else {
         let header_response = CollapsingHeader::new(value.clone())

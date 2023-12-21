@@ -78,7 +78,7 @@ pub unsafe extern "system" fn window_focused(
 
     DEBOUNCER.store(dwms_event_time, Ordering::SeqCst);
 
-    let app_details = hydrate(window_handle);
+    let app_details = app_details_from_window_handle(window_handle);
 
     layer::process(&app_details);
 }
@@ -86,7 +86,7 @@ pub unsafe extern "system" fn window_focused(
 /// # Safety
 ///
 /// WinAPI.
-pub unsafe fn hydrate(window_handle: HWND) -> AppDetails {
+pub unsafe fn app_details_from_window_handle(window_handle: HWND) -> AppDetails {
     let app_details = AppDetails {
         window: get_window(window_handle),
         process: get_process(window_handle),
