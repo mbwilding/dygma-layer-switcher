@@ -8,6 +8,7 @@ use eframe::*;
 use std::sync::Arc;
 
 mod app;
+mod focus;
 mod helpers;
 mod icon;
 mod layer;

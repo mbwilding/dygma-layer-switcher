@@ -6,7 +6,6 @@ authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 
 [dependencies]
 anyhow = "1.0"
-dygma_focus = { git = "https://github.com/mbwilding/dygma-focus-api-rs" }
 eframe = { version = "0.24", default-features = false, features = [
     "default_fonts",
     "wgpu",
@@ -15,8 +14,9 @@ eframe = { version = "0.24", default-features = false, features = [
 image = "0.24"
 lazy_static = "1.4"
 serde = { version = "1.0", features = ["derive"] }
+serialport = "4.3"
 single-instance = "0.3"
-sysinfo = "0.29"
+sysinfo = "0.30"
 tracing = "0.1"
 tracing-appender = "0.2"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

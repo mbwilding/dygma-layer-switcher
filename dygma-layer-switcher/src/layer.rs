@@ -1,8 +1,9 @@
 use crate::app::CONFIGURATION;
+use crate::focus::Focus;
 use crate::structs::{AppDetails, Configuration, Mode};
 use lazy_static::lazy_static;
 use std::sync::Mutex;
-use sysinfo::{ProcessExt, System, SystemExt};
+use sysinfo::System;
 use tracing::{debug, error, info};
 
 lazy_static! {
@@ -23,7 +24,7 @@ pub fn process(app_details: &AppDetails) {
 }
 
 fn layer_change(config: &Configuration, layer: u8) {
-    let mut focus = dygma_focus::Focus::default();
+    let mut focus = Focus::default();
     match focus.open_via_port(&config.port) {
         Ok(_) => {
             if let Err(e) = focus.layer_move_to(layer) {
