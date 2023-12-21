@@ -13,4 +13,6 @@ jobs:
 
       - name: "Extract Cargo Package Version"
         id: cargo-version
-        run: echo "CARGO_VERSION=$(grep '^version' dygma-layer-switcher/Cargo.toml | head -1 | cut -d '\"' -f 2)" >> $GITHUB_ENV
+        run: |
+          echo "CARGO_VERSION=$(grep '^version' dygma-layer-switcher/Cargo.toml | head -1 | cut -d '\"' -f 2)" >> $GITHUB_ENV
+          echo $CARGO_VERSION
