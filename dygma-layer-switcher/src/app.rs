@@ -43,7 +43,7 @@ pub struct DygmaLayerSwitcher {
     pub remove_hidden_layer: Option<u8>,
 
     #[serde(skip)]
-    pub mappings_changed: bool,
+    pub configuration_changed: bool,
 }
 
 impl Default for DygmaLayerSwitcher {
@@ -68,7 +68,7 @@ impl Default for DygmaLayerSwitcher {
             remove_exclude: None,
             remove_hidden_layer: None,
             window_visible: true,
-            mappings_changed: true,
+            configuration_changed: true,
         }
     }
 }
@@ -89,13 +89,8 @@ impl DygmaLayerSwitcher {
         ui.horizontal(|ui| {
             ui.label(verbiage::SETTING_LOGGING)
                 .on_hover_text(verbiage::SETTING_LOGGING_HINT);
-            if ui
-                .checkbox(&mut self.logging, "")
-                .on_hover_text(verbiage::SETTING_LOGGING_HINT)
-                .clicked()
-            {
-                self.mappings_changed = true;
-            };
+            ui.checkbox(&mut self.logging, "")
+                .on_hover_text(verbiage::SETTING_LOGGING_HINT);
         });
     }
 
@@ -112,7 +107,7 @@ impl DygmaLayerSwitcher {
                 match focus.find_first() {
                     Ok(port) => {
                         self.port = port.port;
-                        self.mappings_changed = true;
+                        self.configuration_changed = true;
                     }
                     Err(_) => warn!("{}", verbiage::ERROR_NO_KEYBOARD),
                 }
@@ -123,7 +118,7 @@ impl DygmaLayerSwitcher {
                 &mut self.editing_port,
                 Some(verbiage::SETTING_PORT_INPUT_HINT),
             ) {
-                self.mappings_changed = true;
+                self.configuration_changed = true;
             }
         });
     }
@@ -137,7 +132,7 @@ impl DygmaLayerSwitcher {
                 .on_hover_text(verbiage::SETTING_BASE_LAYER_VALUE_HINT)
                 .changed()
             {
-                self.mappings_changed = true;
+                self.configuration_changed = true;
             };
         });
     }
@@ -234,7 +229,7 @@ impl DygmaLayerSwitcher {
                                             if let Mode::Window(window) = &mut app.mode {
                                                 ui.horizontal(|ui| {
                                                     if ui.checkbox(&mut app.is_enabled, "").on_hover_text(verbiage::CHECKBOX_ACTIVE_HINT).clicked() {
-                                                        self.mappings_changed = true;
+                                                        self.configuration_changed = true;
                                                     };
                                                     if ui
                                                         .button(verbiage::BUTTON_REMOVE)
@@ -242,7 +237,7 @@ impl DygmaLayerSwitcher {
                                                         .clicked()
                                                     {
                                                         self.remove_app = Some(index);
-                                                        self.mappings_changed = true;
+                                                        self.configuration_changed = true;
                                                     }
                                                     if editable_label(
                                                         ui,
@@ -250,7 +245,7 @@ impl DygmaLayerSwitcher {
                                                         &mut window.is_editing,
                                                         Some(verbiage::MODE_WINDOWS_INPUT_HINT),
                                                     ) {
-                                                        self.mappings_changed = true;
+                                                        self.configuration_changed = true;
                                                     };
                                                 });
                                             }
@@ -266,7 +261,7 @@ impl DygmaLayerSwitcher {
                                             if let Mode::Process(process) = &mut app.mode {
                                                 ui.horizontal(|ui| {
                                                     if ui.checkbox(&mut app.is_enabled, "").on_hover_text(verbiage::CHECKBOX_ACTIVE_HINT).clicked() {
-                                                        self.mappings_changed = true;
+                                                        self.configuration_changed = true;
                                                     };
                                                     if ui
                                                         .button(verbiage::BUTTON_REMOVE)
@@ -281,7 +276,7 @@ impl DygmaLayerSwitcher {
                                                         &mut process.is_editing,
                                                         Some(verbiage::MODE_PROCESSES_INPUT_HINT)
                                                     ) {
-                                                        self.mappings_changed = true;
+                                                        self.configuration_changed = true;
                                                     }
                                                 });
                                             }
@@ -297,7 +292,7 @@ impl DygmaLayerSwitcher {
                                             if let Mode::Parent(parent) = &mut app.mode {
                                                 ui.horizontal(|ui| {
                                                     if ui.checkbox(&mut app.is_enabled, "").on_hover_text(verbiage::CHECKBOX_ACTIVE_HINT).clicked() {
-                                                        self.mappings_changed = true;
+                                                        self.configuration_changed = true;
                                                     };
                                                     if ui
                                                         .button(verbiage::BUTTON_REMOVE)
@@ -319,7 +314,7 @@ impl DygmaLayerSwitcher {
                                                         &mut parent.is_editing,
                                                         Some(verbiage::MODE_PARENT_INPUT_HINT),
                                                     ) {
-                                                        self.mappings_changed = true;
+                                                        self.configuration_changed = true;
                                                     }
                                                 });
 
@@ -338,7 +333,7 @@ impl DygmaLayerSwitcher {
                                                                             &mut exclude.is_enabled,
                                                                             "",
                                                                         ).on_hover_text(verbiage::CHECKBOX_ACTIVE_HINT).clicked() {
-                                                                            self.mappings_changed = true;
+                                                                            self.configuration_changed = true;
                                                                         };
                                                                         if ui
                                                                         .button(verbiage::BUTTON_REMOVE)
@@ -349,7 +344,7 @@ impl DygmaLayerSwitcher {
                                                                     {
                                                                         self.remove_exclude =
                                                                             Some(index);
-                                                                        self.mappings_changed = true;
+                                                                        self.configuration_changed = true;
                                                                     }
                                                                         if editable_label(
                                                                             ui,
@@ -357,7 +352,7 @@ impl DygmaLayerSwitcher {
                                                                             &mut exclude.is_editing,
                                                                             Some(verbiage::MODE_PARENT_EXCLUDES_INPUT_HINT),
                                                                         ) {
-                                                                            self.mappings_changed = true;
+                                                                            self.configuration_changed = true;
                                                                         }
                                                                     });
                                                                 });
@@ -382,12 +377,13 @@ impl DygmaLayerSwitcher {
         });
     }
 
-    fn detect_changes(&mut self) {
-        if self.mappings_changed {
+    fn detect_configuration_changes(&mut self) {
+        if self.configuration_changed {
             let mut state = SHARED_STATE.lock().unwrap();
             state.port = self.port.clone();
+            state.base_layer = self.base_layer;
             state.mappings = self.mappings.clone();
-            self.mappings_changed = false;
+            self.configuration_changed = false;
             debug!("Updated SHARED_STATE");
         }
     }
@@ -395,7 +391,7 @@ impl DygmaLayerSwitcher {
 
 impl eframe::App for DygmaLayerSwitcher {
     fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
-        self.detect_changes();
+        self.detect_configuration_changes();
         self.top_panel(ctx);
         self.central_panel(ctx);
     }

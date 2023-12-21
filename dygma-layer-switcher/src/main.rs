@@ -42,7 +42,7 @@ pub fn main() -> Result<()> {
         },
         Box::new(move |cc| {
             let mut app = DygmaLayerSwitcher::new(cc);
-            app.mappings_changed = true;
+            app.configuration_changed = true;
             log::init(app.logging);
             windows::start(); // Creates a thread that listens for window focus changes.
             Box::new(app)
