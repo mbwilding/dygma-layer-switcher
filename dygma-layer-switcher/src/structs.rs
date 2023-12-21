@@ -137,6 +137,8 @@ pub enum Mode {
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct Window {
     pub name: String,
+
+    #[serde(skip)]
     pub is_editing: bool,
 }
 
@@ -152,6 +154,8 @@ impl Window {
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
 pub struct Process {
     pub name: String,
+
+    #[serde(skip)]
     pub is_editing: bool,
 }
 
