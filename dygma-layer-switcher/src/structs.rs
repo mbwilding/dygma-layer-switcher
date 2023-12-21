@@ -1,6 +1,62 @@
-use crate::verbiage::EDIT_TEXT;
+use crate::app::MAX_LAYERS;
+use crate::focus::Focus;
+use crate::verbiage;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
+use tracing::error;
+
+#[derive(Deserialize, Serialize)]
+#[serde(default)]
+pub struct DygmaLayerSwitcher {
+    pub logging: bool,
+    pub port: String,
+    pub base_layer: u8,
+    pub mappings: BTreeMap<u8, Layer>,
+    pub hidden_layers: BTreeSet<u8>,
+    pub window_visible: bool,
+
+    #[serde(skip)]
+    pub editing_port: bool,
+
+    #[serde(skip)]
+    pub remove_app: Option<usize>,
+
+    #[serde(skip)]
+    pub remove_exclude: Option<usize>,
+
+    #[serde(skip)]
+    pub remove_hidden_layer: Option<u8>,
+
+    #[serde(skip)]
+    pub configuration_changed: bool,
+}
+
+impl Default for DygmaLayerSwitcher {
+    fn default() -> Self {
+        let focus = Focus::default();
+        let port = focus.find_first().unwrap_or_else(|_| {
+            error!("{}", verbiage::ERROR_NO_KEYBOARD);
+            std::process::exit(1);
+        });
+
+        Self {
+            logging: false,
+            port: port.port,
+            base_layer: 1,
+            mappings: (0..MAX_LAYERS)
+                .map(|i| (i, Layer::new(i)))
+                .collect::<BTreeMap<u8, Layer>>(),
+            hidden_layers: BTreeSet::new(),
+
+            editing_port: false,
+            remove_app: None,
+            remove_exclude: None,
+            remove_hidden_layer: None,
+            window_visible: true,
+            configuration_changed: true,
+        }
+    }
+}
 
 pub struct Configuration {
     pub port: String,
@@ -82,7 +138,7 @@ pub struct Window {
 impl Window {
     pub fn new() -> Self {
         Self {
-            name: EDIT_TEXT.to_string(),
+            name: verbiage::EDIT_TEXT.to_string(),
             is_editing: false,
         }
     }
@@ -97,7 +153,7 @@ pub struct Process {
 impl Process {
     pub fn new() -> Self {
         Self {
-            name: EDIT_TEXT.to_string(),
+            name: verbiage::EDIT_TEXT.to_string(),
             is_editing: false,
         }
     }
@@ -115,7 +171,7 @@ pub struct Parent {
 impl Parent {
     pub fn new() -> Self {
         Self {
-            name: EDIT_TEXT.to_string(),
+            name: verbiage::EDIT_TEXT.to_string(),
             excludes: vec![],
             is_editing: false,
         }
@@ -134,7 +190,7 @@ pub struct Exclude {
 impl Exclude {
     pub fn new() -> Self {
         Self {
-            name: EDIT_TEXT.to_string(),
+            name: verbiage::EDIT_TEXT.to_string(),
             is_enabled: true,
             is_editing: false,
         }

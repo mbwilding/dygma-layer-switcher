@@ -8,69 +8,14 @@ use eframe::egui::{
 };
 use eframe::{egui, Frame, Storage};
 use lazy_static::lazy_static;
-use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
 use std::sync::{Arc, Mutex};
-use tracing::{error, trace, warn};
+use tracing::{trace, warn};
 
-const MAX_LAYERS: u8 = 10;
+pub const MAX_LAYERS: u8 = 10;
 
 lazy_static! {
     pub static ref CONFIGURATION: Arc<Mutex<Configuration>> =
         Arc::new(Mutex::new(Configuration::default()));
-}
-
-#[derive(Deserialize, Serialize)]
-#[serde(default)]
-pub struct DygmaLayerSwitcher {
-    pub logging: bool,
-    pub port: String,
-    pub base_layer: u8,
-    pub mappings: BTreeMap<u8, Layer>,
-    pub hidden_layers: BTreeSet<u8>,
-    pub window_visible: bool,
-
-    #[serde(skip)]
-    pub editing_port: bool,
-
-    #[serde(skip)]
-    pub remove_app: Option<usize>,
-
-    #[serde(skip)]
-    pub remove_exclude: Option<usize>,
-
-    #[serde(skip)]
-    pub remove_hidden_layer: Option<u8>,
-
-    #[serde(skip)]
-    pub configuration_changed: bool,
-}
-
-impl Default for DygmaLayerSwitcher {
-    fn default() -> Self {
-        let focus = Focus::default();
-        let port = focus.find_first().unwrap_or_else(|_| {
-            error!("{}", verbiage::ERROR_NO_KEYBOARD);
-            std::process::exit(1);
-        });
-
-        Self {
-            logging: false,
-            port: port.port,
-            base_layer: 1,
-            mappings: (0..MAX_LAYERS)
-                .map(|i| (i, Layer::new(i)))
-                .collect::<BTreeMap<u8, Layer>>(),
-            hidden_layers: BTreeSet::new(),
-
-            editing_port: false,
-            remove_app: None,
-            remove_exclude: None,
-            remove_hidden_layer: None,
-            window_visible: true,
-            configuration_changed: true,
-        }
-    }
 }
 
 impl DygmaLayerSwitcher {

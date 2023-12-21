@@ -2,7 +2,7 @@ use anyhow::{anyhow, bail, Result};
 use serialport::{SerialPort, SerialPortType};
 use std::io::Write;
 use std::time::Duration;
-use tracing::{debug, error};
+use tracing::{debug, error, trace};
 
 #[derive(Debug)]
 pub struct SupportedDevice {
@@ -50,7 +50,7 @@ impl Focus {
             }
         };
 
-        debug!("Available serial ports: {:?}", ports);
+        trace!("Available serial ports: {:?}", ports);
 
         let found_devices: Vec<Device> = ports
             .into_iter()
