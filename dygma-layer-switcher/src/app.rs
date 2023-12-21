@@ -135,7 +135,7 @@ impl DygmaLayerSwitcher {
                             continue;
                         }
                         ui.horizontal(|ui| {
-                            if ui.button("👁").clicked() {
+                            if ui.button(verbiage::BUTTON_HIDE_LAYER).on_hover_text(verbiage::BUTTON_HIDE_LAYER_HINT).clicked() {
                                 self.hidden_layers.insert(*index);
                             }
                             editable_collapsing(ui, &mut layer.name, &mut layer.is_editing, |ui| {
