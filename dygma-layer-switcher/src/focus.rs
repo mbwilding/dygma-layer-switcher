@@ -1,8 +1,8 @@
 use anyhow::{anyhow, bail, Result};
+use log::{error, info, trace};
 use serialport::{SerialPort, SerialPortType};
 use std::io::Write;
 use std::time::Duration;
-use tracing::{debug, error, trace};
 
 #[derive(Debug)]
 pub struct SupportedDevice {
@@ -66,7 +66,7 @@ impl Focus {
             })
             .collect();
 
-        debug!("Found devices: {:?}", found_devices);
+        info!("Found devices: {:?}", found_devices);
 
         Ok(found_devices)
     }

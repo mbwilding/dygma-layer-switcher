@@ -1,9 +1,9 @@
 use crate::layer;
 use crate::structs::AppDetails;
+use log::{error, info, trace};
 use std::path::Path;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;
-use tracing::{debug, error, trace};
 use windows::core::PCWSTR;
 use windows::Win32::{
     Foundation::{HWND, MAX_PATH},
@@ -25,7 +25,7 @@ static DEBOUNCER: AtomicU32 = AtomicU32::new(0);
 
 pub fn start() {
     std::thread::spawn(|| unsafe {
-        debug!("Hooking");
+        info!("Initializing out-of-context hook");
 
         let module_handle = GetModuleHandleW(PCWSTR::null()).unwrap_or_else(|e| {
             error!("Failed to get module handle: {:?}", e);
@@ -42,7 +42,7 @@ pub fn start() {
             WINEVENT_OUTOFCONTEXT,
         );
 
-        debug!("Hooked");
+        info!("Initialized out-of-context hook");
 
         let mut msg = MSG::default();
 
@@ -92,7 +92,7 @@ pub unsafe fn hydrate(window_handle: HWND) -> AppDetails {
         process: get_process(window_handle),
     };
 
-    debug!("{:?}", app_details);
+    info!("{:?}", app_details);
 
     app_details
 }

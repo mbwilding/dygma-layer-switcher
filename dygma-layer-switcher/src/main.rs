@@ -12,7 +12,6 @@ mod focus;
 mod helpers;
 mod icon;
 mod layer;
-mod log;
 mod single;
 mod structs;
 mod templates;
@@ -44,7 +43,7 @@ pub fn main() -> Result<()> {
         Box::new(move |cc| {
             let mut app = DygmaLayerSwitcher::new(cc);
             app.configuration_changed = true;
-            log::init(app.logging);
+            egui_logger::init().unwrap();
             windows::start(); // Creates a thread that listens for window focus changes.
             Box::new(app)
         }),

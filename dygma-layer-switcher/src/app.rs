@@ -8,8 +8,8 @@ use eframe::egui::{
 };
 use eframe::{egui, Frame, Storage};
 use lazy_static::lazy_static;
+use log::{trace, warn};
 use std::sync::{Arc, Mutex};
-use tracing::{trace, warn};
 
 pub const MAX_LAYERS: u8 = 10;
 
@@ -20,9 +20,6 @@ lazy_static! {
 
 impl DygmaLayerSwitcher {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        // This is also where you can customize the look and feel of egui using
-        // `cc.egui_ctx.set_visuals` and `cc.egui_ctx.set_fonts`.
-
         if let Some(storage) = cc.storage {
             return eframe::get_value(storage, eframe::APP_KEY).unwrap_or_default();
         }
@@ -339,6 +336,15 @@ impl eframe::App for DygmaLayerSwitcher {
         self.detect_configuration_changes();
         self.top_panel(ctx);
         self.central_panel(ctx);
+
+        egui::Window::new("Log")
+            .open(&mut self.logging)
+            .drag_to_scroll(true)
+            .title_bar(true)
+            .show(ctx, |ui| {
+                egui_logger::logger_ui(ui);
+                ctx.request_repaint();
+            });
     }
 
     fn save(&mut self, storage: &mut dyn Storage) {

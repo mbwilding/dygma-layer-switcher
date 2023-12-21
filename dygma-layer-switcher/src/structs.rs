@@ -1,14 +1,16 @@
 use crate::app::MAX_LAYERS;
-use crate::focus::Focus;
+use crate::focus::{Device, Focus};
 use crate::verbiage;
+use log::error;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
-use tracing::error;
 
 #[derive(Deserialize, Serialize)]
 #[serde(default)]
 pub struct DygmaLayerSwitcher {
+    #[serde(skip)]
     pub logging: bool,
+
     pub port: String,
     pub base_layer: u8,
     pub mappings: BTreeMap<u8, Layer>,
@@ -36,7 +38,10 @@ impl Default for DygmaLayerSwitcher {
         let focus = Focus::default();
         let port = focus.find_first().unwrap_or_else(|_| {
             error!("{}", verbiage::ERROR_NO_KEYBOARD);
-            std::process::exit(1);
+            Device {
+                name: verbiage::ERROR_NO_KEYBOARD,
+                port: verbiage::ERROR_NO_KEYBOARD.to_string(),
+            }
         });
 
         Self {

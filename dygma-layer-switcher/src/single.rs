@@ -1,7 +1,7 @@
 use crate::verbiage;
 use anyhow::Result;
+use log::error;
 use single_instance::SingleInstance;
-use tracing::error;
 
 pub fn check() -> Result<()> {
     let instance = SingleInstance::new(verbiage::APP_NAME)?;

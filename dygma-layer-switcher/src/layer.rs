@@ -2,9 +2,9 @@ use crate::app::CONFIGURATION;
 use crate::focus::Focus;
 use crate::structs::{AppDetails, Configuration, Mode};
 use lazy_static::lazy_static;
+use log::{debug, error, info};
 use std::sync::Mutex;
 use sysinfo::System;
-use tracing::{debug, error, info};
 
 lazy_static! {
     static ref SYSTEM: Mutex<System> = Mutex::new(System::new_all());
