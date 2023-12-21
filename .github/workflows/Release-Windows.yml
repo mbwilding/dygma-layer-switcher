@@ -15,6 +15,13 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@master
 
+      - name: "Extract Package Version"
+        id: cargo-version
+        run: |
+          version=v$(grep -oP 'version\s*=\s*"\K[0-9]+\.[0-9]+\.[0-9]+' dygma-layer-switcher/Cargo.toml | head -n 1)
+          echo "PACKAGE_VERSION=$version"
+          echo "PACKAGE_VERSION=$version" >> $GITHUB_ENV
+
       - name: "Set up Rust"
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -27,26 +34,22 @@ jobs:
       - name: "Build"
         run: cargo build --release --target ${{ matrix.target }}
 
-      - name: "Extract Cargo Package Version"
-        id: cargo-version
-        run: echo "CARGO_VERSION=v$(grep -oP 'version\s*=\s*"\K[0-9]+\.[0-9]+\.[0-9]+' dygma-layer-switcher/Cargo.toml | head -n 1" >> $GITHUB_ENV
-
       - name: "Create Git Tag"
         run: |
           git config --local user.name "GitHub Action"
           git config --local user.email "action@github.com"
-          git tag -a ${{ env.CARGO_VERSION }} -m "${{ env.CARGO_VERSION }}"
-          git push origin ${{ env.CARGO_VERSION }}
+          git tag -a ${{ env.PACKAGE_VERSION }} -m "${{ env.PACKAGE_VERSION }}"
+          git push origin ${{ env.PACKAGE_VERSION }}
 
       - name: "Zip"
         run: |
           cp target/${{ matrix.target }}/release/dygma-layer-switcher.exe .
-          zip dls-${{ env.CARGO_VERSION }}-${{ matrix.target }}.zip dygma-layer-switcher.exe
+          zip dls-${{ env.PACKAGE_VERSION }}-${{ matrix.target }}.zip dygma-layer-switcher.exe
 
       - name: "Create GitHub Release"
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.CARGO_VERSION }}
-          release_name: ${{ env.CARGO_VERSION }}
+          tag_name: ${{ env.PACKAGE_VERSION }}
+          release_name: ${{ env.PACKAGE_VERSION }}
           files: |
-            dls-${{ env.CARGO_VERSION }}-${{ matrix.target }}.zip
+            dls-${{ env.PACKAGE_VERSION }}-${{ matrix.target }}.zip
