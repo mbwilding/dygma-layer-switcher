@@ -14,6 +14,6 @@ jobs:
       - name: "Extract Cargo Package Version"
         id: cargo-version
         run: |
-          CARGO_VERSION=$(grep -oP 'version\s*=\s*"\K[0-9]+\.[0-9]+\.[0-9]+' your_file_name | head -n 1)
+          CARGO_VERSION=$(grep -oP 'version\s*=\s*"\K[0-9]+\.[0-9]+\.[0-9]+' dygma-layer-switcher/Cargo.toml | head -n 1)
           export CARGO_VERSION
           echo $CARGO_VERSION
