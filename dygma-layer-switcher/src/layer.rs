@@ -7,7 +7,7 @@ use std::sync::Mutex;
 use sysinfo::System;
 
 lazy_static! {
-    static ref SYSTEM: Mutex<System> = Mutex::new(System::new_all());
+    static ref SYSTEM: Mutex<System> = Mutex::new(System::new());
 }
 
 pub fn process(app_details: &AppDetails) {
