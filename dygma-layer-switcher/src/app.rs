@@ -1,8 +1,8 @@
-use crate::focus::Focus;
 use crate::helpers::remove_opt_index;
 use crate::structs::*;
 use crate::templates::*;
 use crate::verbiage;
+use dygma_focus::Focus;
 use eframe::egui::{
     CentralPanel, CollapsingHeader, Context, DragValue, ScrollArea, TopBottomPanel,
 };

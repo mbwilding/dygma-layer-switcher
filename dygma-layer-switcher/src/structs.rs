@@ -1,6 +1,7 @@
 use crate::app::MAX_LAYERS;
-use crate::focus::{Device, Focus};
 use crate::verbiage;
+use dygma_focus::devices::Device;
+use dygma_focus::Focus;
 use log::error;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};

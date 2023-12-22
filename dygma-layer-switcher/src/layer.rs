@@ -1,6 +1,6 @@
 use crate::app::CONFIGURATION;
-use crate::focus::Focus;
 use crate::structs::{AppDetails, Configuration, Mode};
+use dygma_focus::Focus;
 use lazy_static::lazy_static;
 use log::{debug, error, info};
 use std::sync::Mutex;

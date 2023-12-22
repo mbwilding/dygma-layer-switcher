@@ -6,6 +6,7 @@ authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 
 [dependencies]
 anyhow = "1.0"
+dygma_focus = { git = "https://github.com/mbwilding/dygma-focus-api-rs.git"}
 eframe = { version = "0.24", default-features = false, features = [
     "default_fonts",
     "wgpu",
