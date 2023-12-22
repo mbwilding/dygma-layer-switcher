@@ -1,10 +1,17 @@
 extern crate embed_resource;
 
 fn main() {
-    embed_resource::compile("../assets/windows/icon.rc", embed_resource::NONE);
+    let windows = "../assets/windows";
+
+    embed(&format!("{}/icon.rc", windows));
 
     // Admin allows us to get the process of windows running in elevated user-space.
-    if !cfg!(feature = "no-admin") && !cfg!(debug_assertions) {
-        embed_resource::compile("../assets/windows/manifest.rc", embed_resource::NONE);
+    if !cfg!(feature = "no-admin") {
+        embed(&format!("{}/admin.rc", windows));
     }
+}
+
+fn embed(path: &str) {
+    println!("cargo:rerun-if-changed={}", path);
+    embed_resource::compile(path, embed_resource::NONE);
 }

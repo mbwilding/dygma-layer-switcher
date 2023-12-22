@@ -44,7 +44,8 @@ jobs:
       - name: "Zip"
         run: |
           cp target/${{ matrix.target }}/release/dygma-layer-switcher.exe .
-          zip dls-${{ env.PACKAGE_VERSION }}-${{ matrix.target }}.zip dygma-layer-switcher.exe
+          mv dygma-layer-switcher.exe "Dygma Layer Switcher.exe"
+          zip dls-${{ env.PACKAGE_VERSION }}-${{ matrix.target }}.zip "Dygma Layer Switcher.exe"
 
       - name: "Create GitHub Release"
         uses: softprops/action-gh-release@v1
