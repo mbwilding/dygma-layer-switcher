@@ -98,11 +98,13 @@ impl Focus {
             .stop_bits(serialport::StopBits::One)
             .timeout(Duration::from_secs(5));
 
-        let port = port_settings.open().map_err(|e| {
+        let mut port = port_settings.open().map_err(|e| {
             let err_msg = format!("Failed to open serial port: {} ({:?})", &port, e);
             error!("{}", err_msg);
             anyhow!(err_msg)
         })?;
+
+        port.write_data_terminal_ready(true)?;
 
         self.port = Some(port);
 
