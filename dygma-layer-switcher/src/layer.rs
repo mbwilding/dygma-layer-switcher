@@ -1,6 +1,6 @@
 use crate::app::CONFIGURATION;
 use crate::structs::{AppDetails, Configuration, Mode};
-use dygma_focus::Focus;
+use dygma_focus::prelude::*;
 use lazy_static::lazy_static;
 use log::{debug, error, info};
 use std::sync::Mutex;
@@ -22,9 +22,9 @@ pub fn process(app_details: &AppDetails) {
 }
 
 fn layer_change(config: &Configuration, layer: u8) {
-    let mut focus = Focus::new();
-    match focus.focus_open_via_port(&config.port) {
-        Ok(_) => {
+    let focus = Focus::new_via_port(&config.port);
+    match focus {
+        Ok(mut focus) => {
             if let Err(e) = focus.layer_move_to(layer) {
                 error!("Failed to write to serial port '{}': {:?}", &config.port, e);
             } else {

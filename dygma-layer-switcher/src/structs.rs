@@ -1,7 +1,6 @@
 use crate::app::MAX_LAYERS;
 use crate::verbiage;
-use dygma_focus::devices::Device;
-use dygma_focus::Focus;
+use dygma_focus::prelude::*;
 use log::error;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -36,10 +35,9 @@ pub struct DygmaLayerSwitcher {
 
 impl Default for DygmaLayerSwitcher {
     fn default() -> Self {
-        let focus = Focus::new();
-        let port = focus.focus_find_first().unwrap_or_else(|_| {
+        let port = Keyboard::find_first_keyboard().unwrap_or_else(|_| {
             error!("{}", verbiage::ERROR_NO_KEYBOARD);
-            Device {
+            Keyboard {
                 name: verbiage::ERROR_NO_KEYBOARD,
                 port: verbiage::ERROR_NO_KEYBOARD.to_string(),
             }

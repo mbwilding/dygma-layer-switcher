@@ -2,7 +2,6 @@ use crate::helpers::remove_opt_index;
 use crate::structs::*;
 use crate::templates::*;
 use crate::verbiage;
-use dygma_focus::Focus;
 use eframe::egui::{
     CentralPanel, CollapsingHeader, Context, DragValue, ScrollArea, TopBottomPanel,
 };
@@ -10,6 +9,7 @@ use eframe::{egui, Frame, Storage};
 use lazy_static::lazy_static;
 use log::{trace, warn};
 use std::sync::{Arc, Mutex};
+use dygma_focus::prelude::*;
 
 pub const MAX_LAYERS: u8 = 10;
 
@@ -45,8 +45,8 @@ impl DygmaLayerSwitcher {
                 .on_hover_text(verbiage::SETTING_PORT_REFRESH_HINT)
                 .clicked()
             {
-                let focus = Focus::new();
-                match focus.focus_find_first() {
+                let keyboard = Keyboard::find_first_keyboard();
+                match keyboard {
                     Ok(port) => {
                         self.port = port.port;
                         self.configuration_changed = true;
