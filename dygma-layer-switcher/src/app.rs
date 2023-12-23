@@ -46,7 +46,7 @@ impl DygmaLayerSwitcher {
                 .clicked()
             {
                 let focus = Focus::default();
-                match focus.device_find_first() {
+                match focus.focus_find_first() {
                     Ok(port) => {
                         self.port = port.port;
                         self.configuration_changed = true;

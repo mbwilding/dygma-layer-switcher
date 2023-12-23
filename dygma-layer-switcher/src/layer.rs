@@ -23,7 +23,7 @@ pub fn process(app_details: &AppDetails) {
 
 fn layer_change(config: &Configuration, layer: u8) {
     let mut focus = Focus::default();
-    match focus.device_open_via_port(&config.port) {
+    match focus.focus_open_via_port(&config.port) {
         Ok(_) => {
             if let Err(e) = focus.layer_move_to(layer) {
                 error!("Failed to write to serial port '{}': {:?}", &config.port, e);
