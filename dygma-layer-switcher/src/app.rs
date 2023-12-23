@@ -45,7 +45,7 @@ impl DygmaLayerSwitcher {
                 .on_hover_text(verbiage::SETTING_PORT_REFRESH_HINT)
                 .clicked()
             {
-                let focus = Focus::default();
+                let focus = Focus::new();
                 match focus.focus_find_first() {
                     Ok(port) => {
                         self.port = port.port;

@@ -22,7 +22,7 @@ pub fn process(app_details: &AppDetails) {
 }
 
 fn layer_change(config: &Configuration, layer: u8) {
-    let mut focus = Focus::default();
+    let mut focus = Focus::new();
     match focus.focus_open_via_port(&config.port) {
         Ok(_) => {
             if let Err(e) = focus.layer_move_to(layer) {

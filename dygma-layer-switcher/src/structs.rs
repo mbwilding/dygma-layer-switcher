@@ -36,7 +36,7 @@ pub struct DygmaLayerSwitcher {
 
 impl Default for DygmaLayerSwitcher {
     fn default() -> Self {
-        let focus = Focus::default();
+        let focus = Focus::new();
         let port = focus.focus_find_first().unwrap_or_else(|_| {
             error!("{}", verbiage::ERROR_NO_KEYBOARD);
             Device {
