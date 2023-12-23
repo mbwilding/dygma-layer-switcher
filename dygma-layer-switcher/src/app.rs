@@ -2,6 +2,7 @@ use crate::helpers::remove_opt_index;
 use crate::structs::*;
 use crate::templates::*;
 use crate::verbiage;
+use dygma_focus::prelude::*;
 use eframe::egui::{
     CentralPanel, CollapsingHeader, Context, DragValue, ScrollArea, TopBottomPanel,
 };
@@ -9,7 +10,6 @@ use eframe::{egui, Frame, Storage};
 use lazy_static::lazy_static;
 use log::{trace, warn};
 use std::sync::{Arc, Mutex};
-use dygma_focus::prelude::*;
 
 pub const MAX_LAYERS: u8 = 10;
 
