@@ -1,6 +1,6 @@
 [package]
 name = "dygma-layer-switcher"
-version = "0.3.9"
+version = "0.3.10"
 edition = "2021"
 authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 build = "build.rs"
@@ -13,14 +13,14 @@ eframe = { version = "0.26", default-features = false, features = [
     "wgpu",
     "persistence",
 ] }
-egui_logger = "0.4"
 image = "0.24"
 lazy_static = "1.4"
-log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serialport = "4.3"
 single-instance = "0.3"
 sysinfo = "0.30"
+tracing = { version = "0.1", features = ["log"] }
+tracing-subscriber = { version = "0.3", default-features = false, features = ["env-filter", "fmt"] }
 windows = { version = "0.52", features = [
     "Win32_Foundation",
     "Win32_UI_Accessibility",

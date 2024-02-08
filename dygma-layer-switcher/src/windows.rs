@@ -1,10 +1,11 @@
 use crate::layer;
 use crate::structs::AppDetails;
-use log::{error, info, trace};
 use std::path::Path;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;
+use tracing::{error, info, trace};
 use windows::core::PCWSTR;
+use windows::Win32::Foundation::CloseHandle;
 use windows::Win32::{
     Foundation::{HWND, MAX_PATH},
     System::{
@@ -139,6 +140,7 @@ unsafe fn get_process(window_handle: HWND) -> String {
 
     let mut exe_path_bytes: Vec<u16> = vec![0; MAX_PATH as usize];
     let exe_path_length = K32GetModuleFileNameExW(process_handle, None, &mut exe_path_bytes);
+    let _ = CloseHandle(process_handle);
     let exe_path = String::from_utf16_lossy(&exe_path_bytes[..exe_path_length as usize]);
 
     trace!("Process: {:?}", exe_path);

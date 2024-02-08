@@ -1,16 +1,13 @@
 use crate::app::MAX_LAYERS;
 use crate::verbiage;
 use dygma_focus::prelude::*;
-use log::error;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
+use tracing::error;
 
 #[derive(Deserialize, Serialize)]
 #[serde(default)]
 pub struct DygmaLayerSwitcher {
-    #[serde(skip)]
-    pub logging: bool,
-
     pub port: String,
     pub base_layer: u8,
     pub mappings: BTreeMap<u8, Layer>,
@@ -44,7 +41,6 @@ impl Default for DygmaLayerSwitcher {
         });
 
         Self {
-            logging: false,
             port: device.serial_port,
             base_layer: 1,
             mappings: (0..MAX_LAYERS)

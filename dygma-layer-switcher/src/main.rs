@@ -1,11 +1,13 @@
 // hide console window on Windows
-#![windows_subsystem = "windows"]
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use crate::structs::DygmaLayerSwitcher;
 use anyhow::Result;
 use eframe::egui::ViewportBuilder;
 use eframe::*;
 use std::sync::Arc;
+use tracing::level_filters::LevelFilter;
+use tracing_subscriber::EnvFilter;
 
 mod app;
 mod helpers;
@@ -18,6 +20,17 @@ mod verbiage;
 mod windows;
 
 pub fn main() -> Result<()> {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            EnvFilter::builder()
+                .with_default_directive(LevelFilter::OFF.into())
+                .from_env_lossy(),
+        )
+        .with_target(false)
+        .without_time()
+        .compact()
+        .init();
+
     single::check()?;
 
     run_native(
@@ -42,7 +55,6 @@ pub fn main() -> Result<()> {
         Box::new(move |cc| {
             let mut app = DygmaLayerSwitcher::new(cc);
             app.configuration_changed = true;
-            egui_logger::init().unwrap();
             windows::start(); // Creates a thread that listens for window focus changes.
             Box::new(app)
         }),

@@ -8,8 +8,8 @@ use eframe::egui::{
 };
 use eframe::{egui, Frame, Storage};
 use lazy_static::lazy_static;
-use log::{trace, warn};
 use std::sync::{Arc, Mutex};
+use tracing::{trace, warn};
 
 pub const MAX_LAYERS: u8 = 10;
 
@@ -25,15 +25,6 @@ impl DygmaLayerSwitcher {
         }
 
         Default::default()
-    }
-
-    fn logging_control(&mut self, ui: &mut egui::Ui) {
-        ui.horizontal(|ui| {
-            ui.label(verbiage::SETTING_LOGGING)
-                .on_hover_text(verbiage::SETTING_LOGGING_HINT);
-            ui.checkbox(&mut self.logging, "")
-                .on_hover_text(verbiage::SETTING_LOGGING_HINT);
-        });
     }
 
     fn port_control(&mut self, ui: &mut egui::Ui) {
@@ -116,7 +107,6 @@ impl DygmaLayerSwitcher {
             CollapsingHeader::new(verbiage::SETTINGS)
                 .default_open(true)
                 .show(ui, |ui| {
-                    self.logging_control(ui);
                     self.port_control(ui);
                     self.base_layer_control(ui);
                     self.hidden_layer_control(ui);
@@ -337,15 +327,6 @@ impl eframe::App for DygmaLayerSwitcher {
         self.detect_configuration_changes();
         self.top_panel(ctx);
         self.central_panel(ctx);
-
-        egui::Window::new("Log")
-            .open(&mut self.logging)
-            .drag_to_scroll(true)
-            .title_bar(true)
-            .show(ctx, |ui| {
-                egui_logger::logger_ui(ui);
-                ctx.request_repaint();
-            });
     }
 
     fn save(&mut self, storage: &mut dyn Storage) {
