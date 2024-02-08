@@ -45,10 +45,10 @@ impl DygmaLayerSwitcher {
                 .on_hover_text(verbiage::SETTING_PORT_REFRESH_HINT)
                 .clicked()
             {
-                let keyboard = Keyboard::find_first_keyboard();
-                match keyboard {
+                let device = Focus::find_first_device();
+                match device {
                     Ok(port) => {
-                        self.port = port.port;
+                        self.port = port.serial_port;
                         self.configuration_changed = true;
                     }
                     Err(_) => warn!("{}", verbiage::ERROR_NO_KEYBOARD),

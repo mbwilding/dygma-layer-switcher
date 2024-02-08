@@ -35,17 +35,17 @@ pub struct DygmaLayerSwitcher {
 
 impl Default for DygmaLayerSwitcher {
     fn default() -> Self {
-        let port = Keyboard::find_first_keyboard().unwrap_or_else(|_| {
+        let device = Focus::find_first_device().unwrap_or_else(|_| {
             error!("{}", verbiage::ERROR_NO_KEYBOARD);
-            Keyboard {
-                name: verbiage::ERROR_NO_KEYBOARD,
-                port: verbiage::ERROR_NO_KEYBOARD.to_string(),
+            Device {
+                hardware: types::hardware_virtual::DEFY_WIRELESS_VIRTUAL,
+                serial_port: verbiage::ERROR_NO_KEYBOARD.to_string(),
             }
         });
 
         Self {
             logging: false,
-            port: port.port,
+            port: device.serial_port,
             base_layer: 1,
             mappings: (0..MAX_LAYERS)
                 .map(|i| (i, Layer::new(i)))

@@ -101,10 +101,10 @@ pub unsafe fn app_details_from_window_handle(window_handle: HWND) -> AppDetails 
 ///
 /// WinAPI.
 unsafe fn get_window(h_wnd: HWND) -> String {
-    let title_length = GetWindowTextLengthW(h_wnd) + 1;
-    let mut window: Vec<u16> = vec![0; title_length as usize];
+    let title_length = GetWindowTextLengthW(h_wnd);
+    let mut window: Vec<u16> = vec![0; title_length as usize + 1];
     let _ = GetWindowTextW(h_wnd, window.as_mut_slice());
-    let window = String::from_utf16_lossy(&window[..title_length as usize - 1]);
+    let window = String::from_utf16_lossy(&window[..title_length as usize]);
     trace!("Window: {:?}", window);
 
     window
@@ -116,7 +116,7 @@ unsafe fn get_window(h_wnd: HWND) -> String {
 unsafe fn get_process(window_handle: HWND) -> String {
     let mut process_id: u32 = 0;
 
-    let thread_id = GetWindowThreadProcessId(window_handle, Some(&mut process_id as *mut u32));
+    let thread_id = GetWindowThreadProcessId(window_handle, Some(&mut process_id));
 
     if thread_id == 0 {
         error!("Failed to retrieve process ID");
