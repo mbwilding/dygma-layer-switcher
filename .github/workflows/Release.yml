@@ -32,6 +32,9 @@ jobs:
           toolchain: stable
           targets: ${{ matrix.target }}
 
+      - name: "Update Package List"
+        run: sudo apt-get update -y
+
       - name: "Install Dependencies"
         run: sudo apt-get install -y mingw-w64 libudev-dev zip wine64
 
