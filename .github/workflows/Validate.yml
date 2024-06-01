@@ -13,6 +13,13 @@ jobs:
   checks:
     name: "Checks"
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - x86_64-pc-windows-gnu
+          # - aarch64-pc-windows-gnu
+          # - x86_64-unknown-linux-gnu
+          # - x86_64-apple-darwin
 
     steps:
       - name: "Checkout"
@@ -23,7 +30,7 @@ jobs:
         with:
           toolchain: stable
           components: rustfmt, clippy
-          target: x86_64-pc-windows-gnu
+          target: ${{ matrix.target }}
 
       - name: "Dependencies"
         run: sudo apt-get install -y ${{ env.APT_PACKAGES }}
@@ -32,4 +39,4 @@ jobs:
         run: cargo fmt -- --check
 
       - name: "Clippy"
-        run: cargo clippy --target x86_64-pc-windows-gnu -- -D warnings
+        run: cargo clippy --target ${{ matrix.target }} -- -D warnings
