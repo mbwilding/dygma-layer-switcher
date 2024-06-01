@@ -1,4 +1,4 @@
-name:
+name: Build and Release
 
 on:
   workflow_dispatch:
@@ -11,7 +11,9 @@ jobs:
       matrix:
         target:
           - x86_64-pc-windows-gnu
-          - aarch64-pc-windows-gnu
+          # - aarch64-pc-windows-gnu
+          # - x86_64-unknown-linux-gnu
+          # - x86_64-apple-darwin
 
     steps:
       - name: "Checkout"
@@ -27,7 +29,7 @@ jobs:
       - name: "Set up Rust"
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: nightly
+          toolchain: stable
           targets: ${{ matrix.target }}
 
       - name: "Install Dependencies"
@@ -38,9 +40,15 @@ jobs:
 
       - name: "Zip"
         run: |
-          cp target/${{ matrix.target }}/release/dygma-layer-switcher.exe .
-          mv dygma-layer-switcher.exe "Dygma Layer Switcher.exe"
-          zip dls-${{ env.PACKAGE_VERSION }}-${{ matrix.target }}.zip "Dygma Layer Switcher.exe"
+          if [[ "${{ matrix.target }}" == *"windows"* ]]; then
+            executable_name="dygma-layer-switcher.exe"
+            cp target/${{ matrix.target }}/release/dygma-layer-switcher.exe .
+          else
+            executable_name="dygma-layer-switcher"
+            cp target/${{ matrix.target }}/release/dygma-layer-switcher .
+          fi
+          mv $executable_name "Dygma Layer Switcher"
+          zip dls-${{ env.PACKAGE_VERSION }}-${{ matrix.target }}.zip "Dygma Layer Switcher"
         env:
           PACKAGE_VERSION: ${{ env.PACKAGE_VERSION }}
 
