@@ -313,7 +313,7 @@ impl DygmaLayerSwitcher {
     fn detect_configuration_changes(&mut self) {
         if self.configuration_changed {
             let mut state = CONFIGURATION.lock().unwrap();
-            state.port = self.port.clone();
+            state.port.clone_from(&self.port);
             state.base_layer = self.base_layer;
             state.mappings = self.mappings.clone();
             self.configuration_changed = false;

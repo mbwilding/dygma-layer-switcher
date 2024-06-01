@@ -50,7 +50,7 @@ pub fn start() {
         loop {
             // Will wait here for a message, so no sleep is needed in the loop
             // This is a blocking call on a thread, but is required for the hook to work
-            GetMessageW(&mut msg, HWND(0), 0, 0);
+            let _ = GetMessageW(&mut msg, HWND(0), 0, 0);
         }
     });
 }
