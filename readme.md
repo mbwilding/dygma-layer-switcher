@@ -1,6 +1,6 @@
 # Dygma Layer Switcher
 
-![Dygma Layer Switcher](images/1.png)
+![Dygma Layer Switcher](assets/showcase.png)
 
 ## [Download](https://github.com/mbwilding/dygma-layer-switcher/releases)
 
