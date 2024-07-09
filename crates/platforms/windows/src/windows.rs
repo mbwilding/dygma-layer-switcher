@@ -1,9 +1,9 @@
-use crate::layer;
-use crate::structs::AppDetails;
+use common::layer;
+use common::structs::AppDetails;
+use log::{error, info, trace};
 use std::path::Path;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;
-use tracing::{error, info, trace};
 use windows::core::PCWSTR;
 use windows::Win32::Foundation::CloseHandle;
 use windows::Win32::{

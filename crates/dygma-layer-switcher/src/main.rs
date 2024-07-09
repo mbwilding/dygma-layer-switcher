@@ -1,8 +1,9 @@
 // hide console window on Windows
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use crate::structs::DygmaLayerSwitcher;
 use anyhow::Result;
+use common::structs::DygmaLayerSwitcher;
+use common::verbiage;
 use eframe::egui::ViewportBuilder;
 use eframe::*;
 use std::sync::Arc;
@@ -12,12 +13,8 @@ use tracing_subscriber::EnvFilter;
 mod app;
 mod helpers;
 mod icon;
-mod layer;
 mod single;
-mod structs;
 mod templates;
-mod verbiage;
-mod windows;
 
 pub fn main() -> Result<()> {
     tracing_subscriber::fmt()
@@ -48,15 +45,16 @@ pub fn main() -> Result<()> {
                 .with_minimize_button(true)
                 .with_maximize_button(true)
                 .with_icon(Arc::new(icon::load_icon(include_bytes!(
-                    "../../assets/icons/icon.ico"
+                    "../../../assets/icons/icon.ico"
                 )))),
             ..Default::default()
         },
         Box::new(move |cc| {
             let mut app = DygmaLayerSwitcher::new(cc);
             app.configuration_changed = true;
-            windows::start(); // Creates a thread that listens for window focus changes.
-            Box::new(app)
+            #[cfg(windows)]
+            windows::windows::start(); // Creates a thread that listens for window focus changes.
+            Ok(Box::new(app))
         }),
     )?;
 

@@ -1,7 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-    "dygma-layer-switcher",
+    "crates/dygma-layer-switcher",
+    "crates/common",
+    "crates/platforms/windows",
 ]
 
 [profile.release]

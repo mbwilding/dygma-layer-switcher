@@ -1,61 +1,15 @@
-use crate::app::MAX_LAYERS;
 use crate::verbiage;
+use crate::MAX_LAYERS;
 use dygma_focus::prelude::*;
+use log::error;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
-use tracing::error;
 
-#[derive(Deserialize, Serialize)]
-#[serde(default)]
-pub struct DygmaLayerSwitcher {
-    pub port: String,
-    pub base_layer: u8,
-    pub mappings: BTreeMap<u8, Layer>,
-    pub hidden_layers: BTreeSet<u8>,
-    pub window_visible: bool,
-
-    #[serde(skip)]
-    pub editing_port: bool,
-
-    #[serde(skip)]
-    pub remove_app: Option<usize>,
-
-    #[serde(skip)]
-    pub remove_exclude: Option<usize>,
-
-    #[serde(skip)]
-    pub remove_hidden_layer: Option<u8>,
-
-    #[serde(skip)]
-    pub configuration_changed: bool,
-}
-
-impl Default for DygmaLayerSwitcher {
-    fn default() -> Self {
-        let device = Focus::find_first_device().unwrap_or_else(|_| {
-            error!("{}", verbiage::ERROR_NO_KEYBOARD);
-            Device {
-                hardware: types::hardware_virtual::DEFY_WIRELESS_VIRTUAL,
-                serial_port: verbiage::ERROR_NO_KEYBOARD.to_string(),
-            }
-        });
-
-        Self {
-            port: device.serial_port,
-            base_layer: 1,
-            mappings: (0..MAX_LAYERS)
-                .map(|i| (i, Layer::new(i)))
-                .collect::<BTreeMap<u8, Layer>>(),
-            hidden_layers: BTreeSet::new(),
-
-            editing_port: false,
-            remove_app: None,
-            remove_exclude: None,
-            remove_hidden_layer: None,
-            window_visible: true,
-            configuration_changed: true,
-        }
-    }
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub enum Mode {
+    Window(Window),
+    Process(Process),
+    Parent(Parent),
 }
 
 pub struct Configuration {
@@ -64,69 +18,10 @@ pub struct Configuration {
     pub mappings: BTreeMap<u8, Layer>,
 }
 
-impl Default for Configuration {
-    fn default() -> Self {
-        Self {
-            port: String::new(),
-            base_layer: 1,
-            mappings: BTreeMap::new(),
-        }
-    }
-}
-
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
-pub struct Layer {
-    pub name: String,
-    pub apps: Vec<App>,
-
-    #[serde(skip)]
-    pub is_editing: bool,
-}
-
-impl Layer {
-    pub fn new(layer: u8) -> Self {
-        Self {
-            name: format!("Layer {}", layer + 1),
-            apps: vec![],
-            is_editing: false,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct App {
-    pub mode: Mode,
-    pub is_enabled: bool,
-}
-
-impl App {
-    pub fn new_window() -> Self {
-        Self {
-            mode: Mode::Window(Window::new()),
-            is_enabled: true,
-        }
-    }
-
-    pub fn new_process() -> Self {
-        Self {
-            mode: Mode::Process(Process::new()),
-            is_enabled: true,
-        }
-    }
-
-    pub fn new_parent() -> Self {
-        Self {
-            mode: Mode::Parent(Parent::new()),
-            is_enabled: true,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub enum Mode {
-    Window(Window),
-    Process(Process),
-    Parent(Parent),
+pub struct AppDetails {
+    pub window: String,
+    pub process: String,
 }
 
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
@@ -201,8 +96,113 @@ impl Exclude {
     }
 }
 
+#[derive(Deserialize, Serialize)]
+#[serde(default)]
+pub struct DygmaLayerSwitcher {
+    pub port: String,
+    pub base_layer: u8,
+    pub mappings: BTreeMap<u8, Layer>,
+    pub hidden_layers: BTreeSet<u8>,
+    pub window_visible: bool,
+
+    #[serde(skip)]
+    pub editing_port: bool,
+
+    #[serde(skip)]
+    pub remove_app: Option<usize>,
+
+    #[serde(skip)]
+    pub remove_exclude: Option<usize>,
+
+    #[serde(skip)]
+    pub remove_hidden_layer: Option<u8>,
+
+    #[serde(skip)]
+    pub configuration_changed: bool,
+}
+
+impl Default for DygmaLayerSwitcher {
+    fn default() -> Self {
+        let device = Focus::find_first_device().unwrap_or_else(|_| {
+            error!("{}", verbiage::ERROR_NO_KEYBOARD);
+            Device {
+                hardware: types::hardware_virtual::DEFY_WIRELESS_VIRTUAL,
+                serial_port: verbiage::ERROR_NO_KEYBOARD.to_string(),
+            }
+        });
+
+        Self {
+            port: device.serial_port,
+            base_layer: 1,
+            mappings: (0..MAX_LAYERS)
+                .map(|i| (i, Layer::new(i)))
+                .collect::<BTreeMap<u8, Layer>>(),
+            hidden_layers: BTreeSet::new(),
+
+            editing_port: false,
+            remove_app: None,
+            remove_exclude: None,
+            remove_hidden_layer: None,
+            window_visible: true,
+            configuration_changed: true,
+        }
+    }
+}
+
+impl Default for Configuration {
+    fn default() -> Self {
+        Self {
+            port: String::new(),
+            base_layer: 1,
+            mappings: BTreeMap::new(),
+        }
+    }
+}
+
 #[derive(Default, Debug, Clone, Deserialize, Serialize)]
-pub struct AppDetails {
-    pub window: String,
-    pub process: String,
+pub struct Layer {
+    pub name: String,
+    pub apps: Vec<App>,
+
+    #[serde(skip)]
+    pub is_editing: bool,
+}
+
+impl Layer {
+    pub fn new(layer: u8) -> Self {
+        Self {
+            name: format!("Layer {}", layer + 1),
+            apps: vec![],
+            is_editing: false,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct App {
+    pub mode: Mode,
+    pub is_enabled: bool,
+}
+
+impl App {
+    pub fn new_window() -> Self {
+        Self {
+            mode: Mode::Window(Window::new()),
+            is_enabled: true,
+        }
+    }
+
+    pub fn new_process() -> Self {
+        Self {
+            mode: Mode::Process(Process::new()),
+            is_enabled: true,
+        }
+    }
+
+    pub fn new_parent() -> Self {
+        Self {
+            mode: Mode::Parent(Parent::new()),
+            is_enabled: true,
+        }
+    }
 }

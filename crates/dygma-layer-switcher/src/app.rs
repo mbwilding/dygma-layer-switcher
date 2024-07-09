@@ -2,6 +2,7 @@ use crate::helpers::remove_opt_index;
 use crate::structs::*;
 use crate::templates::*;
 use crate::verbiage;
+use common::MAX_LAYERS;
 use dygma_focus::prelude::*;
 use eframe::egui::{
     CentralPanel, CollapsingHeader, Context, DragValue, ScrollArea, TopBottomPanel,
@@ -10,13 +11,6 @@ use eframe::{egui, Frame, Storage};
 use lazy_static::lazy_static;
 use std::sync::{Arc, Mutex};
 use tracing::{trace, warn};
-
-pub const MAX_LAYERS: u8 = 10;
-
-lazy_static! {
-    pub static ref CONFIGURATION: Arc<Mutex<Configuration>> =
-        Arc::new(Mutex::new(Configuration::default()));
-}
 
 impl DygmaLayerSwitcher {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
