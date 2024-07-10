@@ -93,7 +93,7 @@ pub unsafe fn app_details_from_window_handle(window_handle: HWND) -> AppDetails 
         process: get_process(window_handle),
     };
 
-    info!("{:?}", app_details);
+    info!("{:?}", &app_details);
 
     app_details
 }

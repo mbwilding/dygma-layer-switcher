@@ -1,0 +1,13 @@
+[package]
+name = "macintosh"
+version = "0.1.0"
+edition = "2021"
+authors = ["Matthew Wilding <mbwilding@gmail.com>"]
+
+[target.'cfg(target_os = "macos")'.dependencies]
+common = { path = "../../common" }
+anyhow = "1.0"
+log = "0.4"
+cocoa = "0.25"
+core-graphics = "0.23"
+objc = "0.2"

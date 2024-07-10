@@ -4,6 +4,7 @@ members = [
     "crates/dygma-layer-switcher",
     "crates/common",
     "crates/platforms/windows",
+    "crates/platforms/macintosh",
 ]
 
 [profile.release]

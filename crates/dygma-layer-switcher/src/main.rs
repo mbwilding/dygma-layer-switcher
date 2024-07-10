@@ -1,5 +1,8 @@
 // hide console window on Windows
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#![cfg_attr(
+    all(not(debug_assertions), target_os = "windows"),
+    windows_subsystem = "windows"
+)]
 
 use anyhow::Result;
 use common::verbiage;
@@ -51,8 +54,13 @@ pub fn main() -> Result<()> {
         Box::new(move |cc| {
             let mut app = app::DygmaLayerSwitcher::new(cc);
             app.configuration_changed = true;
+
             #[cfg(windows)]
-            windows::windows::start(); // Creates a thread that listens for window focus changes.
+            windows::windows::start();
+
+            #[cfg(target_os = "macos")]
+            macintosh::macintosh::start();
+
             Ok(Box::new(app))
         }),
     )?;
