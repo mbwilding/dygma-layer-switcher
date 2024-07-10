@@ -55,7 +55,7 @@ pub fn main() -> Result<()> {
             let mut app = app::DygmaLayerSwitcher::new(cc);
             app.configuration_changed = true;
 
-            #[cfg(windows)]
+            #[cfg(target_os = "windows")]
             windows::windows::start();
 
             #[cfg(target_os = "macos")]

@@ -3,9 +3,9 @@ use crate::{
     CONFIGURATION,
 };
 use lazy_static::lazy_static;
-use log::{debug, error, info};
 use std::sync::Mutex;
 use sysinfo::System;
+use tracing::{debug, error, info};
 
 lazy_static! {
     static ref SYSTEM: Mutex<System> = Mutex::new(System::new());

@@ -5,15 +5,13 @@ use cocoa::appkit::{NSApp, NSApplication, NSWindow};
 use cocoa::base::{id, nil};
 use cocoa::foundation::{NSAutoreleasePool, NSString};
 use common::layer;
-use log::{info, trace};
 use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Sel};
 use objc::{class, msg_send, sel, sel_impl};
+use tracing::{info, trace};
 
 pub fn start() {
-    trace!("Starting event loop thread");
     std::thread::spawn(|| unsafe {
-        trace!("Starting event loop");
         let _pool = NSAutoreleasePool::new(nil);
         let app = NSApp();
 
@@ -22,6 +20,32 @@ pub fn start() {
 
         app.run();
     });
+}
+
+fn create_delegate() -> id {
+    unsafe {
+        let superclass = Class::get("NSObject").unwrap();
+        let mut decl = ClassDecl::new("AppDelegate", superclass).unwrap();
+
+        decl.add_method(
+            sel!(applicationDidFinishLaunching:),
+            application_did_finish_launching as extern "C" fn(&Object, Sel, id),
+        );
+
+        decl.add_method(
+            sel!(applicationDidActivate:),
+            application_did_activate as extern "C" fn(&Object, Sel, id),
+        );
+
+        // decl.add_method(
+        //     sel!(applicationDidDeactivate:),
+        //     application_did_deactivate as extern "C" fn(&Object, Sel, id),
+        // );
+
+        let delegate_class = decl.register();
+        let delegate: id = msg_send![delegate_class, new];
+        delegate
+    }
 }
 
 extern "C" fn application_did_finish_launching(_self: &Object, _cmd: Sel, _notification: id) {
@@ -76,29 +100,3 @@ extern "C" fn application_did_activate(_self: &Object, _cmd: Sel, _notification:
 // extern "C" fn application_did_deactivate(_self: &Object, _cmd: Sel, _notification: id) {
 //     trace!("Application did deactivate (unfocused)");
 // }
-
-fn create_delegate() -> id {
-    unsafe {
-        let superclass = Class::get("NSObject").unwrap();
-        let mut decl = ClassDecl::new("AppDelegate", superclass).unwrap();
-
-        decl.add_method(
-            sel!(applicationDidFinishLaunching:),
-            application_did_finish_launching as extern "C" fn(&Object, Sel, id),
-        );
-
-        decl.add_method(
-            sel!(applicationDidActivate:),
-            application_did_activate as extern "C" fn(&Object, Sel, id),
-        );
-
-        // decl.add_method(
-        //     sel!(applicationDidDeactivate:),
-        //     application_did_deactivate as extern "C" fn(&Object, Sel, id),
-        // );
-
-        let delegate_class = decl.register();
-        let delegate: id = msg_send![delegate_class, new];
-        delegate
-    }
-}
