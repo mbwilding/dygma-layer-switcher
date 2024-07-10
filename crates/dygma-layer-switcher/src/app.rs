@@ -1,16 +1,72 @@
+use crate::templates::editable_collapsing;
+use crate::templates::editable_label;
+use dygma_focus::Focus;
 use crate::helpers::remove_opt_index;
-use crate::structs::*;
-use crate::templates::*;
-use crate::verbiage;
-use common::MAX_LAYERS;
-use dygma_focus::prelude::*;
+use common::*;
+use dygma_focus::hardware::types::hardware_virtual;
+use dygma_focus::hardware::Device;
 use eframe::egui::{
     CentralPanel, CollapsingHeader, Context, DragValue, ScrollArea, TopBottomPanel,
 };
 use eframe::{egui, Frame, Storage};
-use lazy_static::lazy_static;
-use std::sync::{Arc, Mutex};
-use tracing::{trace, warn};
+use serde::{Deserialize, Serialize};
+use std::collections::{BTreeMap, BTreeSet};
+use structs::Layer;
+use tracing::{error, trace, warn};
+use common::structs::{App, Exclude, Mode};
+
+#[derive(Deserialize, Serialize)]
+#[serde(default)]
+pub struct DygmaLayerSwitcher {
+    pub port: String,
+    pub base_layer: u8,
+    pub mappings: BTreeMap<u8, Layer>,
+    pub hidden_layers: BTreeSet<u8>,
+    pub window_visible: bool,
+
+    #[serde(skip)]
+    pub editing_port: bool,
+
+    #[serde(skip)]
+    pub remove_app: Option<usize>,
+
+    #[serde(skip)]
+    pub remove_exclude: Option<usize>,
+
+    #[serde(skip)]
+    pub remove_hidden_layer: Option<u8>,
+
+    #[serde(skip)]
+    pub configuration_changed: bool,
+}
+
+impl Default for DygmaLayerSwitcher {
+    fn default() -> Self {
+        let device = dygma_focus::Focus::find_first_device().unwrap_or_else(|_| {
+            error!("{}", verbiage::ERROR_NO_KEYBOARD);
+            Device {
+                hardware: hardware_virtual::DEFY_WIRELESS_VIRTUAL,
+                serial_port: verbiage::ERROR_NO_KEYBOARD.to_string(),
+            }
+        });
+
+        Self {
+            port: device.serial_port,
+            base_layer: 1,
+            mappings: (0..MAX_LAYERS)
+                .map(|i| (i, Layer::new(i)))
+                .collect::<BTreeMap<u8, Layer>>(),
+            hidden_layers: BTreeSet::new(),
+
+            editing_port: false,
+            remove_app: None,
+            remove_exclude: None,
+            remove_hidden_layer: None,
+            window_visible: true,
+            configuration_changed: true,
+        }
+    }
+}
 
 impl DygmaLayerSwitcher {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
@@ -55,7 +111,7 @@ impl DygmaLayerSwitcher {
             ui.label(verbiage::SETTING_BASE_LAYER)
                 .on_hover_text(verbiage::SETTING_BASE_LAYER_HINT);
             if ui
-                .add(DragValue::new(&mut self.base_layer).clamp_range(1..=MAX_LAYERS))
+                .add(DragValue::new(&mut self.base_layer).range(1..=MAX_LAYERS))
                 .on_hover_text(verbiage::SETTING_BASE_LAYER_VALUE_HINT)
                 .changed()
             {

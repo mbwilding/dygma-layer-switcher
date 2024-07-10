@@ -6,9 +6,11 @@ authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 
 [dependencies]
 common = { path = "../common" }
-windows = { path = "../platforms/windows" }
 
 anyhow = "1.0"
+dygma_focus = { version = "0.4", default-features = false, features = [
+    "is_sync",
+] }
 eframe = { version = "0.28", default-features = false, features = [
     "default_fonts",
     "wgpu",
@@ -31,6 +33,9 @@ no-admin = [] # Disable forced administrator mode on Windows
 
 [target.'cfg(windows)'.package]
 build = "build_win.rs"
+
+[target.'cfg(windows)'.dependencies]
+windows = { path = "../platforms/windows" }
 
 [target.'cfg(windows)'.build-dependencies]
 embed-resource = "2.4"

@@ -1,9 +1,6 @@
 use crate::verbiage;
-use crate::MAX_LAYERS;
-use dygma_focus::prelude::*;
-use log::error;
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum Mode {
@@ -92,59 +89,6 @@ impl Exclude {
             name: verbiage::EDIT_TEXT.to_string(),
             is_enabled: true,
             is_editing: false,
-        }
-    }
-}
-
-#[derive(Deserialize, Serialize)]
-#[serde(default)]
-pub struct DygmaLayerSwitcher {
-    pub port: String,
-    pub base_layer: u8,
-    pub mappings: BTreeMap<u8, Layer>,
-    pub hidden_layers: BTreeSet<u8>,
-    pub window_visible: bool,
-
-    #[serde(skip)]
-    pub editing_port: bool,
-
-    #[serde(skip)]
-    pub remove_app: Option<usize>,
-
-    #[serde(skip)]
-    pub remove_exclude: Option<usize>,
-
-    #[serde(skip)]
-    pub remove_hidden_layer: Option<u8>,
-
-    #[serde(skip)]
-    pub configuration_changed: bool,
-}
-
-impl Default for DygmaLayerSwitcher {
-    fn default() -> Self {
-        let device = Focus::find_first_device().unwrap_or_else(|_| {
-            error!("{}", verbiage::ERROR_NO_KEYBOARD);
-            Device {
-                hardware: types::hardware_virtual::DEFY_WIRELESS_VIRTUAL,
-                serial_port: verbiage::ERROR_NO_KEYBOARD.to_string(),
-            }
-        });
-
-        Self {
-            port: device.serial_port,
-            base_layer: 1,
-            mappings: (0..MAX_LAYERS)
-                .map(|i| (i, Layer::new(i)))
-                .collect::<BTreeMap<u8, Layer>>(),
-            hidden_layers: BTreeSet::new(),
-
-            editing_port: false,
-            remove_app: None,
-            remove_exclude: None,
-            remove_hidden_layer: None,
-            window_visible: true,
-            configuration_changed: true,
         }
     }
 }

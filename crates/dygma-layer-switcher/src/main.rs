@@ -2,7 +2,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use anyhow::Result;
-use common::structs::DygmaLayerSwitcher;
 use common::verbiage;
 use eframe::egui::ViewportBuilder;
 use eframe::*;
@@ -50,7 +49,7 @@ pub fn main() -> Result<()> {
             ..Default::default()
         },
         Box::new(move |cc| {
-            let mut app = DygmaLayerSwitcher::new(cc);
+            let mut app = app::DygmaLayerSwitcher::new(cc);
             app.configuration_changed = true;
             #[cfg(windows)]
             windows::windows::start(); // Creates a thread that listens for window focus changes.
