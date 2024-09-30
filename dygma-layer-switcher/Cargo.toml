@@ -39,7 +39,7 @@ no-admin = [] # Disable forced administrator mode on Windows
 build = "build_win.rs"
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.58", features = [
+windows = { version = "0.56", features = [
     "Win32_Foundation",
     "Win32_UI_Accessibility",
     "Win32_UI_WindowsAndMessaging",
