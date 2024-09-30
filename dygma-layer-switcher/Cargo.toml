@@ -1,6 +1,6 @@
 [package]
 name = "dygma-layer-switcher"
-version = "0.3.11"
+version = "0.3.12"
 edition = "2021"
 authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 
@@ -9,17 +9,17 @@ anyhow = "1.0"
 dygma_focus = { version = "0.4", default-features = false, features = [
     "is_sync",
 ] }
-eframe = { version = "0.27", default-features = false, features = [
+eframe = { version = "0.29", default-features = false, features = [
     "default_fonts",
     "wgpu",
     "persistence",
 ] }
 image = "0.25"
-lazy_static = "1.4"
+lazy_static = "1.5"
 serde = { version = "1.0", features = ["derive"] }
 serialport = "4.3"
 single-instance = "0.3"
-sysinfo = "0.30"
+sysinfo = "0.31"
 tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", default-features = false, features = [
     "env-filter",
@@ -28,7 +28,7 @@ tracing-subscriber = { version = "0.3", default-features = false, features = [
 winit = "0.30"
 
 [build-dependencies]
-embed-resource = "2.4"
+embed-resource = "2.5"
 
 [features]
 no-admin = [] # Disable forced administrator mode on Windows
@@ -39,7 +39,7 @@ no-admin = [] # Disable forced administrator mode on Windows
 build = "build_win.rs"
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.56", features = [
+windows = { version = "0.58", features = [
     "Win32_Foundation",
     "Win32_UI_Accessibility",
     "Win32_UI_WindowsAndMessaging",
