@@ -3,6 +3,7 @@ name = "dygma-layer-switcher"
 version = "0.3.12"
 edition = "2021"
 authors = ["Matthew Wilding <mbwilding@gmail.com>"]
+build = "build_win.rs"
 
 [dependencies]
 anyhow = "1.0"
@@ -27,16 +28,13 @@ tracing-subscriber = { version = "0.3", default-features = false, features = [
 ] }
 winit = "0.30"
 
-[build-dependencies]
-embed-resource = "2.5"
-
 [features]
 no-admin = [] # Disable forced administrator mode on Windows
 
 # Windows
 
-[target.'cfg(windows)'.package]
-build = "build_win.rs"
+[target.'cfg(windows)'.build-dependencies]
+embed-resource = "2.5"
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.56", features = [
