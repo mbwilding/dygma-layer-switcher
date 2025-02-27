@@ -13,5 +13,5 @@ fn main() {
 
 fn embed(path: &str) {
     println!("cargo:rerun-if-changed={}", path);
-    embed_resource::compile(path, embed_resource::NONE);
+    let _ = embed_resource::compile(path, embed_resource::NONE);
 }
