@@ -67,7 +67,7 @@ pub unsafe extern "system" fn window_focused(
     _id_event_thread: u32,
     dwms_event_time: u32,
 ) {
-    if window_handle.0 == std::ptr::null_mut() {
+    if window_handle.0.is_null() {
         return;
     }
 
