@@ -1,19 +1,19 @@
 [package]
 name = "dygma-layer-switcher"
-version = "0.3.12"
+version = "0.3.13"
 edition = "2021"
 authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 build = "build_win.rs"
 
 [build-dependencies]
-embed-resource = "2.5"
+embed-resource = "3.0"
 
 [dependencies]
 anyhow = "1.0"
 dygma_focus = { version = "0.4", default-features = false, features = [
     "is_sync",
 ] }
-eframe = { version = "0.27", default-features = false, features = [
+eframe = { version = "0.31", default-features = false, features = [
     "default_fonts",
     "wgpu",
     "persistence",
@@ -23,14 +23,14 @@ lazy_static = "1.5"
 serde = { version = "1.0", features = ["derive"] }
 serialport = "4.3"
 single-instance = "0.3"
-sysinfo = "0.30"
+sysinfo = "0.33"
 tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3", default-features = false, features = [
     "env-filter",
     "fmt",
 ] }
 winit = "0.30"
-windows = { version = "0.56", features = [
+windows = { version = "0.60", features = [
     "Win32_Foundation",
     "Win32_UI_Accessibility",
     "Win32_UI_WindowsAndMessaging",
