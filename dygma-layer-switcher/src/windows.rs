@@ -50,7 +50,7 @@ pub fn start() {
         loop {
             // Will wait here for a message, so no sleep is needed in the loop
             // This is a blocking call on a thread, but is required for the hook to work
-            let _ = GetMessageW(&mut msg, HWND(0), 0, 0);
+            let _ = GetMessageW(&mut msg, Some(HWND(std::ptr::null_mut())), 0, 0);
         }
     });
 }
@@ -67,7 +67,7 @@ pub unsafe extern "system" fn window_focused(
     _id_event_thread: u32,
     dwms_event_time: u32,
 ) {
-    if window_handle.0 == 0 {
+    if window_handle.0 == std::ptr::null_mut() {
         return;
     }
 
@@ -139,7 +139,7 @@ unsafe fn get_process(window_handle: HWND) -> String {
     trace!("Process handle: {:?}", process_handle.0);
 
     let mut exe_path_bytes: Vec<u16> = vec![0; MAX_PATH as usize];
-    let exe_path_length = K32GetModuleFileNameExW(process_handle, None, &mut exe_path_bytes);
+    let exe_path_length = K32GetModuleFileNameExW(Some(process_handle), None, &mut exe_path_bytes);
     let _ = CloseHandle(process_handle);
     let exe_path = String::from_utf16_lossy(&exe_path_bytes[..exe_path_length as usize]);
 
