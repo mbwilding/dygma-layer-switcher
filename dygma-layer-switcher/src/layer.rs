@@ -74,14 +74,14 @@ fn check_process(config: &Configuration, app_details: &AppDetails) -> Option<u8>
 
 fn check_parent(config: &Configuration, app_details: &AppDetails) -> Option<u8> {
     let mut sys = SYSTEM.lock().unwrap();
-    sys.refresh_processes();
+    sys.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
     debug!("Processes refreshed");
 
     // Find the specified process.
     let specified_process = sys
         .processes()
         .values()
-        .find(|p| p.name() == app_details.process);
+        .find(|p| p.name().to_string_lossy() == app_details.process);
 
     let mut parent_level = 0;
 
@@ -89,11 +89,11 @@ fn check_parent(config: &Configuration, app_details: &AppDetails) -> Option<u8> 
         let mut current_proc = Some(proc);
         while let Some(proc) = current_proc {
             if parent_level != 0 {
-                info!("Parent {}: {}", parent_level, proc.name());
+                info!("Parent {}: {:?}", parent_level, proc.name());
                 for (&layer_number, layer) in &config.mappings {
                     for app in &layer.apps {
                         if let Mode::Parent(ref parent) = app.mode {
-                            if app.is_enabled && parent.name == proc.name() {
+                            if app.is_enabled && parent.name == proc.name().to_string_lossy() {
                                 let is_excluded = parent.excludes.iter().any(|exclude| {
                                     exclude.is_enabled
                                         && exclude.name.to_lowercase()

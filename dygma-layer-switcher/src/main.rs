@@ -36,8 +36,6 @@ pub fn main() -> Result<()> {
     run_native(
         verbiage::APP_NAME,
         NativeOptions {
-            default_theme: Theme::Dark,
-            // follow_system_theme: true,
             persist_window: true,
             centered: false,
             vsync: true,
@@ -56,7 +54,7 @@ pub fn main() -> Result<()> {
             let mut app = DygmaLayerSwitcher::new(cc);
             app.configuration_changed = true;
             windows::start(); // Creates a thread that listens for window focus changes.
-            Box::new(app)
+            Ok(Box::new(app))
         }),
     )?;
 
