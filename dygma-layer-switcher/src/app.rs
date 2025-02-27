@@ -61,7 +61,7 @@ impl DygmaLayerSwitcher {
             ui.label(verbiage::SETTING_BASE_LAYER)
                 .on_hover_text(verbiage::SETTING_BASE_LAYER_HINT);
             if ui
-                .add(DragValue::new(&mut self.base_layer).clamp_range(1..=MAX_LAYERS))
+                .add(DragValue::new(&mut self.base_layer).range(1..=MAX_LAYERS))
                 .on_hover_text(verbiage::SETTING_BASE_LAYER_VALUE_HINT)
                 .changed()
             {
@@ -252,7 +252,7 @@ impl DygmaLayerSwitcher {
 
                                                 if !parent.excludes.is_empty() {
                                                     CollapsingHeader::new(verbiage::MODE_PARENT_EXCLUDES)
-                                                        .id_source(format!("excludes_{}", index))
+                                                        .id_salt(format!("excludes_{}", index))
                                                         .default_open(true)
                                                         .show(ui, |ui| {
                                                             parent

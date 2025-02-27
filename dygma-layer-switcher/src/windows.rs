@@ -36,7 +36,7 @@ pub fn start() {
         let _event_hook = SetWinEventHook(
             EVENT_OBJECT_FOCUS,
             EVENT_OBJECT_FOCUS,
-            module_handle,
+            Some(module_handle),
             Some(window_focused),
             0,
             0,
