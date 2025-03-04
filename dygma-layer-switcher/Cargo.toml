@@ -1,6 +1,6 @@
 [package]
 name = "dygma-layer-switcher"
-version = "0.3.13"
+version = "0.3.14"
 edition = "2021"
 authors = ["Matthew Wilding <mbwilding@gmail.com>"]
 build = "build_win.rs"
