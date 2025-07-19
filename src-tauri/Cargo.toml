@@ -10,15 +10,30 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
+anyhow = "1.0"
+quote = "1.0"
+syn = { version = "2.0", features = ["full"] }
+walkdir = "2.5"
 
 [target.'cfg(windows)'.build-dependencies]
 embed-resource = "3.0"
 
 [dependencies]
-tauri = { version = "2", features = [] }
-tauri-plugin-opener = "2"
+anyhow = "1.0"
+log = "0.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+tauri = { version = "2", features = [] }
+tauri-plugin-devtools = "2"
+tauri-plugin-log = { version = "2", features = ["colored"] }
+tauri-plugin-opener = "2"
+tauri-plugin-os = "2"
+tauri-plugin-store = "2"
+thiserror = "2"
+dygma_focus = { version = "0.5", default-features = false, features = [
+    "serde",
+    "serde_camel_case",
+] }
 
 [features]
 no-admin = [] # Disable forced administrator mode on Windows
