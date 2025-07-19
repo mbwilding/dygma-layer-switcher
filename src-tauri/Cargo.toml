@@ -1,0 +1,31 @@
+[package]
+name = "dygma-layer-switcher"
+version = "2.0.0"
+edition = "2021"
+authors = ["Matthew Wilding <mbwilding@gmail.com>"]
+
+[lib]
+name = "dygma_layer_switcher_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[target.'cfg(windows)'.build-dependencies]
+embed-resource = "3.0"
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[features]
+no-admin = [] # Disable forced administrator mode on Windows
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"

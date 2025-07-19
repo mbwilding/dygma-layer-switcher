@@ -1,9 +1,12 @@
-# Dygma Layer Switcher
+# Tauri + React + Typescript
 
-![Dygma Layer Switcher](assets/showcase.png)
+This template should help get you started developing with Tauri, React and Typescript in Vite.
 
-## [Download](https://github.com/mbwilding/dygma-layer-switcher/releases)
+## Development
 
-### Note
+`bun install`
+`bun tauri dev`
 
-Anti-cheat can prevent the parent mode from working. In that case just add the process by name.
+## Recommended IDE Setup
+
+- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
