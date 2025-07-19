@@ -15,9 +15,7 @@ pub(crate) fn settings(app: &mut App) -> anyhow::Result<()> {
     //   windows: ~\AppData\Roaming\com.mbwilding.dygmalayerswitcher\settings.json
     let store = app.store("settings.json")?;
 
-    let settings_defaults = HashMap::from([
-        ("settings.version", json!(null)),
-    ]);
+    let settings_defaults = HashMap::from([("settings.version", json!(null))]);
 
     for (key, default_value) in &settings_defaults {
         if !store.has(key) {
